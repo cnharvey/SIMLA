@@ -1,0 +1,11 @@
+TO DO
+
+- Debug classical spectra module
+- Have beam and simulation modules as input text files
+- Tidy up quantum module
+- direct all new error calls to error module
+- have error module output to file
+- have 2 matlab files: 1 for everything and 1 for a specific particle number
+- axicon beam
+- correct magnetic field angles so that circularly polarised beams can be at an angle too!
+- improve record fields module
