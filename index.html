@@ -29,9 +29,9 @@
       </header>
       <section>
         <h3>
-<a name="welcome-to-the-simla-github-site" class="anchor" href="#welcome-to-the-simla-github-site"><span class="octicon octicon-link"></span></a>Welcome to the SIMLA GitHub site</h3>
+<a name="welcome-to-the-simla-github-site" class="anchor" href="#welcome-to-the-simla-github-site"><span class="octicon octicon-link"></span></a>Welcome to the Simla GitHub site</h3>
 
-<p>SIMLA is a software poackage for calculating the trajectories of charged particles in an (arbitrary) background field.  The code can operate both in classical and QED modes.</p>
+<p>Simla is a software poackage for calculating the trajectories of charged particles in arbitrary background fields.  The code can operate both in classical and QED modes.</p>
 
 <h3>
 <a name="classical-mode" class="anchor" href="#classical-mode"><span class="octicon octicon-link"></span></a>Classical mode</h3>
@@ -41,12 +41,12 @@
 <h3>
 <a name="qed-mode" class="anchor" href="#qed-mode"><span class="octicon octicon-link"></span></a>QED mode</h3>
 
-<p>In this mode the code calculates the trajectories of electrons in arbitrary background fields undergoing the quantum process of Compton scattering.  The code implements a classical particle pusher that propagates electrons through the background field according to the Lorentz force equation.  At each time step dt the code calls a statistical event generator to determine if a photon has been emitted due to Compton scattering and, if so, its energy.  When a photon is emitted the electron momentum is updated (i.e. recoiled) by subtracting the photon momentum.</p>
+<p>In this mode the code calculates the trajectories of electrons in strong field backgrounds undergoing the quantum process of Compton scattering.  The code implements a classical particle pusher that propagates electrons through the background field according to the Lorentz force equation.  At each time step the code calls a statistical event generator to determine if a photon has been emitted due to Compton scattering and, if so, its energy.  When a photon is emitted the electron momentum is updated (i.e. recoiled) by subtracting the photon momentum.</p>
 
 <h3>
 <a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h3>
 
-<p>The main SIMLA code is written in Fortran 90, with a separate suite of tools written in MATLAB for plotting the output data.  An important feature of SIMLA is its adaptive grid.  Rather than being of a fixed size, the grid adjusts to maintain a constant error.  This allows for much faster calculations than would otherwise be the case - a particle track through a realistic field can be calculated on an ordinary desktop computer in just a few seconds.</p>
+<p>The main Simla code is written in Fortran 90, with a separate suite of tools written in MATLAB for plotting the output data.  An important feature of Simla is its adaptive grid.  Rather than being of a fixed size, the grid adjusts to maintain a constant error.  This allows for much faster calculations than would otherwise be the case - a particle track through a realistic field can be calculated on an ordinary desktop computer in just a few seconds.</p>
 
 <p>SIMLA is not a particle-in-cell code.  It is written for the simulation of high energy collisional experiments where collective effects can be neglected.  An advantage of this is that it can run on an ordinary computer, rather than requiring large scale supercomputing resources. </p>
 
@@ -58,7 +58,7 @@
 <h3>
 <a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
 
-<p>The code is not currently available to the public although I have the long term aim of making it available as a resource to the high-intensity laser science community.  If you would like access or to get involved in development, please contact me via my <a href="https://sites.google.com/site/christophernharvey/home">homepage</a></p>
+<p>The code is not currently available to the public although I have the long term aim of making it available as a resource to the high-intensity laser science community.  If you would like access or to get involved in development, please contact me via my <a href="https://sites.google.com/site/christophernharvey/home">homepage</a>.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/cnharvey">cnharvey</a></p>
