@@ -44,7 +44,7 @@ use constants
 	! =5 for paraxial Gaussian (1st order)
 	! =6 for paraxial Gaussian (5th order)
 	! =7 for constant B field
-  	integer :: beam1 = 5
+  	integer :: beam1 = 2
   	integer :: beam2 = 6
   	
 	! Choose temporal profile:
@@ -87,7 +87,7 @@ use constants
 ! ....and back to the beam
   	double precision, parameter :: w0_1 = 10d-6 * xnormalisation/omega         ! beam waist in metres (only for Paraxial Gaussian)
   	double precision, parameter :: w0_2 = 25d-6 * xnormalisation         ! beam waist in metres (only for Paraxial Gaussian)
-  	double precision, parameter :: a0_1 = 150d0						! intensity
+  	double precision, parameter :: a0_1 = 1d0						! intensity
   	double precision, parameter :: a0_2 = 1d0						! intensity
   	  
     double precision, parameter:: duration1=35d-15 * tnormalisation	! duration in seconds (FWHM)
@@ -110,17 +110,17 @@ module simulationparameters
 	
 	integer, parameter :: qedswitch = 0 ! 1 => use QED MC routines; 0 => don't
 	
-	integer :: eom = 2  		! Set =1 for Lorentz force, =2 for Landau Lifshitz
+	integer :: eom = 1  		! Set =1 for Lorentz force, =2 for Landau Lifshitz
 	integer :: solver = 1		! Set =1 for leapfrog, =2 for backward Euler
 
 
 ! Solver Properties
 
-  	double precision, parameter ::  maxdt=0.000001d0   			! maximum time step
+  	double precision, parameter ::  maxdt=0.001d0   			! maximum time step
   	double precision, parameter ::  mindt=1d-20				! minimum time step
   	double precision, parameter ::  initialdt=1d-2			! initial time step
-  	integer, parameter 			::  writeevery=100			! write data after every __ time steps
-  	double precision, parameter ::  grid_err_tol=1d-12		! error tolerance for adjusting time step
+  	integer, parameter 			::  writeevery=200			! write data after every __ time steps
+  	double precision, parameter ::  grid_err_tol=1d-11		! error tolerance for adjusting time step
 
 
 ! Simulation Box
@@ -139,8 +139,8 @@ module simulationparameters
 ! Write Box
 
 ! Only when the particle is in this box is the data is written to file
-  	double precision, parameter ::  tminw=  -140d-15 * tnormalisation
-  	double precision, parameter ::  tmaxw=  120d-15 * tnormalisation 				! units: seconds
+  	double precision, parameter ::  tminw=  -100d-15 * tnormalisation
+  	double precision, parameter ::  tmaxw=  100d-15 * tnormalisation 				! units: seconds
   	double precision, parameter ::  xmaxw=500d-6 * xnormalisation				!		
   	double precision, parameter ::  ymaxw=1d0 * xnormalisation				!
   	double precision, parameter ::  zmaxw=500d-6 * xnormalisation				!

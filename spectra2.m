@@ -1,17 +1,12 @@
-%clear
 
 
 
-disp('NOTE j2=0')
+ignore_y_current='y';
 
 
-%notau=size(x0);
-%ntau=notau(1);
-%tau=zeros(1,ntau);
-
-
-
-
+if (ignore_y_current =='y')
+    disp('NOTE j2=0')
+end 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,13 +82,17 @@ for taunumber=1:taunumbermax
                 expn=exp(-comp_i*kdotx);
                 W0=u0.*expn;
                 W1=u1.*expn;
-                %W2=u2.*expn;
+                if (ignore_y_current =='n')
+                    W2=u2.*expn;
+                end   
                 W3=u3.*expn;
      
 
                 j0=trapz(tau(taumin:taumax),W0(taumin:taumax));
                 j1=trapz(tau(taumin:taumax),W1(taumin:taumax));
-                %j2=trapz(tau(taumin:taumax),W2(taumin:taumax));
+                if (ignore_y_current =='n')
+                    j2=trapz(tau(taumin:taumax),W2(taumin:taumax));
+                end 
                 j3=trapz(tau(taumin:taumax),W3(taumin:taumax));
 
 
@@ -105,39 +104,52 @@ for taunumber=1:taunumbermax
                 %subtract BCs
                 BC0N=u0(taumax)/(comp_i*kdotuN)*exp(-comp_i*kdotxN);
                 BC1N=u1(taumax)/(comp_i*kdotuN)*exp(-comp_i*kdotxN);
-                %BC2N=u2(taumax)/(comp_i*kdotuN)*exp(-comp_i*kdotxN);
+                if (ignore_y_current =='n')
+                    BC2N=u2(taumax)/(comp_i*kdotuN)*exp(-comp_i*kdotxN);
+                end 
                 BC3N=u3(taumax)/(comp_i*kdotuN)*exp(-comp_i*kdotxN);
 
                 BC0i=u0(taumin)/(comp_i*kdotui)*exp(-comp_i*kdotxi);
                 BC1i=u1(taumin)/(comp_i*kdotui)*exp(-comp_i*kdotxi);
-                %BC2i=u2(taumin)/(comp_i*kdotui)*exp(-comp_i*kdotxi);
+                if (ignore_y_current =='n')
+                    BC2i=u2(taumin)/(comp_i*kdotui)*exp(-comp_i*kdotxi);
+                end 
                 BC3i=u3(taumin)/(comp_i*kdotui)*exp(-comp_i*kdotxi);
 
                 term0=BC0N-BC0i;
                 term1=BC1N-BC1i;
-                %term2=BC2N-BC2i;
+                if (ignore_y_current =='n')
+                    term2=BC2N-BC2i;
+                end 
                 term3=BC3N-BC3i;
 
                 j0=j0+term0;
                 j1=j1+term1;
-                %j2=j2+term2;            
+                if (ignore_y_current =='n')
+                    j2=j2+term2;
+                end            
                 j3=j3+term3;
 
                 j0c=conj(j0);
                 j1c=conj(j1);
-                %j2c=conj(j2);
+                if (ignore_y_current =='n')
+                    j2c=conj(j2);
+                end
                 j3c=conj(j3);
 
             end %k (phi)
-        %modj(l,j)=modj(l,j)+(j0*j0c-j1*j1c-j2*j2c-j3*j3c); 
-        modj(l,j)=modj(l,j)+(j0*j0c-j1*j1c-j3*j3c); 
+        
+            if (ignore_y_current =='n')
+                modj(l,j)=modj(l,j)+(j0*j0c-j1*j1c-j2*j2c-j3*j3c);
+            else
+                modj(l,j)=modj(l,j)+(j0*j0c-j1*j1c-j3*j3c); 
+            end
+            
         end % j(theta)
 
         %modj=0;
 
         spectrum_omegaprime_theta(l,:)=(omegaprime(l)*omegaprime(l))*abs(modj(l,:));
-
-        %modj(l)=modj(l)+(j0*j0c-j1*j1c-j2*j2c-j3*j3c);  
 
         
     end %l (omegaprime)
