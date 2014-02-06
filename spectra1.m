@@ -24,7 +24,7 @@ ntheta=notheta(2);
 phi=0;
 nophi=size(phi);
 nphi=nophi(2);
-omegaprime=[0.01e6:0.01e6:10e6];%[0.01e6:0.01e6:20e6];
+omegaprime=[0.01:0.01:10];%[0.01e6:0.01e6:20e6];
 noomegaprime=size(omegaprime);
 nomegaprime=noomegaprime(2);
 comp_i=sqrt(-1);
@@ -161,8 +161,8 @@ disp(time)
 
 
 figure
-plot(omegaprime/1e6,(omegaprime.*omegaprime).*abs(modj),'k-')
-xlabel('\omega (MeV)')
+plot(omegaprime,(omegaprime.*omegaprime).*abs(modj),'k-')
+xlabel('\omega (eV)')
 ylabel('dP^0')
 
 

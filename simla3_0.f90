@@ -34,7 +34,7 @@ module beamparameters
 use constants
 
 
-	integer :: no_beams = 1
+	integer :: no_beams = 2
 	! Choose beam type:
 	! =0 for no fields
 	! =1 for constant crossed fields
@@ -45,7 +45,8 @@ use constants
 	! =6 for paraxial Gaussian (5th order)
 	! =7 for constant B field
   	integer :: beam1 = 2
-  	integer :: beam2 = 6
+  	integer :: beam2 = 2
+  	integer :: beam3 = 2
   	
 	! Choose temporal profile:
 	! =0 for infinite
@@ -58,15 +59,19 @@ use constants
 	! =7 for super-Gaussian degree 12
   	integer :: profile1 = 4
   	integer :: profile2 = 4
+  	integer :: profile3 = 4
   	
   	double precision, parameter :: beam_angle1 = 0d0 *pi/180.0d0
   	double precision, parameter :: beam_angle2 = 0d0 *pi/180.0d0
-  	double precision, parameter :: lambda_metres1 = 0.8d-6			! wavelength in metres
-  	double precision, parameter :: lambda_metres2 = 0.8d-6			! wavelength in metres
+  	double precision, parameter :: beam_angle3 = 0d0 *pi/180.0d0
+  	double precision, parameter :: lambda_metres1 = 1d-6			! wavelength in metres
+  	double precision, parameter :: lambda_metres2 = 1d-6			! wavelength in metres
+  	double precision, parameter :: lambda_metres3 = 1d-6			! wavelength in metres
   	
   ! leave this :
   	double precision, parameter :: omega1 =1.24d-6/lambda_metres1 	! frequency (defined using lambda)
   	double precision, parameter :: omega2 =1.24d-6/lambda_metres2	! frequency (defined using lambda)
+  	double precision, parameter :: omega3 =1.24d-6/lambda_metres3	! frequency (defined using lambda)
 		! **** these are needed elsewhere in the code! ******
 		double precision, parameter :: omega=omega1
 		double precision, parameter :: lambda_metres=lambda_metres1
@@ -85,13 +90,17 @@ use constants
 !--------------------------------------------------------------------------
 
 ! ....and back to the beam
-  	double precision, parameter :: w0_1 = 10d-6 * xnormalisation/omega         ! beam waist in metres (only for Paraxial Gaussian)
+  	double precision, parameter :: w0_1 = 10d-6 * xnormalisation         ! beam waist in metres (only for Paraxial Gaussian)
   	double precision, parameter :: w0_2 = 25d-6 * xnormalisation         ! beam waist in metres (only for Paraxial Gaussian)
-  	double precision, parameter :: a0_1 = 1d0						! intensity
-  	double precision, parameter :: a0_2 = 1d0						! intensity
+  	double precision, parameter :: w0_3 = 25d-6 * xnormalisation         ! beam waist in metres (only for Paraxial Gaussian)
+  	
+  	double precision, parameter :: a0_1 = 0.605d0						! intensity
+  	double precision, parameter :: a0_2 = 0.605d0						! intensity
+  	double precision, parameter :: a0_3 = 0.605d0						! intensity
   	  
-    double precision, parameter:: duration1=35d-15 * tnormalisation	! duration in seconds (FWHM)
-    double precision, parameter:: duration2=50d-15 * tnormalisation	! duration in seconds (FWHM)
+    double precision, parameter:: duration1=20d-15 * tnormalisation	! duration in seconds (FWHM)
+    double precision, parameter:: duration2=20d-15 * tnormalisation	! duration in seconds (FWHM)
+	double precision, parameter:: duration3=20d-15 * tnormalisation	! duration in seconds (FWHM)
 ! Note here that the duration is in terms of time, t.  Most of the fields are configured
 ! in terms of eta=t-z.  For a plane wave, t-z~ g(1+b)t~ 2gt (?)
   
@@ -116,7 +125,7 @@ module simulationparameters
 
 ! Solver Properties
 
-  	double precision, parameter ::  maxdt=0.001d0   			! maximum time step
+  	double precision, parameter ::  maxdt=0.0001d0   			! maximum time step
   	double precision, parameter ::  mindt=1d-20				! minimum time step
   	double precision, parameter ::  initialdt=1d-2			! initial time step
   	integer, parameter 			::  writeevery=200			! write data after every __ time steps
@@ -140,7 +149,7 @@ module simulationparameters
 
 ! Only when the particle is in this box is the data is written to file
   	double precision, parameter ::  tminw=  -100d-15 * tnormalisation
-  	double precision, parameter ::  tmaxw=  100d-15 * tnormalisation 				! units: seconds
+  	double precision, parameter ::  tmaxw=  120d-15 * tnormalisation 				! units: seconds
   	double precision, parameter ::  xmaxw=500d-6 * xnormalisation				!		
   	double precision, parameter ::  ymaxw=1d0 * xnormalisation				!
   	double precision, parameter ::  zmaxw=500d-6 * xnormalisation				!

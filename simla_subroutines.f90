@@ -316,6 +316,14 @@ do j=1,no_beams
 		w0=w0_2
 		a0=a0_2
 		duration=duration2
+	else if (j.eq.3) then
+		beam=beam3
+		profile=profile3
+		beam_angle=beam_angle3
+		k=omega3
+		w0=w0_3
+		a0=a0_3
+		duration=duration3
 	end if	
 	
 
@@ -323,8 +331,13 @@ do j=1,no_beams
 	x=-z_in*sin(beam_angle)+x_in*cos(beam_angle)
 	y=y_in
 	z=z_in*cos(beam_angle)+x_in*sin(beam_angle)
+	
+	t=t/omega
+	x=x/omega		!
+	y=y/omega		! Take out frequency normalisation (and put it back at the end)
+	z=z/omega		!
 
-	eta=t-z
+	eta=k*(t-z)
 
 	if (profile==0) then  				! Infinite
 		g=1d0
@@ -410,12 +423,6 @@ do j=1,no_beams
 		
 	else if (beam==5) then    ! Paraxial Gaussian beam (1st order)
 	
-		x=x/omega		!
-		y=y/omega		! Take out frequency normalisation (and put it back at the end)
-		z=z/omega		!
-		
-		
-		!k=omega
 		zr=k*w0*w0/2d0
 		eps=w0/zr
 	
@@ -430,7 +437,7 @@ do j=1,no_beams
 	
 		w=w0*sqrt(1d0+z*z/(zr*zr))
 	
-		PsiP = eta;
+		PsiP = eta;            	! NB eta is already defined in terms of normalised variables
 		PsiG = atan(zeta);
 		PsiR = 0.5d0*k*z*r*r/(z*z+zr*zr)  
 		Psi0 = 0.0d0;
@@ -450,21 +457,13 @@ do j=1,no_beams
 		B2temp=EE/c*S0
 		B3temp=EE/c*nu*eps*C1
 		
-		x=x*omega			!
-		y=y*omega			! Put frequency normalisation back!
-		z=z*omega			!
+
 	
 	else if (beam==6) then    ! Paraxial Gaussian beam (5th order)
 		!!!! Important note: When comparing with Salamin, we have a t-shift and he doesn't
 		! We don't know when t=0 in those plots and they are very sensitive to this!
 		!!!!
 	
-	
-		x=x/omega			!
-		y=y/omega			! Take out frequency normalisation (and put it back at the end)
-		z=z/omega			!
-	
-		!k=omega
 		zr=k*w0*w0/2d0
 		eps=w0/zr
 	
@@ -520,11 +519,8 @@ do j=1,no_beams
 		B3temp=EE/c*nu*(eps*C1+eps**3d0*(C2/2d0+rho**2d0*C3/2d0-rho**4d0*C4/4d0)+&
 		eps**5d0*(3d0*C3/8d0+3d0*rho**2d0*C4/8d0+3*rho**4d0*C5/16d0-rho**6d0*C6/4d0+rho**8d0*C7/32d0))
 		
-		x=x*omega			!
-		y=y*omega			! Put frequency normalisation back!
-		z=z*omega			!
 		
-		else if (beam==7) then ! Constant B field
+	else if (beam==7) then ! Constant B field
 		E1temp=0d0
 		E2temp=0d0
 		E3temp=0d0
@@ -534,18 +530,25 @@ do j=1,no_beams
 		B3temp=0d0
 		
 		
+			
+
 	
 	end if
 	
+	t=t*omega
+	x=x*omega			!
+	y=y*omega			! Put frequency normalisation back!
+	z=z*omega			!
 
 
-E1=E1+(E3temp*sin(beam_angle)+E1temp*cos(beam_angle))
-E2=E2+(E2temp)
-E3=E3+(E3temp*cos(beam_angle)-E1temp*sin(beam_angle))
 
-B1=B1+(B1temp*cos(beam_angle))
-B2=B2+(B2temp)
-B3=B3+(B3temp*cos(beam_angle))
+	E1=E1+(E3temp*sin(beam_angle)+E1temp*cos(beam_angle))
+	E2=E2+(E2temp)
+	E3=E3+(E3temp*cos(beam_angle)-E1temp*sin(beam_angle))
+	
+	B1=B1+(B1temp*cos(beam_angle))
+	B2=B2+(B2temp)
+	B3=B3+(B3temp*cos(beam_angle))
 
 end do ! no_beams
 
