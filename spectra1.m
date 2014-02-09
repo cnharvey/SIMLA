@@ -8,6 +8,8 @@ if (ignore_y_current =='y')
     disp('NOTE j2=0')
 end 
 
+comp_i=sqrt(-1);
+e_charge = sqrt(4.0*pi/137);
 
 time=cputime;
 
@@ -27,7 +29,7 @@ nphi=nophi(2);
 omegaprime=[0.01:0.01:10];%[0.01e6:0.01e6:20e6];
 noomegaprime=size(omegaprime);
 nomegaprime=noomegaprime(2);
-comp_i=sqrt(-1);
+
 
 
 kdotx=zeros(1,ntau);
@@ -152,7 +154,9 @@ for taunumber=1:taunumbermax
 end %taumuber
 
 
-
+prefactor=e_charge^2/(16*pi^3);
+spectral_density=prefactor*omegaprime.*abs(modj);
+energy=prefactor*(omegaprime.*omegaprime).*abs(modj);
 
 
 disp('Elapsed time')
@@ -161,9 +165,9 @@ disp(time)
 
 
 figure
-plot(omegaprime,(omegaprime.*omegaprime).*abs(modj),'k-')
+plot(omegaprime,energy,'k-')
 xlabel('\omega (eV)')
-ylabel('dP^0')
+ylabel('Energy (eV)')
 
 
 

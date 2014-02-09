@@ -287,7 +287,7 @@ real(kind=8),intent(out)::B1,B2,B3,E1,E2,E3
 integer(kind=4)::j
 integer(kind=4)::beam,profile
 real(kind=8)::t,x,y,z
-real(kind=8)::beam_angle,w0,a0,duration
+real(kind=8)::beam_angle,w0,a0,duration,field_strength,Coulomb_charge
 real(kind=8)::E0,zr,eps,r,xi,nu,zeta,eta,rho,w,g,eta0,k
 real(kind=8)::PsiP,PsiG,PsiR,Psi0,Psi,EE
 real(kind=8)::S0,S2,S3,S4,S5,S6,C1,C2,C3,C4,C5,C6,C7
@@ -307,6 +307,8 @@ do j=1,no_beams
 		k=omega1				!	NB all OK here
 		w0=w0_1					!
 		a0=a0_1					!
+		field_strength=field_strength_1
+		Coulomb_charge=Coulomb_charge_1
 		duration=duration1		!
 	else if (j.eq.2) then
 		beam=beam2
@@ -315,6 +317,8 @@ do j=1,no_beams
 		k=omega2
 		w0=w0_2
 		a0=a0_2
+		field_strength=field_strength_2
+		Coulomb_charge=Coulomb_charge_2
 		duration=duration2
 	else if (j.eq.3) then
 		beam=beam3
@@ -323,6 +327,8 @@ do j=1,no_beams
 		k=omega3
 		w0=w0_3
 		a0=a0_3
+		field_strength=field_strength_3
+		Coulomb_charge=Coulomb_charge_3
 		duration=duration3
 	end if	
 	
@@ -521,13 +527,28 @@ do j=1,no_beams
 		
 		
 	else if (beam==7) then ! Constant B field
+	
+		
+	
 		E1temp=0d0
 		E2temp=0d0
 		E3temp=0d0
 		
-		B1temp=E0*g
+		B1temp=field_strength*g
 		B2temp=0d0
 		B3temp=0d0
+		
+	else if (beam==8) then ! Coulomb field
+	
+		r=sqrt(x*x+y*y+z*z)
+		
+		E1temp=Coulomb_constant*Coulomb_charge/(x*x)!(r*r)
+		E2temp=0d0!Coulomb_constant*Coulomb_charge/(y*y)!(r*r)
+		E3temp=Coulomb_constant*Coulomb_charge/(z*z)!(r*r)
+		
+		B1temp=0d0
+		B2temp=0d0
+		B3temp=0d0		
 		
 		
 			

@@ -1,8 +1,9 @@
 
-
-
 ignore_y_current='y';
 
+comp_i=sqrt(-1);
+e_charge = sqrt(4.0*pi/137);
+prefactor = e_charge^2/(16*pi^3);
 
 if (ignore_y_current =='y')
     disp('NOTE j2=0')
@@ -26,7 +27,7 @@ nphi=nophi(2);
 omegaprime=[0.01e6:0.01e6:1e6];%[0.01e6:0.001e6:10e6];
 noomegaprime=size(omegaprime);
 nomegaprime=noomegaprime(2);
-comp_i=sqrt(-1);
+
 
 
 kdotx=zeros(1,ntau);
@@ -35,8 +36,8 @@ W1=W0;W2=W0;W3=W0;
 
 modj=zeros(nomegaprime,ntheta);
 
-spectrum_omegaprime_theta=zeros(nomegaprime,ntheta);
-
+spectral_density_omegaprime_theta=zeros(nomegaprime,ntheta);
+power_omegaprime_theta=zeros(nomegaprime,ntheta);
 
 taulist=[1,ntau];%
 %taulist=[1,round(ntau/2),ntau];
@@ -149,7 +150,8 @@ for taunumber=1:taunumbermax
 
         %modj=0;
 
-        spectrum_omegaprime_theta(l,:)=(omegaprime(l)*omegaprime(l))*abs(modj(l,:));
+        spectral_density_omegaprime_theta(l,:)=prefactor*omegaprime(l)*abs(modj(l,:));
+        power_omegaprime_theta(l,:)=prefactor*omegaprime(l)*omegaprime(l)*abs(modj(l,:));
 
         
     end %l (omegaprime)
@@ -157,25 +159,31 @@ for taunumber=1:taunumbermax
     
 end %taumuber
 
-int_spectrum=trapz(theta,transpose(spectrum_omegaprime_theta));
+int_spectral_density_theta=trapz(theta,transpose(spectral_density_omegaprime_theta));
+int_power_theta=trapz(theta,transpose(power_omegaprime_theta));
 
+int_spectral_density_omegaprime=trapz(omegaprime,(power_omegaprime_theta));
+int_power_omegaprime=trapz(omegaprime,(power_omegaprime_theta));
 
 
 
 
 figure
-%plot(omegaprime,(omegaprime.*omegaprime).*abs(modj),'k-')
-%xlabel('\omega')
-%ylabel('dP^0')
-contourf(omegaprime/1e6,theta,transpose(spectrum_omegaprime_theta),50); shading flat %shading interp
+
+subplot(3,3,[1 2 4 5])
+contourf(omegaprime/1e6,theta,transpose(power_omegaprime_theta),50); shading flat 
 xlabel('\omega (MeV)')
 ylabel('\theta')
 
-figure
-plot(omegaprime/1e6,int_spectrum)
+subplot(3,3,[7 8])
+plot(omegaprime/1e6,int_power_theta)
 xlabel('\omega (MeV)')
-ylabel('Emission Rate')
+ylabel('Power (eV)')
 
+subplot(3,3,[3 6])
+plot(int_power_omegaprime,theta)
+xlabel('Power (eV)')
+ylabel('\theta (radians)')
 
 
 

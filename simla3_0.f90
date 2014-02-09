@@ -24,6 +24,7 @@ module constants
 	double precision, parameter :: fsconst = 1.0d0/137.036d0
 	double precision, parameter :: e_charge = sqrt(4.0d0*pi*fsconst)
 	double precision, parameter :: me = 511.0d3
+	double precision, parameter :: Coulomb_constant=1d0/(4d0*pi)
 end module constants
 
 !-------------------------
@@ -34,7 +35,7 @@ module beamparameters
 use constants
 
 
-	integer :: no_beams = 2
+	integer :: no_beams = 1
 	! Choose beam type:
 	! =0 for no fields
 	! =1 for constant crossed fields
@@ -44,7 +45,8 @@ use constants
 	! =5 for paraxial Gaussian (1st order)
 	! =6 for paraxial Gaussian (5th order)
 	! =7 for constant B field
-  	integer :: beam1 = 2
+	! =8 for Coulomb field
+  	integer :: beam1 = 8
   	integer :: beam2 = 2
   	integer :: beam3 = 2
   	
@@ -57,15 +59,15 @@ use constants
 	! =5 for super-Gaussian degree 4
 	! =6 for super-Gaussian degree 8
 	! =7 for super-Gaussian degree 12
-  	integer :: profile1 = 4
+  	integer :: profile1 = 0
   	integer :: profile2 = 4
   	integer :: profile3 = 4
   	
   	double precision, parameter :: beam_angle1 = 0d0 *pi/180.0d0
   	double precision, parameter :: beam_angle2 = 0d0 *pi/180.0d0
   	double precision, parameter :: beam_angle3 = 0d0 *pi/180.0d0
-  	double precision, parameter :: lambda_metres1 = 1d-6			! wavelength in metres
-  	double precision, parameter :: lambda_metres2 = 1d-6			! wavelength in metres
+  	double precision, parameter :: lambda_metres1 = 1.24d-6			! wavelength in metres		! if using constant field, MUST be 
+  	double precision, parameter :: lambda_metres2 = 1d-6			! wavelength in metres		! set to 1.24	
   	double precision, parameter :: lambda_metres3 = 1d-6			! wavelength in metres
   	
   ! leave this :
@@ -90,13 +92,21 @@ use constants
 !--------------------------------------------------------------------------
 
 ! ....and back to the beam
-  	double precision, parameter :: w0_1 = 10d-6 * xnormalisation         ! beam waist in metres (only for Paraxial Gaussian)
-  	double precision, parameter :: w0_2 = 25d-6 * xnormalisation         ! beam waist in metres (only for Paraxial Gaussian)
-  	double precision, parameter :: w0_3 = 25d-6 * xnormalisation         ! beam waist in metres (only for Paraxial Gaussian)
+  	double precision, parameter :: w0_1 = 10d-6 * xnormalisation/omega         ! beam waist in metres (only for Paraxial Gaussian)
+  	double precision, parameter :: w0_2 = 25d-6 * xnormalisation/omega         ! beam waist in metres (only for Paraxial Gaussian)
+  	double precision, parameter :: w0_3 = 25d-6 * xnormalisation/omega         ! beam waist in metres (only for Paraxial Gaussian)
   	
   	double precision, parameter :: a0_1 = 0.605d0						! intensity
   	double precision, parameter :: a0_2 = 0.605d0						! intensity
   	double precision, parameter :: a0_3 = 0.605d0						! intensity
+  	
+  	double precision, parameter :: field_strength_1=1d0 /me		! field strength of constant field in eV^2 (1eV^2 = 432908.44V/m)
+  	double precision, parameter :: field_strength_2=1d0	/me		! field strength of constant field in eV^2 (1eV^2 = 432908.44V/m)
+  	double precision, parameter :: field_strength_3=1d0	/me		! field strength of constant field in eV^2 (1eV^2 = 432908.44V/m)
+  	
+  	double precision, parameter :: Coulomb_charge_1=92d0*e_charge /me 	! charge of Coulomb field in eV
+  	double precision, parameter :: Coulomb_charge_2=1d0*e_charge /me 	! charge of Coulomb field in eV
+  	double precision, parameter :: Coulomb_charge_3=1d0*e_charge /me 	! charge of Coulomb field in eV
   	  
     double precision, parameter:: duration1=20d-15 * tnormalisation	! duration in seconds (FWHM)
     double precision, parameter:: duration2=20d-15 * tnormalisation	! duration in seconds (FWHM)
@@ -125,9 +135,9 @@ module simulationparameters
 
 ! Solver Properties
 
-  	double precision, parameter ::  maxdt=0.0001d0   			! maximum time step
+  	double precision, parameter ::  maxdt=0.00001d0   			! maximum time step
   	double precision, parameter ::  mindt=1d-20				! minimum time step
-  	double precision, parameter ::  initialdt=1d-2			! initial time step
+  	double precision, parameter ::  initialdt=1d-5			! initial time step
   	integer, parameter 			::  writeevery=200			! write data after every __ time steps
   	double precision, parameter ::  grid_err_tol=1d-11		! error tolerance for adjusting time step
 
@@ -153,9 +163,9 @@ module simulationparameters
   	double precision, parameter ::  xmaxw=500d-6 * xnormalisation				!		
   	double precision, parameter ::  ymaxw=1d0 * xnormalisation				!
   	double precision, parameter ::  zmaxw=500d-6 * xnormalisation				!
-  	double precision, parameter ::  xminw=-500d-6 * xnormalisation				! units: metres
+  	double precision, parameter ::  xminw=-500d-9 * xnormalisation				! units: metres
   	double precision, parameter ::  yminw=-1d0 * xnormalisation				!
-  	double precision, parameter ::  zminw=-500d-6 * xnormalisation	
+  	double precision, parameter ::  zminw=-500d-9 * xnormalisation	
 
 ! Record Field Data
 	integer, parameter :: record_intensity_y0=0 		! =0 don't record fields, =1 record fields (y=0 plane)
@@ -223,7 +233,7 @@ module commonvariables
 	logical :: errorfileexists
 	character(len=21) :: errorfilename !error_report00000.txt
 	
-	character(len=3) :: fileformat='bin'  ! bin or txt
+	character(len=3) :: fileformat='txt'  ! bin or txt
 	
 	character :: randomtext
 

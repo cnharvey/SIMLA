@@ -1,6 +1,6 @@
 clear
 
-fileformat='bin';
+fileformat='txt';
 
 disp(':---------------------------------')
 disp('Plot output data for all particles')

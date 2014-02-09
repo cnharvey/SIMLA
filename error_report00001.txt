@@ -1,0 +1,22 @@
+ DETAILS:
+ Error Code:           2
+ Certain variables are NaN.  Suggests coding mistake.
+ ----------------------------------------------------------------------------------------------
+ DATA DUMP:
+ Starting variables (this cycle)
+ dt  9.00000000000000023E-006 calculation no.   0.0000000000000000     
+ tshift   2.5380710786802032     
+ t  -2.5380710786802032      x  5.07614213197938539E-003 y   0.0000000000000000      z   2.5380710659898478     
+ g  1.40129846E-45 ux  1.22464679302411913E-012 uy   0.0000000000000000      uz  -9999.9999499999994     
+  
+ Variables after full timestep (dt)
+ x1   5.07614213197938539E-003 y1    0.0000000000000000      z1    2.5380610659898979     
+ ux1                       NaN uy1                 -Infinity uz1                       NaN
+ g1                        NaN
+ Variables after 2 half timesteps (0.5dt+0.5dt)
+ x2                        NaN y2                        NaN z2                        NaN
+ ux2                       NaN uy2                 -Infinity uz2                       NaN
+ g2                        NaN
+  
+ END of Error Report
+ ----------------------------------------------------------------------------------------------
