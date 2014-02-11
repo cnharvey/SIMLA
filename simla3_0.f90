@@ -46,7 +46,9 @@ use constants
 	! =6 for paraxial Gaussian (5th order)
 	! =7 for constant B field
 	! =8 for Coulomb field
-  	integer :: beam1 = 8
+	! =9 for axicon field (1st order)
+	! =10 for axicon field (high order)
+  	integer :: beam1 = 9
   	integer :: beam2 = 2
   	integer :: beam3 = 2
   	
@@ -66,7 +68,7 @@ use constants
   	double precision, parameter :: beam_angle1 = 0d0 *pi/180.0d0
   	double precision, parameter :: beam_angle2 = 0d0 *pi/180.0d0
   	double precision, parameter :: beam_angle3 = 0d0 *pi/180.0d0
-  	double precision, parameter :: lambda_metres1 = 1.24d-6			! wavelength in metres		! if using constant field, MUST be 
+  	double precision, parameter :: lambda_metres1 = 1d-6			! wavelength in metres		! if using constant field, MUST be 
   	double precision, parameter :: lambda_metres2 = 1d-6			! wavelength in metres		! set to 1.24	
   	double precision, parameter :: lambda_metres3 = 1d-6			! wavelength in metres
   	
@@ -135,10 +137,10 @@ module simulationparameters
 
 ! Solver Properties
 
-  	double precision, parameter ::  maxdt=0.00001d0   			! maximum time step
+  	double precision, parameter ::  maxdt=0.1d0   			! maximum time step
   	double precision, parameter ::  mindt=1d-20				! minimum time step
   	double precision, parameter ::  initialdt=1d-5			! initial time step
-  	integer, parameter 			::  writeevery=200			! write data after every __ time steps
+  	integer, parameter 			::  writeevery=5000			! write data after every __ time steps
   	double precision, parameter ::  grid_err_tol=1d-11		! error tolerance for adjusting time step
 
 
@@ -158,14 +160,14 @@ module simulationparameters
 ! Write Box
 
 ! Only when the particle is in this box is the data is written to file
-  	double precision, parameter ::  tminw=  -100d-15 * tnormalisation
-  	double precision, parameter ::  tmaxw=  120d-15 * tnormalisation 				! units: seconds
+  	double precision, parameter ::  tminw=  -1000d-15 * tnormalisation
+  	double precision, parameter ::  tmaxw=  1200d-15 * tnormalisation 				! units: seconds
   	double precision, parameter ::  xmaxw=500d-6 * xnormalisation				!		
   	double precision, parameter ::  ymaxw=1d0 * xnormalisation				!
   	double precision, parameter ::  zmaxw=500d-6 * xnormalisation				!
-  	double precision, parameter ::  xminw=-500d-9 * xnormalisation				! units: metres
+  	double precision, parameter ::  xminw=-500d-6 * xnormalisation				! units: metres
   	double precision, parameter ::  yminw=-1d0 * xnormalisation				!
-  	double precision, parameter ::  zminw=-500d-9 * xnormalisation	
+  	double precision, parameter ::  zminw=-500d-6 * xnormalisation	
 
 ! Record Field Data
 	integer, parameter :: record_intensity_y0=0 		! =0 don't record fields, =1 record fields (y=0 plane)
@@ -300,6 +302,11 @@ program SIMLA
 	end if 
 	
 	print*,'No. beams: ', no_beams 
+	
+	print*,'(Note: Coulomb fields are in beta'
+	print*,'lambda1 MUST be set to 1.24'
+	print*,'particles should not approach off axis since angle in y is not defined.)'
+	
 	
 	if (record_intensity_y0 .eq. 1) then
 		if (field_points_t .gt. 9999) then

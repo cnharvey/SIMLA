@@ -287,10 +287,13 @@ real(kind=8),intent(out)::B1,B2,B3,E1,E2,E3
 integer(kind=4)::j
 integer(kind=4)::beam,profile
 real(kind=8)::t,x,y,z
-real(kind=8)::beam_angle,w0,a0,duration,field_strength,Coulomb_charge
+real(kind=8)::beam_angle,w0,a0,duration,field_strength,Coulomb_charge,radial_angle
 real(kind=8)::E0,zr,eps,r,xi,nu,zeta,eta,rho,w,g,eta0,k
 real(kind=8)::PsiP,PsiG,PsiR,Psi0,Psi,EE
 real(kind=8)::S0,S2,S3,S4,S5,S6,C1,C2,C3,C4,C5,C6,C7
+complex(kind=8)::EE1,EE2,EE3,EE4,EE5,EE6,EE7,EE8,EE9,EE10,EE11,EE12,EE13,EE14,EE15
+complex(kind=8)::BB1,BB3,BB5,BB7,BB9,BB11,BB13,BB15
+complex(kind=8)::f
 real(kind=8)::E1temp,E2temp,E3temp,B1temp,B2temp,B3temp
 
 
@@ -541,16 +544,53 @@ do j=1,no_beams
 	else if (beam==8) then ! Coulomb field
 	
 		r=sqrt(x*x+y*y+z*z)
-		
-		E1temp=Coulomb_constant*Coulomb_charge/(x*x)!(r*r)
-		E2temp=0d0!Coulomb_constant*Coulomb_charge/(y*y)!(r*r)
-		E3temp=Coulomb_constant*Coulomb_charge/(z*z)!(r*r)
+				
+		E1temp=Coulomb_constant*e_charge*Coulomb_charge*(x)/(r*r*r)!cos(Coulomb_theta)*sin(Coulomb_phi)/(r*r*r)
+		E2temp=Coulomb_constant*e_charge*Coulomb_charge*(y)/(r*r*r)!sin(Coulomb_theta)*sin(Coulomb_phi)/(r*r*r)
+		E3temp=Coulomb_constant*e_charge*Coulomb_charge*(z)/(r*r*r)!cos(Coulomb_theta)/(r*r*r)
 		
 		B1temp=0d0
 		B2temp=0d0
 		B3temp=0d0		
 		
+	else if (beam==9) then ! axicon field (1st order)
+	
+		r=sqrt(x*x+y*y)
+		radial_angle=atan2(x,y)  ! is this the right definition?
+		zr=k*w0*w0/2d0
 		
+		xi=x/w0
+		nu=y/w0
+		zeta=z/zr
+	
+		rho=sqrt(xi*xi+nu*nu)
+		eps=w0/zr
+		
+		w=w0*sqrt(1+zeta*zeta)
+		EE=E0*g*exp(-r*r/(w*w))
+		
+		Psi0 = 0d0  ! add as input
+		PsiP = eta
+		PsiR = 0.5d0*k*z*r*r/(z*z+zr*zr)
+		PsiG = atan(zeta)     
+				
+		C2=(w0/w)**2d0*cos(Psi+2d0*PsiG)
+		
+		S2=(w0/w)**2d0*sin(Psi+2d0*PsiG)
+		S3=(w0/w)**3d0*sin(Psi+3d0*PsiG)
+		
+		! r=(cos(theta),sin(theta))
+		! theta=(-sin(theta),cos(theta)) (NB plane of motion perpendicular to radial direction)
+	
+		E1temp=cos(radial_angle)*EE*eps*rho*C2
+		E2temp=sin(radial_angle)*EE*eps*rho*C2
+		E3temp=EE*eps**2d0*(S2-rho**2d0*S3)
+
+		B1temp=-sin(radial_angle)*EE*eps*rho*C2
+		B2temp=cos(radial_angle)*EE*eps*rho*C2
+		B3temp=0d0		
+
+	else if (beam==10) then ! axicon field (high order)
 			
 
 	
