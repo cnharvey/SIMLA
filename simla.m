@@ -99,7 +99,7 @@ for j=1:no_runs
                 record_length=fread(traj_vel_data,1,'int32');
             end
         elseif (fileformat=='txt')
-            traj=textscan(traj_vel_data, '%f %f %f %f %f %f %f %f %f %f %f');
+            traj=textscan(traj_vel_data, '%f %f %f %f %f %f %f %f %f %f %f','headerLines',0);
 
             x0=traj{1};%*0.658;
             x1=traj{2};%*0.197;
