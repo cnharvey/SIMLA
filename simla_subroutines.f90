@@ -288,6 +288,7 @@ integer(kind=4)::j
 integer(kind=4)::beam,profile
 real(kind=8)::t,x,y,z
 real(kind=8)::beam_angle,w0,a0,duration,field_strength,Coulomb_charge
+real(kind=8)::Coulomb_theta,Coulomb_phi
 real(kind=8)::E0,zr,eps,r,xi,nu,zeta,eta,rho,w,g,eta0,k
 real(kind=8)::PsiP,PsiG,PsiR,Psi0,Psi,EE
 real(kind=8)::S0,S2,S3,S4,S5,S6,C1,C2,C3,C4,C5,C6,C7
@@ -539,6 +540,9 @@ do j=1,no_beams
 		B3temp=0d0
 		
 	else if (beam==8) then ! Coulomb field
+	
+		Coulomb_theta=atan2(x,z)
+		!!!******* Need Coulomb_phi!!!!
 	
 		r=sqrt(x*x+y*y+z*z)
 		
