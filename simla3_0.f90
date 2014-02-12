@@ -48,6 +48,7 @@ use constants
 	! =8 for Coulomb field
 	! =9 for axicon field (1st order)
 	! =10 for axicon field (high order)
+	! =11 for axicon field (complex form) NOT WORKING!!
   	integer :: beam1 = 9
   	integer :: beam2 = 2
   	integer :: beam3 = 2
@@ -68,7 +69,7 @@ use constants
   	double precision, parameter :: beam_angle1 = 0d0 *pi/180.0d0
   	double precision, parameter :: beam_angle2 = 0d0 *pi/180.0d0
   	double precision, parameter :: beam_angle3 = 0d0 *pi/180.0d0
-  	double precision, parameter :: lambda_metres1 = 1d-6			! wavelength in metres		! if using constant field, MUST be 
+  	double precision, parameter :: lambda_metres1 = 1.24d-6			! wavelength in metres		! if using constant field, MUST be 
   	double precision, parameter :: lambda_metres2 = 1d-6			! wavelength in metres		! set to 1.24	
   	double precision, parameter :: lambda_metres3 = 1d-6			! wavelength in metres
   	
