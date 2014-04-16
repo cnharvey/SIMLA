@@ -45,9 +45,9 @@ do while(solver_err>solver_tol)
 	
 	! determine a(tnew)
 	if (eom==1) then
-		call Lorentz_force(vx,vy,vz,E1,E2,E3,B1,B2,B3,ax,ay,az)
+		call Lorentz_force(uxold,uyold,uzold,E1,E2,E3,B1,B2,B3,gama,ax,ay,az)
 	else if (eom==2) then
-		call Landau_Lifshitz(vx,vy,vz,gama,E1,E2,E3,B1,B2,B3,ax,ay,az)
+		call Landau_Lifshitz(uxold,uyold,uzold,E1,E2,E3,B1,B2,B3,gama,ax,ay,az)
 	end if
 	
 	! Euler's method: u(n+1)=u(n)+dt*a(t(n),u(n))
@@ -100,6 +100,7 @@ subroutine leapfrog_solver(t,dt,x,y,z,ax,ay,az,vx,vy,vz,gama,ux,uy,uz,errcode)
 !---------------------------------------------
 
 use constants
+!use inputparameters
 use simulationparameters
 use beamparameters
 
@@ -109,61 +110,78 @@ integer(kind=4),intent(inout)::errcode
 real(kind=8),intent(in)::t,dt
 real(kind=8),intent(inout)::x,y,z,ax,ay,az,vx,vy,vz,gama,ux,uy,uz
 
+integer(kind=4)::itcounter
+real(kind=8)::solver_err,solver_tol
 real(kind=8)::E1,E2,E3,B1,B2,B3
 real(kind=8)::axold,ayold,azold
+real(kind=8)::uxnew,uynew,uznew,uxold,uyold,uzold
+real(kind=8)::uxb1,uxb2,uxb3
+
+solver_tol=1d-10
+solver_err=10d0
+
+call fields(t,x,y,z,B1,B2,B3,E1,E2,E3)
 
 
-! Move position forward one time step
+itcounter=0
+
 x=x+vx*dt+0.5d0*dt*dt*ax
 y=y+vy*dt+0.5d0*dt*dt*ay
 z=z+vz*dt+0.5d0*dt*dt*az
-
-! Update fields at new location
-call fields(t,x,y,z,B1,B2,B3,E1,E2,E3)
-
 
 axold=ax
 ayold=ay
 azold=az
 
-! Calculate acceleration 
-if (eom==1) then
-	call Lorentz_force(vx,vy,vz,E1,E2,E3,B1,B2,B3,ax,ay,az)
-else if (eom==2) then
-	call Landau_Lifshitz(vx,vy,vz,gama,E1,E2,E3,B1,B2,B3,ax,ay,az)
-end if
+uxold=ux
+uyold=uy
+uzold=uz
 
-! Update velocity
-ux=ux+0.5d0*(ax+axold)*dt
-uy=uy+0.5d0*(ay+ayold)*dt
-uz=uz+0.5d0*(az+azold)*dt  
-	!----
-	! Note that the relativistic Lorentz equation has the form
-	! dp/dtau=e*gama*(E+v x B)
-	! 		where  p=gama*m*u
-	! so
-	! m*du/dt=e*(E+v x B)
-	! 	see e.g. LLII (17.5) and (9.1)
-	!----
 
-! Update gama by enforcing the mass-shell condition
-gama = sqrt(1d0 + ux*ux + uy*uy + uz*uz)
+do while(solver_err>solver_tol)
+	itcounter=itcounter+1
 
-! Check for errors
-if (gama.ne.gama) then
-	errcode=2 
-end if
+	if (itcounter==50) then
+		errcode=1; exit
+	end if
 
-! Update 3-velocity
-vx=ux/gama
-vy=uy/gama
-vz=uz/gama
+	if (gama.ne.gama) then
+		errcode=2; exit
+	end if
+
+	if (eom==1) then
+		call Lorentz_force(uxold,uyold,uzold,E1,E2,E3,B1,B2,B3,gama,ax,ay,az)
+	else if (eom==2) then
+		call Landau_Lifshitz(uxold,uyold,uzold,E1,E2,E3,B1,B2,B3,gama,ax,ay,az)
+	end if
+
+	uxnew=ux+0.5d0*(ax+axold)*dt
+	uynew=uy+0.5d0*(ay+ayold)*dt
+	uznew=uz+0.5d0*(az+azold)*dt  
+
+	solver_err=sqrt((uxnew-uxold)*(uxnew-uxold)+(uynew-uyold)*(uynew-uyold)+(uznew-uzold)*(uznew-uzold))
+
+	uxold=uxnew
+	uyold=uynew
+	uzold=uznew
+
+end do !while
+
+ux=uxnew
+uy=uynew
+uz=uznew
+
+gama = sqrt(1d0 + uxnew*uxnew + uynew*uynew + uznew*uznew)
+
+
+vx=uxnew/gama
+vy=uynew/gama
+vz=uznew/gama
 
 end subroutine leapfrog_solver
 
-
 !---------------------------------------------
-subroutine Lorentz_force(vx,vy,vz,E1,E2,E3,B1,B2,B3,ax,ay,az)
+subroutine Lorentz_force(uxold,uyold,uzold,E1,E2,E3,B1,B2,B3,gama,ax,ay,az)
 !---------------------------------------------
 
 use constants
@@ -171,43 +189,47 @@ use particlevariables
 
 implicit none
 
-real(kind=8),intent(in)::vx,vy,vz,E1,E2,E3,B1,B2,B3
-real(kind=8),intent(inout)::ax,ay,az
+real(kind=8),intent(in)::uxold,uyold,uzold,E1,E2,E3,B1,B2,B3
+real(kind=8),intent(inout)::gama,ax,ay,az
 
-real(kind=8)::vxb1,vxb2,vxb3
+real(kind=8)::uxb1,uxb2,uxb3
 
-vxb1 = vy*B3 - vz*B2
-vxb2 = vz*B1 - vx*B3
-vxb3 = vx*B2 - vy*B1
+gama = sqrt(1d0 + uxold*uxold + uyold*uyold + uzold*uzold)
 
-ax=charge_sign*(E1+vxb1)
-ay=charge_sign*(E2+vxb2)
-az=charge_sign*(E3+vxb3)
+uxb1 = uyold*B3 - uzold*B2
+uxb2 = uzold*B1 - uxold*B3
+uxb3 = uxold*B2 - uyold*B1
+
+ax=charge_sign*(E1+uxb1/gama)
+ay=charge_sign*(E2+uxb2/gama)
+az=charge_sign*(E3+uxb3/gama)
 
 
 
 end subroutine Lorentz_force
 
-
-
-
 !---------------------------------------------
-subroutine Landau_Lifshitz(vx,vy,vz,gama,E1,E2,E3,B1,B2,B3,ax,ay,az)
+subroutine Landau_Lifshitz(uxold,uyold,uzold,E1,E2,E3,B1,B2,B3,gama,ax,ay,az)
 !---------------------------------------------
 use constants
 use beamparameters
 use particlevariables
 implicit none 
 
-real(kind=8),intent(in)::gama,vx,vy,vz,E1,E2,E3,B1,B2,B3
-real(kind=8),intent(inout)::ax,ay,az
+real(kind=8),intent(in)::uxold,uyold,uzold,E1,E2,E3,B1,B2,B3
+real(kind=8),intent(inout)::gama,ax,ay,az
 
-real(kind=8)::coupling
+real(kind=8)::vx,vy,vz,coupling
 real(kind=8)::vxB1,vxB2,vxB3,vdE,ExB1,ExB2,ExB3,EpvxB1,EpvxB2,EpvxB3
 real(kind=8),dimension(3)::term1,term2,term3,term4
 
 coupling=4d0/3d0*pi*(2.8179402894d-15)/lambda_metres ! RR coupling
 
+gama = sqrt(1d0 + uxold*uxold + uyold*uyold + uzold*uzold)
+
+vx=uxold/gama
+vy=uyold/gama
+vz=uzold/gama
 
 vxB1 = vy*B3 - vz*B2
 vxB2 = vz*B1 - vx*B3
@@ -269,7 +291,11 @@ real(kind=8)::beam_angle,w0,a0,duration,field_strength,Coulomb_charge,radial_ang
 real(kind=8)::E0,zr,eps,r,xi,nu,zeta,eta,rho,w,g,eta0,k
 real(kind=8)::PsiP,PsiG,PsiR,Psi0,Psi,EE
 real(kind=8)::S0,S2,S3,S4,S5,S6,C1,C2,C3,C4,C5,C6,C7,C8
-real(kind=8)::Br,dB3dz
+complex(kind=8)::EE1,EE2,EE3,EE4,EE5,EE6,EE7,EE8,EE9,EE10,EE11,EE12,EE13,EE14,EE15
+complex(kind=8)::BB1,BB3,BB5,BB7,BB9,BB11,BB13,BB15
+complex(kind=8)::comp_i
+real(kind=8),dimension(29)::rhovec
+complex(kind=8),dimension(23)::f
 real(kind=8)::E1temp,E2temp,E3temp,B1temp,B2temp,B3temp
 
 
@@ -568,7 +594,7 @@ do j=1,no_beams
 		B3temp=0d0		
 
 
-	else if (beam==10) then ! axicon field (5th order, real form)
+	else if (beam==10) then ! axicon field (higher order, real form)
 	
 		r=sqrt(x*x+y*y)
 		radial_angle=atan2(x,y)  ! is this the right definition?
@@ -589,12 +615,14 @@ do j=1,no_beams
 		PsiR = 0.5d0*k*z*r*r/(z*z+zr*zr)
 		PsiG = atan(zeta)     
 				
+		S0=sin(Psi)
 		S2=(w0/w)**2d0*sin(Psi+2d0*PsiG)
 		S3=(w0/w)**3d0*sin(Psi+3d0*PsiG)
 		S4=(w0/w)**4d0*sin(Psi+4d0*PsiG)
 		S5=(w0/w)**5d0*sin(Psi+5d0*PsiG)
 		S6=(w0/w)**6d0*sin(Psi+6d0*PsiG)
 	
+		C1=(w0/w)*cos(Psi+PsiG)
 		C2=(w0/w)**2d0*cos(Psi+2d0*PsiG)
 		C3=(w0/w)**3d0*cos(Psi+3d0*PsiG)
 		C4=(w0/w)**4d0*cos(Psi+4d0*PsiG)
@@ -632,30 +660,171 @@ do j=1,no_beams
 		B3temp=0d0	
 
 
-	else if (beam==11) then ! magnetic caxity
+	else if (beam==11) then ! axicon field (high order complex form, NOT WORKING)
+	
+		comp_i=(0d0,1d0)
 	
 		r=sqrt(x*x+y*y)
+		radial_angle=atan2(x,y)  ! is this the right definition?
+		zr=k*w0*w0/2d0
 		
-		E1temp=0d0
-		E2temp=0d0
-		E3temp=0d0
+		xi=x/w0
+		nu=y/w0
+		zeta=z/zr
+	
+		rho=sqrt(xi*xi+nu*nu)
+		eps=w0/zr
 		
-		B3temp=Bmax-(Bmax-Bmin)*exp(-(z-0.9d0*magcavL)**12d0/(0.7d0*magcavL)**12d0)
+		w=w0*sqrt(1d0+zeta*zeta)
+		EE=E0*g	!*exp(-r*r/(w*w))
+		
+		Psi0 = 0d0  ! add as input
+		PsiP = eta
+		PsiR = 0.5d0*k*z*r*r/(z*z+zr*zr)
+		PsiG = atan(zeta)  
+		
+		f(1)=exp(comp_i*PsiG)/sqrt(1d0+zeta*zeta)
+		
+		do jj=2,23
+			f(jj)=f(1)**jj
+		end do
+		do jj=1,29
+			rhovec(jj)=rho**jj
+		end do
+				
+		EE1=f(2)*rhovec(1)
+		
+		EE2=f(2)-f(3)*rhovec(2)
+		
+		EE3=-f(3)*rhovec(1)/2d0+f(4)*rhovec(3)-f(5)*rhovec(5)/4d0
+		
+		EE4=f(3)/2d0+f(4)*rhovec(2)/2d0-5d0*f(5)*rhovec(4)/4d0+f(6)*rhovec(6)/4d0
+		
+		EE5=-3d0*f(4)*rhovec(1)/8d0-3d0*f(5)*rhovec(3)/8d0+17d0*f(6)*rhovec(5)/16d0 	&
+			-3d0*f(7)*rhovec(7)/8d0+f(8)*rhovec(9)/32d0
+			
+		EE6=3d0*f(4)/8d0+3d0*f(5)*rhovec(2)/8d0+3*f(6)*rhovec(4)/16d0-19d0*f(7)*rhovec(6)/16d0		&
+			+13d0*f(8)*rhovec(8)/32d0-f(9)*rhovec(10)/32d0
+			
+		EE7=-3d0*f(5)*rhovec(1)/8d0-3d0*f(6)*rhovec(3)/8d0-3d0*f(7)*rhovec(5)/16d0+33d0*f(8)*rhovec(7)/32d0		&
+			-29d0*f(9)*rhovec(9)/64d0+f(10)*rhovec(11)/16d0-f(11)*rhovec(13)/384d0
+			
+		EE8=3d0*f(5)/8d0+3d0*f(6)*rhovec(2)/8d0+3d0*f(7)*rhovec(4)/16d0+f(8)*rhovec(6)/16d0-69d0*f(9)*rhovec(8)/64d0 	&
+			+31d0*f(10)*rhovec(10)/64d0-25d0*f(11)*rhovec(12)/384d0+f(12)*rhovec(14)/384d0
+			
+		EE9=-15d0*f(6)*rhovec(1)/32d0-15d0*f(7)*rhovec(3)/32d0-15d0*f(8)*rhovec(5)/64d0-5d0*f(9)*rhovec(7)/64d0		&
+			+247d0*f(10)*rhovec(9)/256d0-127d0*f(11)*rhovec(11)/256d0+137d0*f(12)*rhovec(13)/1536d0					&
+			-5d0*f(13)*rhovec(15)/768d0+f(14)*rhovec(17)/6144d0
+			
+		EE10=15d0*f(6)/32d0+15d0*f(7)*rhovec(2)/32d0+15d0*f(8)*rhovec(4)/64d0+5d0*f(9)*rhovec(6)/64d0		&
+			+5d0*f(10)*rhovec(8)/256d0-251d0*f(11)*rhovec(10)/256d0+799d0*f(12)*rhovec(12)/1536d0			&
+			-143d0*f(13)*rhovec(14)/1536d0+41d0*f(14)*rhovec(16)/6144d0-f(15)*rhovec(18)/6144d0
+			
+		EE11=-45d0*f(7)*rhovec(1)/64d0-45d0*f(8)*rhovec(3)/64d0-45d0*f(9)*rhovec(5)/128d0-15d0*f(10)*rhovec(7)/128d0	&
+			-15d0*f(11)*rhovec(9)/512d0+459d0*f(12)*rhovec(11)/512d0-529d0*f(13)*rhovec(13)/1024d0+113d0*f(14)*rhovec(15)/1024d0 &
+			-133d0*f(15)*rhovec(17)/12288d0+f(16)*rhovec(19)/2048d0-f(17)*rhovec(21)/122880d0
+			
+		EE12=45d0*f(7)/64d0+45d0*f(8)*rhovec(2)/64d0+45d0*f(9)*rhovec(4)/128d0+15d0*f(10)*rhovec(6)/128d0	&
+			+15d0*f(11)*rhovec(8)/512d0+3d0*f(12)*rhovec(10)/512d0-923d0*f(13)*rhovec(12)/1024d0		&
+			+547d0*f(14)*rhovec(14)/1024d0-469d0*f(15)*rhovec(16)/4096d0+137d0*f(16)*rhovec(18)/12288d0		&
+			-61d0*f(17)*rhovec(20)/122880d0+f(18)*rhovec(22)/122880d0
+			
+		EE13=-315d0*f(8)*rhovec(1)/256d0-315d0*f(9)*rhovec(3)/256d0-315d0*f(10)*rhovec(5)/512d0-105d0*f(11)*rhovec(7)/512d0 	&
+			-105d0*f(12)*rhovec(9)/2048d0-21d0*f(13)*rhovec(11)/2048d0+3425d0*f(14)*rhovec(13)/4096d0			&
+			-1073*f(15)*rhovec(15)/2048d0+2073d0*f(16)*rhovec(17)/16384d0-739d0*f(17)*rhovec(19)/49152d0	&
+			+457d0*f(18)*rhovec(21)/491520d0-7d0*f(19)*rhovec(23)/245760d0+f(20)*rhovec(25)/2949120
+			
+		EE14=315d0*f(8)/256d0+315d0*f(9)*rhovec(2)/256d0+315d0*f(10)*rhovec(4)/512d0+105d0*f(11)*rhovec(6)/512d0	&
+			+105d0*f(12)*rhovec(8)/2048d0+21d0*f(13)*rhovec(10)/2048d0+7d0*f(14)*rhovec(12)/4096d0-3431*f(15)*rhovec(14)/4096d0	&
+			+8795d0*f(16)*rhovec(16)/16384d0-2137d0*f(17)*rhovec(18)/16384d0+7603d0*f(18)*rhovec(20)/491520d0	&
+			-467d0*f(19)*rhovec(22)/491520d0+17d0*f(20)*rhovec(24)/589824d0-f(21)*rhovec(26)/2949120d0
+			
+		EE15=-315d0*f(9)*rhovec(1)/128d0-315d0*f(10)*rhovec(3)/128d0-315d0*f(11)*rhovec(5)/256d0-105d0*f(12)*rhovec(7)/256d0	&
+			-105d0*f(13)*rhovec(9)/1024d0-21d0*f(14)*rhovec(11)/1024d0-7d0*f(15)*rhovec(13)/2048d0		&
+			+6431d0*f(16)*rhovec(15)/8192d0-8581d0*f(17)*rhovec(17)/16384d0+71d0*f(18)*rhovec(19)/512d0	&
+			-3097d0*f(19)*rhovec(21)/163840d0+471d0*f(20)*rhovec(23)/327680d0-361d0*f(21)*rhovec(25)/5898240d0		&
+			+f(22)*rhovec(27)/737280d0-f(23)*rhovec(29)/82575360d0
+			
+		BB1=f(2)*rhovec(1)
+		
+		BB3=f(3)*rhovec(1)/2d0+f(4)*rhovec(3)/2d0-f(5)*rhovec(5)/4d0
+		
+		BB5=3d0*f(4)*rhovec(1)/8d0+3d0*f(5)*rhovec(3)/8d0+3d0*f(6)*rhovec(5)/16d0		&
+			-f(7)*rhovec(7)/4d0+f(8)*rhovec(9)/32d0
+			
+		BB7=3d0*f(5)*rhovec(1)/8d0+3d0*f(6)*rhovec(3)/8d0+3d0*f(7)*rhovec(5)/16d0+f(8)*rhovec(7)/16d0		&
+			-13d0*f(9)*rhovec(9)/64d0+3d0*f(10)*rhovec(11)/64d0-f(11)*rhovec(13)/384d0
+			
+		BB9=15d0*f(6)*rhovec(1)/32d0+15d0*f(7)*rhovec(3)/32d0+15d0*f(8)*rhovec(5)/64d0+5d0*f(9)*rhovec(7)/64d0	&
+			+5d0*f(10)*rhovec(9)/256d0-41d0*f(11)*rhovec(11)/256d0+79d0*f(12)*rhovec(13)/1536d0		&
+			-f(13)*rhovec(15)/192d0+f(14)*rhovec(17)/6144d0
+			
+		BB11=45d0*f(7)*rhovec(1)/64d0+45d0*f(8)*rhovec(3)/64d0+45d0*f(9)*rhovec(5)/128d0+15d0*f(10)*rhovec(7)/128d0		&
+			+15d0*f(11)*rhovec(9)/512d0+3d0*f(12)*rhovec(11)/512d0-131d0*f(13)*rhovec(13)/1024d0		&
+			+13d0*f(14)*rhovec(15)/256d0-29d0*f(15)*rhovec(17)/4096d0+5d0*f(16)*rhovec(19)/12288d0		&
+			-f(17)*rhovec(21)/122880d0
+			
+		BB13=315d0*f(8)*rhovec(1)/256d0+315d0*f(9)*rhovec(3)/256d0+315d0*f(10)*rhovec(5)/512d0+105d0*f(11)*rhovec(7)/512d0	&
+			+105d0*f(12)*rhovec(9)/2048d0+21d0*f(13)*rhovec(11)/2048d0+7d0*f(14)*rhovec(13)/4096d0		&
+			-107d0*f(15)*rhovec(15)/1024d0+787d0*f(16)*rhovec(17)/16384d0-135d0*f(17)*rhovec(19)/16384d0	&
+			+323d0*f(18)*rhovec(21)/491520d0-f(19)*rhovec(23)/40960d0+f(20)*rhovec(25)/2949120d0
+			
+		BB15=315d0*f(9)*rhovec(1)/128d0+315d0*f(10)*rhovec(3)/128d0+315d0*f(11)*rhovec(5)/256d0		&
+			+105d0*f(12)*rhovec(7)/256d0+105d0*f(13)*rhovec(9)/1024d0+21d0*f(14)*rhovec(11)/1024d0		&
+			+7d0*f(15)*rhovec(13)/2048d0+f(16)*rhovec(15)/2048d0-1429d0*f(17)*rhovec(17)/16384d0	&
+			+731d0*f(18)*rhovec(19)/16384d0-1453d0*f(19)*rhovec(21)/163840d0+431d0*f(20)*rhovec(23)/491520d0	&
+			-269d0*f(21)*rhovec(25)/5898240d0+7d0*f(22)*rhovec(27)/5898240d0-f(23)*rhovec(29)/82575360d0
+			
+			
+			
+			
+											!EE=E0*g*exp(-r*r/(w*w))
+							
+									C2=(w0/w)**2d0*cos(Psi+2d0*PsiG)
+						
+						S2=(w0/w)**2d0*sin(Psi+2d0*PsiG)
+						S3=(w0/w)**3d0*sin(Psi+3d0*PsiG)
+						
+						! r=(cos(theta),sin(theta))
+						! theta=(-sin(theta),cos(theta)) (NB plane of motion perpendicular to radial direction)
+					
+						!E1temp=cos(radial_angle)*EE*eps*rho*C2*exp(-r*r/(w*w))
+						E2temp=sin(radial_angle)*EE*eps*rho*C2*exp(-r*r/(w*w))
+						E3temp=EE*eps**2d0*(S2-rho**2d0*S3)*exp(-r*r/(w*w))
+						
+						print*,E2temp
+				
+						!B1temp=-sin(radial_angle)*EE*eps*rho*C2*exp(-r*r/(w*w))
+						!B2temp=cos(radial_angle)*EE*eps*rho*C2*exp(-r*r/(w*w))
+						!B3temp=0d0	
 
-		dB3dz=(12d0/0.7d0*magcavL)*exp(-((z-0.9d0*magcavL)/(0.7d0*magcavL))**11d0)*(Bmax-Bmin)
-		
-		Br=-0.5d0*r*dB3dz
-		
-		B1temp=x/r*Br
-		B2temp=y/r*Br
 
-print*, B1temp, B2temp, B3temp
-print*, magcavL, Bmax
-print*, Bmin
-print*, Br
-print *, dB3dz
+		E1temp=cos(radial_angle)*real(EE*exp(-f(1)*rhovec(2)+comp_i*eta)*(eps*EE1))
+		E2temp=sin(radial_angle)*real(EE*exp(-f(1)*rhovec(2)+comp_i*eta)*(eps*EE1))
+		!E3temp=real(-comp_i*EE*exp(-f(1)*rhovec(2)+comp_i*eta)*(eps**2d0*EE2))
 		
+		print*,E2temp
+
+		B1temp=-sin(radial_angle)*real(EE*exp(-f(1)*rhovec(2)+comp_i*eta)*(eps*BB1))
+		B2temp=cos(radial_angle)*real(EE*exp(-f(1)*rhovec(2)+comp_i*eta)*(eps*BB1))
+		B3temp=0d0	
 		
+	
+
+
+
+!		E1temp=cos(radial_angle)*real(EE*exp(-f(1)*rhovec(2)+comp_i*eta)*		&
+!				(eps*EE1+eps**3d0*EE3+eps**5d0*EE5+eps**7d0*EE7+eps**9d0*EE9+eps**11d0*EE11+eps**13d0*EE13+eps**15d0*EE15))
+!		E2temp=sin(radial_angle)*real(EE*exp(-f(1)*rhovec(2)+comp_i*eta)*		&
+!				(eps*EE1+eps**3d0*EE3+eps**5d0*EE5+eps**7d0*EE7+eps**9d0*EE9+eps**11d0*EE11+eps**13d0*EE13+eps**15d0*EE15))
+!		E3temp=real(-comp_i*EE*exp(-f(1)*rhovec(2)+comp_i*eta)*					&
+!				(eps**2d0*EE2+eps**4d0*EE4+eps**6d0*EE6+eps**8d0*EE8+eps**10d0*EE10+eps**12d0*EE12+eps**14d0*EE14))
+!
+!		B1temp=-sin(radial_angle)*real(EE*exp(-f(1)*rhovec(2)+comp_i*eta)*		&
+!				(eps*BB1+eps**3d0*BB3+eps**5d0*BB5+eps**7d0*BB7+eps**9d0*BB9+eps**11d0*BB11+eps**13d0*BB13+eps**15d0*BB15))
+!		B2temp=cos(radial_angle)*real(EE*exp(-f(1)*rhovec(2)+comp_i*eta)*		&
+!				(eps*BB1+eps**3d0*BB3+eps**5d0*BB5+eps**7d0*BB7+eps**9d0*BB9+eps**11d0*BB11+eps**13d0*BB13+eps**15d0*BB15))
+!		B3temp=0d0	
 	
 	end if
 	

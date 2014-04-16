@@ -47,10 +47,10 @@ use constants
 	! =7 for constant B field
 	! =8 for Coulomb field
 	! =9 for axicon field (1st order)
-	! =10 for axicon field (5th order)
-	! =11 for magnetic cavity (BEAM 1 ONLY!!)
-  	integer :: beam1 = 2
-  	integer :: beam2 = 9
+	! =10 for axicon field (high order)
+	! =11 for axicon field (complex form) NOT WORKING!!
+  	integer :: beam1 = 9
+  	integer :: beam2 = 2
   	integer :: beam3 = 2
   	
 	! Choose temporal profile:
@@ -62,15 +62,15 @@ use constants
 	! =5 for super-Gaussian degree 4
 	! =6 for super-Gaussian degree 8
 	! =7 for super-Gaussian degree 12
-  	integer :: profile1 = 5
-  	integer :: profile2 = 0
+  	integer :: profile1 = 0
+  	integer :: profile2 = 4
   	integer :: profile3 = 4
   	
   	double precision, parameter :: beam_angle1 = 0d0 *pi/180.0d0
   	double precision, parameter :: beam_angle2 = 0d0 *pi/180.0d0
   	double precision, parameter :: beam_angle3 = 0d0 *pi/180.0d0
-  	double precision, parameter :: lambda_metres1 = 0.942d-6!0.8d-6	! wavelength in metres		! if using constant field, MUST be 
-  	double precision, parameter :: lambda_metres2 = 0.8d-6			! wavelength in metres		! set to 1.24	
+  	double precision, parameter :: lambda_metres1 = 1.24d-6			! wavelength in metres		! if using constant field, MUST be 
+  	double precision, parameter :: lambda_metres2 = 1d-6			! wavelength in metres		! set to 1.24	
   	double precision, parameter :: lambda_metres3 = 1d-6			! wavelength in metres
   	
   ! leave this :
@@ -95,12 +95,12 @@ use constants
 !--------------------------------------------------------------------------
 
 ! ....and back to the beam
-  	double precision, parameter :: w0_1 = 30d-6 * xnormalisation/omega         ! beam waist in metres (only for Paraxial Gaussian)
-  	double precision, parameter :: w0_2 = 30d-6 * xnormalisation/omega         ! beam waist in metres (only for Paraxial Gaussian)
+  	double precision, parameter :: w0_1 = 10d-6 * xnormalisation/omega         ! beam waist in metres (only for Paraxial Gaussian)
+  	double precision, parameter :: w0_2 = 25d-6 * xnormalisation/omega         ! beam waist in metres (only for Paraxial Gaussian)
   	double precision, parameter :: w0_3 = 25d-6 * xnormalisation/omega         ! beam waist in metres (only for Paraxial Gaussian)
   	
-  	double precision, parameter :: a0_1 = 100d0						! intensity
-  	double precision, parameter :: a0_2 = 1d0						! intensity
+  	double precision, parameter :: a0_1 = 0.605d0						! intensity
+  	double precision, parameter :: a0_2 = 0.605d0						! intensity
   	double precision, parameter :: a0_3 = 0.605d0						! intensity
   	
   	double precision, parameter :: field_strength_1=1d0 /me		! field strength of constant field in eV^2 (1eV^2 = 432908.44V/m)
@@ -110,14 +110,9 @@ use constants
   	double precision, parameter :: Coulomb_charge_1=92d0*e_charge /me 	! charge of Coulomb field in eV
   	double precision, parameter :: Coulomb_charge_2=1d0*e_charge /me 	! charge of Coulomb field in eV
   	double precision, parameter :: Coulomb_charge_3=1d0*e_charge /me 	! charge of Coulomb field in eV
-  	
-  	double precision, parameter :: Bmax=2.500d0 
-  	double precision, parameter :: Bmin=.500d0
-  	double precision, parameter :: magcavL=8*2d0*pi
- 
   	  
-    double precision, parameter:: duration1=60d-15 * tnormalisation	! duration in seconds (FWHM)
-    double precision, parameter:: duration2=30d-15 * tnormalisation	! duration in seconds (FWHM)
+    double precision, parameter:: duration1=20d-15 * tnormalisation	! duration in seconds (FWHM)
+    double precision, parameter:: duration2=20d-15 * tnormalisation	! duration in seconds (FWHM)
 	double precision, parameter:: duration3=20d-15 * tnormalisation	! duration in seconds (FWHM)
 ! Note here that the duration is in terms of time, t.  Most of the fields are configured
 ! in terms of eta=t-z.  For a plane wave, t-z~ g(1+b)t~ 2gt (?)
@@ -137,7 +132,7 @@ module simulationparameters
 	
 	integer, parameter :: qedswitch = 0 ! 1 => use QED MC routines; 0 => don't
 	
-	integer :: eom = 2  		! Set =1 for Lorentz force, =2 for Landau Lifshitz
+	integer :: eom = 1  		! Set =1 for Lorentz force, =2 for Landau Lifshitz
 	integer :: solver = 1		! Set =1 for leapfrog, =2 for backward Euler
 
 
@@ -147,34 +142,33 @@ module simulationparameters
   	double precision, parameter ::  mindt=1d-20				! minimum time step
   	double precision, parameter ::  initialdt=1d-5			! initial time step
   	integer, parameter 			::  writeevery=5000			! write data after every __ time steps
-  	double precision, parameter ::  grid_err_tol=1d-10		! error tolerance for adjusting time step
+  	double precision, parameter ::  grid_err_tol=1d-11		! error tolerance for adjusting time step
 
-	
-	
-	! Simulation Box
-	
-	! The simulation will stop when the particle leaves this box
-	
-		double precision, parameter ::  tmax=3000d-15 * tnormalisation				! units: seconds
-		double precision, parameter ::  xmax=1d0 * xnormalisation					!
-		double precision, parameter ::  ymax=1d0 * xnormalisation					!
-		double precision, parameter ::  zmax=5d0 * xnormalisation					!
-		double precision, parameter ::  xmin=-1d0 * xnormalisation					! units: metres
-		double precision, parameter ::  ymin=-1d0 * xnormalisation					!
-		double precision, parameter ::  zmin=-1d0 * xnormalisation	
-	
-	
-	! Write Box
-	
-	! Only when the particle is in this box is the data is written to file
-		double precision, parameter ::  tminw=  -1000d-15 * tnormalisation
-		double precision, parameter ::  tmaxw=  1200d-15 * tnormalisation 				! units: seconds
-		double precision, parameter ::  xmaxw=500d-6 * xnormalisation				!		
-		double precision, parameter ::  ymaxw=1d0 * xnormalisation				!
-		double precision, parameter ::  zmaxw=500d-6 * xnormalisation				!
-		double precision, parameter ::  xminw=-500d-6 * xnormalisation				! units: metres
-		double precision, parameter ::  yminw=-1d0 * xnormalisation				!
-		double precision, parameter ::  zminw=-500d-6 * xnormalisation	
+
+! Simulation Box
+
+! The simulation will stop when the particle leaves this box
+
+  	double precision, parameter ::  tmax=3000d-15 * tnormalisation				! units: seconds
+  	double precision, parameter ::  xmax=1d0 * xnormalisation					!
+  	double precision, parameter ::  ymax=1d0 * xnormalisation					!
+  	double precision, parameter ::  zmax=5d0 * xnormalisation					!
+  	double precision, parameter ::  xmin=-1d0 * xnormalisation					! units: metres
+  	double precision, parameter ::  ymin=-1d0 * xnormalisation					!
+  	double precision, parameter ::  zmin=-1d0 * xnormalisation	
+
+
+! Write Box
+
+! Only when the particle is in this box is the data is written to file
+  	double precision, parameter ::  tminw=  -1000d-15 * tnormalisation
+  	double precision, parameter ::  tmaxw=  1200d-15 * tnormalisation 				! units: seconds
+  	double precision, parameter ::  xmaxw=500d-6 * xnormalisation				!		
+  	double precision, parameter ::  ymaxw=1d0 * xnormalisation				!
+  	double precision, parameter ::  zmaxw=500d-6 * xnormalisation				!
+  	double precision, parameter ::  xminw=-500d-6 * xnormalisation				! units: metres
+  	double precision, parameter ::  yminw=-1d0 * xnormalisation				!
+  	double precision, parameter ::  zminw=-500d-6 * xnormalisation	
 
 ! Record Field Data
 	integer, parameter :: record_intensity_y0=0 		! =0 don't record fields, =1 record fields (y=0 plane)
