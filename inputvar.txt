@@ -7,7 +7,7 @@ qedswitch/eom
 To go in input_fields.txt
 
 
-no_beams = 1
+no_fields = 1
 beam1
 beam2
 ..

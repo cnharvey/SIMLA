@@ -1,4 +1,4 @@
-!,sign,theta,dist0,x0,y0,z0,gama0,tx,step
-0
+!no,species,theta,phi,dist0,x0,y0,z0,gama0,eom,tx
+repeatfirstline=off
 1
-1,-1,180,100d-6,0d0,0d0,0d0,1000,t
+1,e,0,180,100e-6,0,0,0,200,ll,t

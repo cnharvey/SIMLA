@@ -1,12 +1,19 @@
+%-------------------------------------------------------------------------
+% This script reads in the trajectory data for every particle, 
+% plots the data and calculautes the proper time vectors.
+%-------------------------------------------------------------------------
+
 clear
 
-fileformat='bin';  % Specify output file format (txt or bin) 
+fileformat='txt';  % Specify output file format (txt or bin) 
+
+xtoSI=0.197; % conversion factor to micorns
+ttoSI=0.658; % conversion factor to femtosceonds
+
 
 disp(':---------------------------------')
 disp('Plot output data for all particles')
 disp(':---------------------------------')
-disp('MODIFIED! x 2')
-disp('Now in Natural units and no header line')
 
 if (fileformat=='bin')
     disp('File format set to binary')
@@ -16,6 +23,7 @@ else
     error('Error: invalid file format')
 end
 
+disp('Distances in microns times in fs, velocities in c')
 
 time=cputime;
 
@@ -31,7 +39,6 @@ input_switch=line2(17:19);
 no_runs=str2double(line3);
 
 particle_input = textscan(particle_input_data, '%s %s %f %f %f %f %f %f %f %s %s' ,'Delimiter',',');
-
 
 writeflag=particle_input{11};
 
@@ -52,6 +59,8 @@ figure; hold on
 xlabel('t (fs)')
 ylabel('\chi')
 chi_figure_handle=gcf;
+
+chicount=0;
 
     
 % read in trajectory file for each run and add the data to the plot windows
@@ -77,10 +86,15 @@ for j=1:no_runs
         target_file=strcat(filename1,filename2,filename3);
         traj_vel_data=fopen(target_file,'r');
         
+        clear x0 x1 x2 x3
+        clear u0 u1 u2 u3
+        
+        
+        % Read in data if format is binary
         if (fileformat=='bin')
             ii=0;
             record_length=fread(traj_vel_data,1,'int32');
-            while ~isempty(record_length)%~feof(traj_vel_data)
+            while ~isempty(record_length)
                 ii=ii+1;
 
                 traj=fread(traj_vel_data,[1,11],'double');
@@ -96,29 +110,30 @@ for j=1:no_runs
                 u3(1,ii)=traj(8);
                 chi_e(1,ii)=traj(9);
                 chi_g(1,ii)=traj(10);
-                if (strcmp(writeflag(i),'ct') == 1)  
-                    chi(1,ii)=traj(11);
-                end
+ 
+                chi(1,ii)=traj(11);
+  
 
                 record_length=fread(traj_vel_data,1,'int32');
             end
+        % Read in data if format is ascii    
         elseif (fileformat=='txt')
             traj=textscan(traj_vel_data, '%f %f %f %f %f %f %f %f %f %f %f');
 
-            x0=traj{1};
-            x1=traj{2};
-            x2=traj{3};
-            x3=traj{4};
+            x0=transpose(traj{1});
+            x1=transpose(traj{2});
+            x2=transpose(traj{3});
+            x3=transpose(traj{4});
 
-            u0=traj{5};
-            u1=traj{6};
-            u2=traj{7};
-            u3=traj{8};
-            chi_e=traj{9};
-            chi_g=traj{10};
-            if (strcmp(writeflag(i),'ct') == 1)      
-                chi=traj{11};
-            end
+            u0=transpose(traj{5});
+            u1=transpose(traj{6});
+            u2=transpose(traj{7});
+            u3=transpose(traj{8});
+            chi_e=transpose(traj{9});
+            chi_g=transpose(traj{10});
+ 
+            chi=transpose(traj{11});
+
         end
             
         
@@ -130,25 +145,39 @@ for j=1:no_runs
             tau(jj)=tau(jj-1)+trapz(x0(jj-1:jj),1./u0(jj-1:jj));
         end
         
-       % plot trajectories
-
-        set(0,'CurrentFigure',traj_figure_handle)
-        plot(x3*0.197,x1*0.197,'k-')
+        % Convert units
+        x0=x0*ttoSI;
+        x1=x1*xtoSI;
+        x2=x2*xtoSI;
+        x3=x3*xtoSI;
+        tau=tau*ttoSI;
         
+        % plot trajectory
+        set(0,'CurrentFigure',traj_figure_handle)
+        plot(x3,x1,'k-')
+        
+        % plot energy
         set(0,'CurrentFigure',energy_figure_handle)
-        plot(x0*0.658,u0,'k-')
+        plot(x0,u0,'k-')
         
         % if the quantum efficiency parameter has been calculated then plot
         % this as well
         if  (strcmp(writeflag(i),'ct') == 1) 
+            chicount=chicount+1   % Count how many of the runs include the quantum efficieny parameter
             set(0,'CurrentFigure',chi_figure_handle)
-            plot(x0*0.658,chi,'k-') 
+            plot(x0,chi,'k-') 
         end 
-        
 
         clear traj;
     end   
     
+end 
+
+% If no runs include the quantum efficiency parameter then close this plot
+% window
+if (chicount==0)
+    set(0,'CurrentFigure',chi_figure_handle)
+    close
 end 
 
 

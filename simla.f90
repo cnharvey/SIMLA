@@ -1,10 +1,10 @@
 !---------------------------------------------------------------
 ! SIMLA: LASER-PARTICLE SIMULATOR
-! Version 3.0_QED				
+! Version 1.1			
 !---------------------------------------------------------------
 
 !---------------------------------------------------------------
-! Copyright Christopher Harvey 2010-13  !
+! Copyright Christopher Harvey 2010-14  
 !
 ! QED routines for probabilistic photon emission
 ! added by DG Green and C Harvey 2013
@@ -38,38 +38,18 @@ use constants
 	integer :: no_fields 
 
   	character(len=100),dimension(9) :: fieldvec
-
   	character(len=100),dimension(9) :: profilevec
   	
-  	double precision,dimension(9) :: field_angle_phi_vec,field_angle_theta_vec
+  	double precision,dimension(9) :: field_angle_xz_vec,field_angle_yz_vec,field_angle_xy_vec
   	double precision,dimension(9) :: lambdavec,omegavec
   	
-		! **** these are needed elsewhere in the code! ******
-		double precision, parameter :: omega=1d0! 1.55d0!  omega1
-		double precision, parameter :: lambda_metres=1.24d-6!0.8d-6 !1.24d-6!lambda_metres1
-  	
-		!--------------------------------------------------------------------------
-		! Now, using omega we define the normalisations for the rest of the code  	
-			! The factor 1.97/0.658 takes us from SI to L-H units
-			! Next we change to dimensionless variables
-			! t->omega*t, x-> omega*x/c
+! Normalisations: The factor 1.97/0.658 takes us from SI to L-H units
 		  
-			double precision, parameter :: tnormalisation= omega/0.658d-15
-			double precision, parameter :: xnormalisation= (1d0/1.97d-7)*(omega/c) 
+	double precision, parameter :: tnormalisation= 1d0/0.658d-15 
+	double precision, parameter :: xnormalisation= 1d0/1.97d-7 
 			
-			! renormalise lambda...
-			!double precision, parameter :: lambda=lambda_metres*xnormalisation
-		!--------------------------------------------------------------------------
-
-! ....and back to the beam
   	double precision,dimension(9) :: a0vec, fieldstrengthvec, waistvec,durationvec
   	
-  	double precision, parameter :: Coulomb_charge=92d0*e_charge /me 	! charge of Coulomb field in eV
-
-  	double precision, parameter :: Bmax=2.500d0 
-  	double precision, parameter :: Bmin=.500d0
-  	double precision, parameter :: magcavL=8*2d0*pi
-
 
 end module beamparameters
 
@@ -81,7 +61,6 @@ module simulationparameters
 	use beamparameters
 	use constants
 	
-
 	character(len=100) :: solver
 
 	integer :: writeevery
@@ -90,12 +69,11 @@ module simulationparameters
 	double precision :: tmaxw,xmaxw,ymaxw,zmaxw,tminw,xminw,yminw,zminw
 	
 
-! Record Field Data
+	! Parameters for recording field data
 	character(len=3) :: outputintensity
 	double precision :: outputfieldsdt
-	integer :: fieldpointsx, fieldpointsz
+	integer :: fieldpointst,fieldpointsx, fieldpointsz
 
-	integer :: fieldpointst
 	
 end module simulationparameters
 
@@ -153,7 +131,6 @@ module qedvariables ! QED routines
 !-------------------------
 	integer, parameter :: numX_gamma = 1 ! number of X_gamma generated for each call to chigamma
 	integer, parameter :: photonwrite = 1 ! write photon bin if =1, or not if =0
-	!integer, parameter :: electronrecoil = 1 ! electron recoil on if =1; off if =0
 	integer, parameter :: randomrepeat = 1 !if =0 (1) use repeatable (non-repeatable) random numbers in MC routines
 	integer, parameter :: nphotonsmax = 10000000
 	double precision, parameter :: eps_gamma = 1E-3 ! for deciding on event geneneration at each time step
@@ -197,39 +174,29 @@ program SIMLA
 		
 	errcode=0	 
 	
+	! Display information about the simulation 
+	
 	print*,'====================================================================='
-	print*,'SIMLA: Laser-Particle Simulator Version 3.0'
+	print*,'SIMLA: Laser-Particle Simulator Version 1.1'
 	print*,'====================================================================='
 	
-	! Set up simulation
-	
+	! Read in all the paramters from the input files
 	call read_input_files()
-	
-	
-	!******
-	! Need to introduce checks that all required variables have been allocated!
-	
-
+		
 	print*,'Solver: ',solver	
 	print*,'No. fields: ', no_fields 
 	
-	print*,'(Note: Coulomb fields are in beta'
-	print*,'lambda1 MUST be set to 1.24'
-	print*,'particles should not approach off axis since angle in y is not defined.)'
-	
-	! if field output is requested check that no of output files will be below maximum
+	! if field output is requested check that no. of output files will be below maximum
 	if (outputintensity .eq. 'on') then
 			fieldpointst=((tmaxw-tminw)/outputfieldsdt)+1
 		if (fieldpointst .gt. 9999) then
 			print*,'**** Error: too many field data files will need to be created'
-			print*,'Increase time step so there are less than 9999 files'
+			print*,'Increase time step so there will be less than 9999 files'
 			print*,'Aborting simulation! ****'
 			stop
 		end if
 	end if
-	
-
-	
+		
 	print*,'====================================================================='
 	
 	
@@ -260,8 +227,6 @@ program SIMLA
 	print*,'====================================================================='
 
 
-
-
 	call cpu_time(starttime)
 	
 	! check particle_input file is present
@@ -272,9 +237,9 @@ program SIMLA
 		stop
 	end if
 	
-	print*,'commencing simulation'
+	print*,'Commencing simulation'
 	
-	
+	! Read in first 3 lines of particle input file (header, repeatfirstline and no_runs)
 	open(particleinputfileID,file="particle_input.csv")
 	! skip headerline
 	read(particleinputfileID,*) randomtext
@@ -300,7 +265,7 @@ program SIMLA
 		stop
 	end if
 	
-	
+	! Set up output file for QED photons
 	nphoton=0
 	if (photonwrite==1) then
 		open(photonfileID,file='photon.dat')
@@ -321,6 +286,7 @@ program SIMLA
 			exit
 		end if
 		
+		! define constants according to particle species
 		if (species .eq. 'e') then
 			charge_sign=-1
 			charge=e_charge
@@ -350,6 +316,7 @@ program SIMLA
 					
 		if (repeatfirstline .eq. 'on') backspace(particleinputfileID) 
 		
+		! setup trajectory output file for the particle run
 		if (write_data .eq. 't' .or. write_data .eq. 'ct') then
 			write(filename,'(a,i5.5,a)')'trajectories',particle_no,'.dat'  ! define filename
 			if (fileformat == 'bin') then 
@@ -373,9 +340,6 @@ program SIMLA
 		!--------------------------------------------------------------------------
 		! Initial conditions
 		
-		!x=-dist0*sin(theta_i)	+x0            	!
-		!y=y0				     				! Initial position
-		!z=-dist0*cos(theta_i)	+z0            	!
 		
 		x=-dist0*cos(theta_i)*sin(phi_i)	+x0            	!
 		y=-dist0*sin(theta_i)*sin(phi_i)	+y0	 			! Initial position
@@ -383,12 +347,6 @@ program SIMLA
 		
 		v0=sqrt(1d0-1d0/(gama0*gama0))
 		
-		!vx=v0*sin(theta_i)
-		!vy=0d0				     		!
-		!vz=v0*cos(theta_i)		     	! Initial velocities
-		!ux=gama0*vx			     		! NB particle is aimed at 
-		!uy=0d0				     		! (x0,0,z0)
-		!uz=gama0*vz
 		
 		vx=v0*cos(theta_i)*sin(phi_i)
 		vy=v0*sin(theta_i)*sin(phi_i)	!
@@ -399,17 +357,11 @@ program SIMLA
 		
 		ax=0d0; ay=0d0; az=0d0		     ! Initial acceleration=0
 		
-!		if (v0.eq.0d0) then
-!			tshift=0d0
-!		else						! **** tshift so the *central* particle reaches (0,0,0) 
-!			tshift=sqrt((x-x0)**2d0+(z-z0)**2d0)/sqrt(vx*vx+vz*vz)		    ! at t=0
-!		end if
-!		t=0d0-tshift				! initial time
 
 		if (v0.eq.0d0) then
 			tshift=0d0
-		else						! **** tshift so the *central* particle reaches (0,0,0) 
-			tshift=sqrt((x-x0)**2d0+(y-y0)**2d0+(z-z0)**2d0)/sqrt(vx*vx+vy*vy+vz*vz)		    ! at t=0
+		else						! **** tshift so the *central* particle reaches (0,0,0) at t=0
+			tshift=sqrt((x-x0)**2d0+(y-y0)**2d0+(z-z0)**2d0)/sqrt(vx*vx+vy*vy+vz*vz)		    
 		end if
 		t=0d0-tshift				! initial time
 
@@ -418,31 +370,20 @@ program SIMLA
 
 		write(*,'(a,i5.5,a,i5.5)')'run ',particle_no,' of ',no_particles
 		
-		!open(1,file="trajectories.dat")
-		!write(trajectoryfileID,*) "# Electron four-positions x0 x1 x2 x3 ; gama, ux, uy, uz, chi_e, chi_gamma"
 		
-		
-		
-		
+		! Run the simulation for the particle		
 		call main_subroutine()  
 	
-
-	
-		
+		! Close files
 		if (write_data .eq. 't' .or. write_data .eq. 'ct') then	
 			close(trajectoryfileID)
 		end if
 
-		
+		! Record the data for the particle when it leaves the *simulation* box
+		write(finaldatafileID,"(10(2x,ES12.5))") t, x, y, z, gama, ux, uy, uz, X_e, X_gamma
 
-		
-		write(finaldatafileID,"(10(2x,ES12.5))") t/omega, x/omega, y/omega, z/omega, gama, ux, uy, uz, X_e, X_gamma
-		! final_data
-		
 		if (errcode.ne.0) then	! check if error has occured in main_subroutine
 			write(*,*)'Back to main program....'
-		
-			!exit
 			write(*,*)' ...... moving to next particle in list'
 			errcode=0
 			cycle
@@ -465,8 +406,6 @@ program SIMLA
 		call record_fields()
 	end if
 
-
-
 	if (photonwrite==1) then
 		close(photonfileID)
 	end if
@@ -485,6 +424,13 @@ end program SIMLA
 !---------------------------------------------
 subroutine main_subroutine()
 !---------------------------------------------
+
+! This is the main subroutine of the code.  It is called once for each particle listed in the file particle_input.csv.
+! The subroutine calls the solver routines to calculate the trajectory of the particle and operates the adjustable
+! time grid.  It monitors the feedback from the rest of the subroutines, looking for error reports and, upon detecting
+! an error, aborts the run and calls the error routines.  The subroutine also constantly checks if the particle is in the 
+! writebox and, if so, writes the trajectory data to file.
+
 
 	use beamparameters
 	use qedvariables
@@ -528,19 +474,22 @@ subroutine main_subroutine()
 		ux1=ux; uy1=uy; uz1=uz
 	
 	
-		! use QED routine?
-		if (eom .eq. 'qed') then
-		
-			call fields(t,x,y,z,B1,B2,B3,E1,E2,E3)
-		
+		! If using QED routines then need to update field components
+		if (eom .eq. 'qed') then	
+			call fields(t,x,y,z,B1,B2,B3,E1,E2,E3)		
 		end if
-	 
-		if (solver.eq.'leapfrog') then
-			call leapfrog_solver(t,dt,xst1,yst1,zst1,ax1,ay1,az1,vx1,vy1,vz1,gama1,ux1,uy1,uz1,errcode)
-		else if (solver.eq.'backwardeuler') then
-			call backward_euler_solver(t,dt,xst1,yst1,zst1,ax1,ay1,az1,vx1,vy1,vz1,gama1,ux1,uy1,uz1,errcode)
-		else
-			errcode=4;exit
+		
+		! Note that the Sokolov model incorporates its own particle pusher
+		if (eom .eq. 'sok') then
+			call Sokolov(t,dt,xst1,yst1,zst1,ax1,ay1,az1,vx1,vy1,vz1,gama1,ux1,uy1,uz1,errcode)
+		else  
+			if (solver.eq.'leapfrog') then
+				call leapfrog_solver(t,dt,xst1,yst1,zst1,ax1,ay1,az1,vx1,vy1,vz1,gama1,ux1,uy1,uz1,errcode)
+			else if (solver .eq. 'Euler' .or. solver .eq. 'euler') then
+				call Euler_solver(t,dt,xst1,yst1,zst1,ax1,ay1,az1,vx1,vy1,vz1,gama1,ux1,uy1,uz1,errcode)
+			else
+				errcode=4; exit
+			end if
 		end if
 		
 		! Now halve the time step and calculate the same interval: t-> t+dt/2 -> t+dt
@@ -551,10 +500,14 @@ subroutine main_subroutine()
 		gama2=gama
 		ux2=ux; uy2=uy; uz2=uz
 		do j=1,2
-			if (solver.eq.'leapfrog') then
-				call leapfrog_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
-			else if (solver.eq.'backwardeuler') then
-				call backward_euler_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
+			if (eom .eq. 'sok') then
+				call Sokolov(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
+			else  
+				if (solver.eq.'leapfrog') then
+					call leapfrog_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
+				else if (solver .eq. 'Euler' .or. solver .eq. 'euler') then
+					call Euler_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
+				end if
 			end if
 			t=t+dt
 		end do
@@ -575,14 +528,14 @@ subroutine main_subroutine()
 			
 			emit_photon=0 !initialize
 			if (eom .eq.'qed') then
-				call qedroutines(Xgamma_cutoff,X_e,emissionstart,X_gamma,k_gamma,2.0d0*dt/omega,eps_gamma, &
+				call qedroutines(Xgamma_cutoff,X_e,emissionstart,X_gamma,k_gamma,2.0d0*dt,eps_gamma, &
 				   photoncounter,emit_photon, QEDrecoil, recoilratio)	! Note that we use 2dt because of the adaptive grid 
 				
 				if (emit_photon==1) then
 					nphoton=nphoton+1
 					if (photonwrite==1) then
 						write(photonfileID, '(2(1x,I4), 7(1x,E12.5))') &
-						nphoton,particle_no,t/omega,atan2(ux,uz),atan2(uy,ux),X_e, X_gamma,k_gamma,recoilratio
+							nphoton,particle_no,t,atan2(ux,uz),atan2(uy,ux),X_e, X_gamma,k_gamma,recoilratio
 					end if
 				end if
 			end if
@@ -622,27 +575,23 @@ subroutine main_subroutine()
 						if (write_data .eq. 'ct') then
 							call chicalc(chiclassical,t,x,y,z,gama,ux,uy,uz)
 							if (fileformat=='txt') then							
-								write(trajectoryfileID,"(11(2x,ES20.13))") &
-								t/omega,x/omega,y/omega,z/omega,gama,ux,uy,uz,X_e,X_gamma,chiclassical
+								write(trajectoryfileID,"(11(2x,ES20.13))") t,x,y,z,gama,ux,uy,uz,X_e,X_gamma,chiclassical								
 							elseif (fileformat == 'bin') then
-								write(trajectoryfileID) &
-								t/omega,x/omega,y/omega,z/omega,gama,ux,uy,uz,X_e,X_gamma,chiclassical		
+								write(trajectoryfileID) t,x,y,z,gama,ux,uy,uz,X_e,X_gamma,chiclassical										
 							end if					
 						else 
 							if (fileformat=='txt') then	
-								write(trajectoryfileID,"(11(2x,ES20.13))") &
-								t/omega, x/omega, y/omega, z/omega, gama, ux, uy, uz, X_e, X_gamma,0.0
+								write(trajectoryfileID,"(11(2x,ES20.13))") t, x, y, z, gama, ux, uy, uz, X_e, X_gamma,0.0							
 							elseif (fileformat == 'bin') then
-								write(trajectoryfileID) &
-								t/omega, x/omega, y/omega, z/omega, gama, ux, uy, uz, X_e, X_gamma,0.0
+								write(trajectoryfileID) t, x, y, z, gama, ux, uy, uz, X_e, X_gamma,0.0								
 							end if
 						end if  !write_data   
 					end if !writeeverycounter
 				end if !check in writebox
 			end if !write_data.eq. ....
 			
-			dt=1.1d0*(2d0*dt)
-		
+			! Increase dt by 10% for the next time step (up to maxdt)
+			dt=1.1d0*(2d0*dt)	
 			if (dt.ge.maxdt) then
 				dt=maxdt
 			end if

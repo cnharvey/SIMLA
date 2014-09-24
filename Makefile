@@ -1,6 +1,5 @@
 ###################################################################
-# SIMLA Makefile                               			  #
-# Date:    5 Feb 2014                                         	  #
+# SIMLA Makefile                               			  		  #                                         	  #
 ###################################################################
 
 ###################################################################
@@ -11,20 +10,12 @@ ALTHOST =
 FCOMP       = gfortran   ## ifort
 
 
-####################################################################
-# site-independent files                                           #
-####################################################################
-FILES = simla3_0.o simla_subroutines.o qedroutines.o  
+FILES = simla.o simla_subroutines.o simla_qedroutines.o  
 
 
 ###################################################################
 # FORTRAN compilation rule                                        #
 ###################################################################
-.SUFFIXES: .f .o
-
-# how to make a .o-file from a .f-file:
-.f.o:
-	$(FCOMP)  -c $*.f
 
 .SUFFIXES: .f90 .o
 
@@ -36,7 +27,7 @@ FILES = simla3_0.o simla_subroutines.o qedroutines.o
 # link simla
 ####################################################################
 simla: include.i $(FILES) 
-	$(FCOMP)  -o simla3 $(FILES) 
+	$(FCOMP)  -o simla $(FILES) 
 
 
 ####################################################################
@@ -44,13 +35,13 @@ simla: include.i $(FILES)
 # (using dummy "include.i"):                                       #
 ####################################################################
 
-include.i: simla3_0.f90 simla_subroutines.f90 qedroutines.f90 
+include.i: simla.f90 simla_subroutines.f90 simla_qedroutines.f90 
 	touch include.i 
-	rm -f simla3_0.o simla_subroutines.o qedroutines.o 
+	rm -f simla.o simla_subroutines.o simla_qedroutines.o 
 
 
 ####################################################################
-# remove all object files and executable of simla                  +
+# clean up commands                  							   #
 ####################################################################
 clean:
 	@rm -f simla $(FILES)
@@ -60,17 +51,8 @@ vclean:
 	@rm -f simla $(FILES)
 	@rm -f *.mod
 	@rm -f *.dat
-####################################################################
-# clean include.i                                                  #
-####################################################################
-clean_include:
 	@rm -f include.i
 
-
-####################################################################
-# clean all
-####################################################################
-clean_all: clean clean_include
 
 
 

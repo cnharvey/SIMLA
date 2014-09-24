@@ -121,7 +121,7 @@ photoncounter_sub, emit_photon_sub, electronrecoil_sub, recoilratio_sub)
 			k_gamma_sub = X_gamma_sub/X_bar  !DGG needs checked
 
 			! 5) ******* Update electron momentum due to recoil |p| -> |p| - kphoton *******
-			if (electronrecoil==1) then
+			if (QEDrecoil=='on') then
 				uu2 = ux**2 + uy**2 + uz**2
 				mod_u = sqrt(uu2)
 				
