@@ -116,6 +116,8 @@ module commonvariables
 	integer :: fieldintensityxvecfileID=82
 	integer :: fieldintensityzvecfileID=84	
 	
+	integer :: spectrumfileID=90
+	
 	integer :: errreportfileID=999
 	logical :: errorfileexists
 	character(len=21) :: errorfilename !error_report00000.txt
@@ -281,7 +283,8 @@ program SIMLA
 		read(particleinputfileID,*),randomtext,species,theta_i,phi_i,dist0,x0,y0,z0,gama0,eom,write_data
 		
 		! check that the line conatins the correct no of entries
-		if (write_data .ne. 't' .and. write_data .ne. 'ct' .and. write_data .ne. 'x') then
+		if (write_data .ne. 't' .and. write_data .ne. 'ct' .and. write_data .ne. 's' .and. write_data .ne. 'st' &
+			.and. write_data .ne. 'cst' .and. write_data .ne. 'x') then
 			write(*,'(a,i5.5)')'*** Particle_input.csv file is corrupt!  Stopping at line ',particle_no, write_data
 			exit
 		end if
@@ -316,8 +319,8 @@ program SIMLA
 					
 		if (repeatfirstline .eq. 'on') backspace(particleinputfileID) 
 		
-		! setup trajectory output file for the particle run
-		if (write_data .eq. 't' .or. write_data .eq. 'ct') then
+		! set up trajectory output file for the particle run
+		if (write_data .eq. 't' .or. write_data .eq. 'ct' .or. write_data .eq. 'st' .or. write_data .eq. 'cst') then				
 			write(filename,'(a,i5.5,a)')'trajectories',particle_no,'.dat'  ! define filename
 			if (fileformat == 'bin') then 
 				open(trajectoryfileID,file=filename,form='unformatted')
@@ -328,6 +331,13 @@ program SIMLA
 				stop
 			end if	
 		end if
+		
+		! set up spectrum output file for the particle run
+		if (write_data .eq. 's' .or. write_data .eq. 'st' .or. write_data .eq. 'cst') then				
+			write(filename,'(a,i5.5,a)')'spectrum',particle_no,'.dat'  ! define filename
+			open(spectrumfileID,file=filename,form='formatted')
+		end if
+			
 		
 		! normalise
 		phi_i=phi_i*pi/180d0
@@ -375,9 +385,13 @@ program SIMLA
 		call main_subroutine()  
 	
 		! Close files
-		if (write_data .eq. 't' .or. write_data .eq. 'ct') then	
+		if (write_data .eq. 't' .or. write_data .eq. 'ct'.or. write_data .eq. 'st'.or. write_data .eq. 'cst') then	
 			close(trajectoryfileID)
 		end if
+		if (write_data .eq. 's' .or. write_data .eq. 'st' .or. write_data .eq. 'cst') then				
+			close(spectrumfileID)
+		end if
+		
 
 		! Record the data for the particle when it leaves the *simulation* box
 		write(finaldatafileID,"(10(2x,ES12.5))") t, x, y, z, gama, ux, uy, uz, X_e, X_gamma
@@ -393,7 +407,6 @@ program SIMLA
 	end do ! no_particles
 
 	close(particleinputfileID)
-
 
 	call cpu_time(endtime)
 
@@ -445,6 +458,7 @@ subroutine main_subroutine()
 	real(kind=8)::xst1,xst2,yst1,yst2,zst1,zst2,xsqerr
 	real(kind=8)::ax1,ay1,az1,vx1,vy1,vz1,gama1,ux1,uy1,uz1
 	real(kind=8)::ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2
+	real(kind=8)::t_old,gama_old,ux_old,uy_old,uz_old
 	
 	integer(kind=8)::nt,j,writeeverycounter,divisions,jmax,jj,stopflag
 	
@@ -461,6 +475,13 @@ subroutine main_subroutine()
 	
 		! This part of the code works out the best time step
 		! while maintaining constant errors
+		
+		! store variables for Erik's spectrum routine
+		t_old=t
+		gama_old=gama
+		ux_old=ux
+		uy_old=uy
+		uz_old=uz
 	
 	
 		! Try first with current time step dt
@@ -517,6 +538,10 @@ subroutine main_subroutine()
 	   
 		if (xsqerr.le.grid_err_tol) then   ! If errors are acceptable then increase dt by 10% and move to next time step
 			itcounter=itcounter+1 !itcounter is counting the number of time steps 
+			
+
+			
+			! Now update the variables
 			x=xst2;y=yst2;z=zst2
 			vx=vx2;vy=vy2;vz=vz2
 			ux=ux2;uy=uy2;uz=uz2
@@ -540,9 +565,12 @@ subroutine main_subroutine()
 				end if
 			end if
 			!---------------------------------------
+			
+
+			
 	
 			! If the particle is in the Write Box then write the data to file
-			if (write_data .eq. 't' .or. write_data .eq. 'ct') then
+			if (write_data .eq. 't' .or. write_data .eq. 'ct'.or. write_data .eq. 'st'.or. write_data .eq. 'cst') then
 				if (t.ge.tminw .and. t.le.tmaxw .and. x.le.xmaxw .and. y.le.ymaxw .and. z.le.zmaxw .and. &
 				   x.ge.xminw .and. y.ge.yminw .and. z.ge.zminw) then
 					writeeverycounter=writeeverycounter+1
@@ -550,6 +578,23 @@ subroutine main_subroutine()
 						no_entries=no_entries+1
 						writeeverycounter=0
 						
+						
+						!---------------------------------------
+						!! Call Erik's spectra module
+						if (write_data .eq. 's' .or. write_data .eq. 'st'.or. write_data .eq. 'cst') then
+							call spectrum(spectrumfileID,t,x,y,z,gama,ux,uy,uz,t_old,gama_old,ux_old,uy_old,uz_old)
+							
+							t_old=t
+							gama_old=gama
+							ux_old=ux
+							uy_old=uy
+							uz_old=uz
+											
+						end if
+		
+						!---------------------------------------
+						
+				
 						if (abs(t).le.1d-99) then
 							t=0d0
 						end if
@@ -572,14 +617,14 @@ subroutine main_subroutine()
 							uz=0d0
 						end if
 				
-						if (write_data .eq. 'ct') then
+						if (write_data .eq. 'ct' .or. write_data .eq. 'cst') then
 							call chicalc(chiclassical,t,x,y,z,gama,ux,uy,uz)
 							if (fileformat=='txt') then							
 								write(trajectoryfileID,"(11(2x,ES20.13))") t,x,y,z,gama,ux,uy,uz,X_e,X_gamma,chiclassical								
 							elseif (fileformat == 'bin') then
 								write(trajectoryfileID) t,x,y,z,gama,ux,uy,uz,X_e,X_gamma,chiclassical										
 							end if					
-						else 
+						elseif (write_data .eq. 't' .or. write_data .eq. 'st') then
 							if (fileformat=='txt') then	
 								write(trajectoryfileID,"(11(2x,ES20.13))") t, x, y, z, gama, ux, uy, uz, X_e, X_gamma,0.0							
 							elseif (fileformat == 'bin') then

@@ -1363,6 +1363,56 @@ end subroutine chicalc
 
 
 !---------------------------------------------
+subroutine spectrum(spectrumfileID,t,x,y,z,gama,ux,uy,uz,t_old,gama_old,ux_old,uy_old,uz_old)
+!---------------------------------------------
+
+! Erik's spectrum module
+
+use constants
+use particlevariables
+use beamparameters
+
+implicit none
+
+integer(kind=4),intent(in)::spectrumfileID
+real(kind=8),intent(in)::t,x,y,z,gama,ux,uy,uz,t_old,gama_old,ux_old,uy_old,uz_old
+
+!--------
+! define variables you want in the subroutine here:
+! e.g.
+real(kind=8)::timestep
+
+
+
+
+!----------------------------------------
+! Variables available to this subroutine:
+!----------------------------------------
+! t_old - previous time
+! t - current time
+! x,y,z -particle position
+! gama- gamma-factor
+! ux,uy,uz - relativistic velocity
+! gama_old - previous gamma-factor
+! ux_old,uy_old,uz_old - previous relativistic velocity
+! mass - particle mass
+! charge - magnitude of particle charge
+! charge_sign - sign of particle charge (integer) (-1 for electron, +1 for positron)
+
+
+timestep=t-t_old
+
+! sample write command to write 5 columns of zeros to the spectrumXXXXX.dat output file
+write(spectrumfileID,"(5(2x,ES20.13))") 0.0, 0.0, 0.0, 0.0, 0.0
+
+
+
+end subroutine spectrum
+
+
+
+
+!---------------------------------------------
 subroutine record_fields()
 !---------------------------------------------
 
