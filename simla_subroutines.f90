@@ -1377,13 +1377,6 @@ implicit none
 integer(kind=4),intent(in)::spectrumfileID
 real(kind=8),intent(in)::t,x,y,z,gama,ux,uy,uz,t_old,gama_old,ux_old,uy_old,uz_old
 
-!--------
-! define variables you want in the subroutine here:
-! e.g.
-real(kind=8)::timestep
-
-
-
 
 !----------------------------------------
 ! Variables available to this subroutine:
@@ -1399,11 +1392,25 @@ real(kind=8)::timestep
 ! charge - magnitude of particle charge
 ! charge_sign - sign of particle charge (integer) (-1 for electron, +1 for positron)
 
+!--------------------------
+! define the variables you want locally in the subroutine here:
+! e.g.
+real(kind=8)::timestep
+
+
+
+
+!--------------------------
+! write the rest of the code here:
+! e.g.
 
 timestep=t-t_old
 
 ! sample write command to write 5 columns of zeros to the spectrumXXXXX.dat output file
 write(spectrumfileID,"(5(2x,ES20.13))") 0.0, 0.0, 0.0, 0.0, 0.0
+
+
+
 
 
 
