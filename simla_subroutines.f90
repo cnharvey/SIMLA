@@ -952,6 +952,171 @@ z=z+(vz+deltav(3))*dt
 end subroutine Sokolov
 
 
+!---------------------------------------------
+subroutine FordOConnell(vx,vy,vz,E1,E2,E3,B1,B2,B3,gama,ax,ay,az,&
+				dt,dx,dy,dz,B1previous,B2previous,B3previous,E1previous,E2previous,E3previous)
+!---------------------------------------------
+
+! Determines the acceleration on the particle using the Ford-O'Connell equation 
+! which takes into account radiation back reaction.
+
+
+use constants
+use beamparameters
+use particlevariables
+implicit none 
+
+real(kind=8),intent(in)::gama,vx,vy,vz,E1,E2,E3,B1,B2,B3
+real(kind=8),intent(in)::dt,dx,dy,dz,B1previous,B2previous,B3previous,E1previous,E2previous,E3previous
+real(kind=8),intent(inout)::ax,ay,az
+
+real(kind=8)::coupling
+real(kind=8)::vxB1,vxB2,vxB3,vdE,ExB1,ExB2,ExB3,EpvxB1,EpvxB2,EpvxB3
+real(kind=8)::dE1dt,dE1dx,dE1dy,dE1dz,dE2dt,dE2dx,dE2dy,dE2dz,dE3dt,dE3dx,dE3dy,dE3dz
+real(kind=8)::dB1dt,dB1dx,dB1dy,dB1dz,dB2dt,dB2dx,dB2dy,dB2dz,dB3dt,dB3dx,dB3dy,dB3dz
+real(kind=8)::derE1,derE2,derE3,derB1,derB2,derB3
+real(kind=8),dimension(3)::term1,term2,term3,term4
+
+real(kind=8),dimension(3)::LF
+
+
+coupling=2d0/3d0*charge*charge/(4d0*pi*mass)
+
+vxB1 = vy*B3 - vz*B2
+vxB2 = vz*B1 - vx*B3
+vxB3 = vx*B2 - vy*B1
+
+LF(1)=E1+vxB1 	!
+LF(2)=E2+vxB2	! Lorentz force term
+LF(3)=E3+vxB3	!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+vxB1 = vy*B3 - vz*B2
+vxB2 = vz*B1 - vx*B3
+vxB3 = vx*B2 - vy*B1
+
+ExB1=E2*B3-E3*B2
+ExB2=E3*B1-E1*B3
+ExB3=E1*B2-E2*B1
+
+vdE=vx*E1+vy*E2+vz*E3
+
+EpvxB1=E1+vxB1
+EpvxB2=E2+vxB2
+EpvxB3=E3+vxB3
+
+term1(1)=E1+vxB1 	!
+term1(2)=E2+vxB2	! Lorentz force term
+term1(3)=E3+vxB3	!
+
+
+dE1dt=(E1-E1previous)/dt
+dE2dt=(E2-E2previous)/dt
+dE3dt=(E3-E3previous)/dt
+
+dB1dt=(B1-B1previous)/dt
+dB2dt=(B2-B2previous)/dt
+dB3dt=(B3-B3previous)/dt
+
+if (abs(dx).ge.1d-50) then
+	dE1dx=(E1-E1previous)/dx
+	dE2dx=(E2-E2previous)/dx
+	dE3dx=(E3-E3previous)/dx
+	dB1dx=(B1-B1previous)/dx
+	dB2dx=(B2-B2previous)/dx	
+	dB3dx=(B3-B3previous)/dx	
+else
+	dE1dx=0d0
+	dE2dx=0d0
+	dE3dx=0d0
+	dB1dx=0d0
+	dB2dx=0d0
+	dB3dx=0d0			
+end if
+
+if (abs(dy).ge.1d-50) then
+
+	dE1dy=(E1-E1previous)/dy
+	dE2dy=(E2-E2previous)/dy
+	dE3dy=(E3-E3previous)/dy
+	dB1dy=(B1-B1previous)/dy
+	dB2dy=(B2-B2previous)/dy		
+	dB3dy=(B3-B3previous)/dy	
+else
+	dE1dy=0d0
+	dE2dy=0d0
+	dE3dy=0d0
+	dB1dy=0d0
+	dB2dy=0d0	
+	dB3dy=0d0	
+end if	
+					
+if (abs(dz).ge.1d-50) then
+	dE1dz=(E1-E1previous)/dz
+	dE2dz=(E2-E2previous)/dz
+	dE3dz=(E3-E3previous)/dz
+	dB1dz=(B1-B1previous)/dz
+	dB2dz=(B2-B2previous)/dz
+	dB3dz=(B3-B3previous)/dz
+else
+	dE1dz=0d0
+	dE2dz=0d0
+	dE3dz=0d0
+	dB1dz=0d0
+	dB2dz=0d0
+	dB3dz=0d0
+end if
+		
+derE1=dE1dt+vx*dE1dx+vy*dE1dy+vz*dE1dz
+derE2=dE2dt+vx*dE2dx+vy*dE2dy+vz*dE2dz
+derE3=dE3dt+vx*dE3dx+vy*dE3dy+vz*dE3dz
+
+derB1=dB1dt+vx*dB1dx+vy*dB1dy+vz*dB1dz
+derB2=dB2dt+vx*dB2dx+vy*dB2dy+vz*dB2dz
+derB3=dB3dt+vx*dB3dx+vy*dB3dy+vz*dB3dz
+
+
+term2(1)=derE1 + (vy*derB3 - vz*derB2)	
+term2(2)=derE2 + (vz*derB1 - vx*derB3)
+term2(3)=derE3 + (vx*derB2 - vy*derB1)
+
+term3(1)=ExB1 + vxB2*B3-vxB3*B2 + vdE*E1
+term3(2)=ExB2 + vxB3*B1-vxB1*B3 + vdE*E2
+term3(3)=ExB3 + vxB1*B2-vxB2*B1 + vdE*E3
+
+term4(1)=(EpvxB1*EpvxB1+EpvxB2*EpvxB2+EpvxB3*EpvxB3-vdE*vdE)*vx
+term4(2)=(EpvxB1*EpvxB1+EpvxB2*EpvxB2+EpvxB3*EpvxB3-vdE*vdE)*vy
+term4(3)=(EpvxB1*EpvxB1+EpvxB2*EpvxB2+EpvxB3*EpvxB3-vdE*vdE)*vz
+
+ax=charge_sign*term1(1)-coupling*gama*term2(1)-coupling*term3(1)-coupling*gama*gama*term4(1)
+ay=charge_sign*term1(2)-coupling*gama*term2(2)-coupling*term3(2)-coupling*gama*gama*term4(2)
+az=charge_sign*term1(3)-coupling*gama*term2(3)-coupling*term3(3)-coupling*gama*gama*term4(3)
+
+
+end subroutine FordOConnell
+
 
 
 !---------------------------------------------
