@@ -34,7 +34,7 @@ end
 
 % plot trajectories
 for j=1:no_traj_files
-    % Load particle input file
+    % Load particle data file
     filename1='trajectories';
     filename2= sprintf('%05d',file_no_vec(j));
     filename3='.dat';

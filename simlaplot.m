@@ -7,7 +7,7 @@ clear
 
 fileformat='txt';  % Specify output file format (txt or bin) 
 
-xtoSI=0.197; % conversion factor to micorns
+xtoSI=0.197; % conversion factor to microns
 ttoSI=0.658; % conversion factor to femtosceonds
 
 
@@ -75,7 +75,7 @@ for j=1:no_runs
     end
     
     % check what data has been written for the current run
-    if (strcmp(writeflag(i),'t') == 1) ||(strcmp(writeflag(i),'ct') == 1) 
+    if (strcmp(writeflag(i),'t') == 1) ||(strcmp(writeflag(i),'ct') == 1) ||(strcmp(writeflag(i),'st') == 1)||(strcmp(writeflag(i),'cst') == 1)
         written_counter=written_counter+1;
         
         % read in trajectory file
@@ -162,7 +162,7 @@ for j=1:no_runs
         
         % if the quantum efficiency parameter has been calculated then plot
         % this as well
-        if  (strcmp(writeflag(i),'ct') == 1) 
+        if  (strcmp(writeflag(i),'ct') == 1) ||(strcmp(writeflag(i),'cst') == 1)
             chicount=chicount+1   % Count how many of the runs include the quantum efficieny parameter
             set(0,'CurrentFigure',chi_figure_handle)
             plot(x0,chi,'k-') 
