@@ -458,7 +458,8 @@ subroutine main_subroutine()
 	real(kind=8)::xst1,xst2,yst1,yst2,zst1,zst2,xsqerr
 	real(kind=8)::ax1,ay1,az1,vx1,vy1,vz1,gama1,ux1,uy1,uz1
 	real(kind=8)::ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2
-	real(kind=8)::t_old,gama_old,ux_old,uy_old,uz_old
+	real(kind=8)::tprevious,xprevious,yprevious,zprevious,gamaprevious,uxprevious,uyprevious,uzprevious
+	real(kind=8)::t_old_s,gama_old_s,ux_old_s,uy_old_s,uz_old_s
 	
 	integer(kind=8)::nt,j,writeeverycounter,divisions,jmax,jj,stopflag
 	
@@ -470,18 +471,31 @@ subroutine main_subroutine()
 	writeeverycounter=writeevery-1 !NB plot a point as soon as particle enters the Write Box
 	no_entries=0
 	
+	! store variables for Erik's spectrum routine
+	t_old_s=t
+	gama_old_s=gama0
+	ux_old_s=ux
+	uy_old_s=uy
+	uz_old_s=uz
+	
+	! store variables for e.o.m's that have derivative terms
+	tprevious=t
+	xprevious=x
+	yprevious=y
+	zprevious=z
+	gamaprevious=gama0
+	uxprevious=ux
+	uyprevious=uy
+	uzprevious=uz	
+	
+	gama=gama0
 	
 	do while(stopflag.eq.0) 
 	
 		! This part of the code works out the best time step
 		! while maintaining constant errors
 		
-		! store variables for Erik's spectrum routine
-		t_old=t
-		gama_old=gama
-		ux_old=ux
-		uy_old=uy
-		uz_old=uz
+
 	
 	
 		! Try first with current time step dt
@@ -507,7 +521,8 @@ subroutine main_subroutine()
 			if (solver.eq.'leapfrog') then
 				call leapfrog_solver(t,dt,xst1,yst1,zst1,ax1,ay1,az1,vx1,vy1,vz1,gama1,ux1,uy1,uz1,errcode)
 			else if (solver .eq. 'Euler' .or. solver .eq. 'euler') then
-				call Euler_solver(t,dt,xst1,yst1,zst1,ax1,ay1,az1,vx1,vy1,vz1,gama1,ux1,uy1,uz1,errcode)
+				call Euler_solver(t,dt,xst1,yst1,zst1,ax1,ay1,az1,vx1,vy1,vz1,gama1,ux1,uy1,uz1, &
+					tprevious,xprevious,yprevious,zprevious,gamaprevious,uxprevious,uyprevious,uzprevious,errcode)
 			else
 				errcode=4; exit
 			end if
@@ -520,14 +535,17 @@ subroutine main_subroutine()
 		vx2=vx; vy2=vy; vz2=vz
 		gama2=gama
 		ux2=ux; uy2=uy; uz2=uz
-		do j=1,2
+		do j=1,2				! is 'dt' correct here???
 			if (eom .eq. 'sok') then
 				call Sokolov(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
 			else  
 				if (solver.eq.'leapfrog') then
 					call leapfrog_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
 				else if (solver .eq. 'Euler' .or. solver .eq. 'euler') then
-					call Euler_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
+										
+					call Euler_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2, &
+						tprevious,xprevious,yprevious,zprevious,gamaprevious,uxprevious,uyprevious,uzprevious,errcode)
+
 				end if
 			end if
 			t=t+dt
@@ -539,7 +557,17 @@ subroutine main_subroutine()
 		if (xsqerr.le.grid_err_tol) then   ! If errors are acceptable then increase dt by 10% and move to next time step
 			itcounter=itcounter+1 !itcounter is counting the number of time steps 
 			
-
+			! store previous variables for e.o.m's that have derivative terms
+			tprevious=t
+			xprevious=x
+			yprevious=y
+			zprevious=z
+			gamaprevious=gama
+			uxprevious=ux
+			uyprevious=uy
+			uzprevious=uz	
+			
+			
 			
 			! Now update the variables
 			x=xst2;y=yst2;z=zst2
@@ -547,6 +575,9 @@ subroutine main_subroutine()
 			ux=ux2;uy=uy2;uz=uz2
 			gama=gama2
 			ax=ax2;ay=ay2;az=az2
+			
+
+			
 			
 			!---------------------------------------
 			!! use QED routine
@@ -568,7 +599,7 @@ subroutine main_subroutine()
 			
 
 			
-	
+			!---------------------------------------	
 			! If the particle is in the Write Box then write the data to file
 			if (write_data .eq. 't' .or. write_data .eq. 'ct'.or. write_data .eq. 'st'.or. write_data .eq. 'cst') then
 				if (t.ge.tminw .and. t.le.tmaxw .and. x.le.xmaxw .and. y.le.ymaxw .and. z.le.zmaxw .and. &
@@ -582,13 +613,13 @@ subroutine main_subroutine()
 						!---------------------------------------
 						!! Call Erik's spectra module
 						if (write_data .eq. 's' .or. write_data .eq. 'st'.or. write_data .eq. 'cst') then
-							call spectrum(spectrumfileID,t,x,y,z,gama,ux,uy,uz,t_old,gama_old,ux_old,uy_old,uz_old)
+							call spectrum(spectrumfileID,t,x,y,z,gama,ux,uy,uz,t_old_s,gama_old_s,ux_old_s,uy_old_s,uz_old_s)
 							
-							t_old=t
-							gama_old=gama
-							ux_old=ux
-							uy_old=uy
-							uz_old=uz
+							t_old_s=t
+							gama_old_s=gama
+							ux_old_s=ux
+							uy_old_s=uy
+							uz_old_s=uz
 											
 						end if
 		
@@ -634,6 +665,9 @@ subroutine main_subroutine()
 					end if !writeeverycounter
 				end if !check in writebox
 			end if !write_data.eq. ....
+			
+			!---------------------------------------
+			
 			
 			! Increase dt by 10% for the next time step (up to maxdt)
 			dt=1.1d0*(2d0*dt)	

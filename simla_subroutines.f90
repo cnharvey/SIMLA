@@ -488,7 +488,8 @@ end if
 end subroutine read_input_files
 
 !---------------------------------------------
-subroutine Euler_solver(t,dt,x,y,z,ax,ay,az,vx,vy,vz,gama,ux,uy,uz,errcode)
+subroutine Euler_solver(t,dt,x,y,z,ax,ay,az,vx,vy,vz,gama,ux,uy,uz,  &
+	tprevious,xprevious,yprevious,zprevious,gamaprevious,uxprevious,uyprevious,uzprevious,errcode)
 !---------------------------------------------
 
 ! This subroutine propagates the particle forward one time step using Euler's method.
@@ -502,17 +503,13 @@ implicit none
 
 integer(kind=4),intent(inout)::errcode
 real(kind=8),intent(in)::t,dt
+real(kind=8),intent(in)::tprevious,xprevious,yprevious,zprevious,gamaprevious,uxprevious,uyprevious,uzprevious
 real(kind=8),intent(inout)::x,y,z,ax,ay,az,vx,vy,vz,gama,ux,uy,uz
 
 real(kind=8)::E1,E2,E3,B1,B2,B3
 
-real(kind=8)::tprevious,xprevious,yprevious,zprevious,dx,dy,dz							!ll3
+real(kind=8)::dx,dy,dz							!ll3
 real(kind=8)::E1previous,E2previous,E3previous,B1previous,B2previous,B3previous 		!ll3
-
-tprevious=t-dt		!ll3
-xprevious=x			!ll3
-yprevious=y			!ll3
-zprevious=z			!ll3
 
 
 ! Determine fields at current location
@@ -525,6 +522,7 @@ if (eom .eq.'lf' .or. eom .eq. 'qed') then
 else if (eom .eq. 'll') then
 	call Landau_Lifshitz(vx,vy,vz,gama,E1,E2,E3,B1,B2,B3,ax,ay,az)
 else if (eom .eq. 'll3') then
+	! Determine fields at previous location
 	call fields(tprevious,xprevious,yprevious,zprevious,B1previous,B2previous,B3previous,E1previous,E2previous,E3previous)
 		
 	dx=x-xprevious
@@ -533,6 +531,13 @@ else if (eom .eq. 'll3') then
 	
 	call Landau_Lifshitz_with_derivatives(vx,vy,vz,E1,E2,E3,B1,B2,B3,gama,ax,ay,az,&
 			dt,dx,dy,dz,B1previous,B2previous,B3previous,E1previous,E2previous,E3previous)
+else if (eom .eq. 'foc') then	
+	! Determine fields at previous location
+	call fields(tprevious,xprevious,yprevious,zprevious,B1previous,B2previous,B3previous,E1previous,E2previous,E3previous)
+		
+	call FordOConnell(dt,t,x,y,z,vx,vy,vz,E1,E2,E3,B1,B2,B3,gama,ax,ay,az, &
+			B1previous,B2previous,B3previous,E1previous,E2previous,E3previous, &
+			tprevious,xprevious,yprevious,zprevious,gamaprevious,uxprevious,uyprevious,uzprevious)
 end if
 
 ! Update velocity
@@ -549,6 +554,7 @@ uz=uz+az*dt
 
 ! Update gama by enforcing the mass-shell condition
 gama = sqrt(1d0 + ux*ux + uy*uy + uz*uz)
+
 
 ! Check for errors
 if (gama.ne.gama) then
@@ -953,8 +959,9 @@ end subroutine Sokolov
 
 
 !---------------------------------------------
-subroutine FordOConnell(vx,vy,vz,E1,E2,E3,B1,B2,B3,gama,ax,ay,az,&
-				dt,dx,dy,dz,B1previous,B2previous,B3previous,E1previous,E2previous,E3previous)
+subroutine FordOConnell(dt,t,x,y,z,vx,vy,vz,E1,E2,E3,B1,B2,B3,gama,ax,ay,az, &
+				B1previous,B2previous,B3previous,E1previous,E2previous,E3previous, &
+				tprevious,xprevious,yprevious,zprevious,gamaprevious,uxprevious,uyprevious,uzprevious)
 !---------------------------------------------
 
 ! Determines the acceleration on the particle using the Ford-O'Connell equation 
@@ -966,25 +973,26 @@ use beamparameters
 use particlevariables
 implicit none 
 
-real(kind=8),intent(in)::gama,vx,vy,vz,E1,E2,E3,B1,B2,B3
-real(kind=8),intent(in)::dt,dx,dy,dz,B1previous,B2previous,B3previous,E1previous,E2previous,E3previous
+real(kind=8),intent(in)::dt,t,x,y,z,gama,vx,vy,vz,E1,E2,E3,B1,B2,B3
+real(kind=8),intent(in)::B1previous,B2previous,B3previous,E1previous,E2previous,E3previous
+real(kind=8),intent(in)::tprevious,xprevious,yprevious,zprevious,gamaprevious,uxprevious,uyprevious,uzprevious
 real(kind=8),intent(inout)::ax,ay,az
 
-real(kind=8)::coupling
-real(kind=8)::vxB1,vxB2,vxB3,vdE,ExB1,ExB2,ExB3,EpvxB1,EpvxB2,EpvxB3
-real(kind=8)::dE1dt,dE1dx,dE1dy,dE1dz,dE2dt,dE2dx,dE2dy,dE2dz,dE3dt,dE3dx,dE3dy,dE3dz
-real(kind=8)::dB1dt,dB1dx,dB1dy,dB1dz,dB2dt,dB2dx,dB2dy,dB2dz,dB3dt,dB3dx,dB3dy,dB3dz
-real(kind=8)::derE1,derE2,derE3,derB1,derB2,derB3
-real(kind=8),dimension(3)::term1,term2,term3,term4
+real(kind=8)::coupling,dx,dy,dz
+real(kind=8)::vxB1,vxB2,vxB3,vxprevious,vyprevious,vzprevious
+real(kind=8)::vxB1previous,vxB2previous,vxB3previous
+real(kind=8),dimension(3)::LF,LFprevious,delLF,dLFdt,dvdt,vxLF,dvdtxvxLF
 
-real(kind=8),dimension(3)::LF
-
-
+! RR coupling
 coupling=2d0/3d0*charge*charge/(4d0*pi*mass)
 
-vxB1 = vy*B3 - vz*B2
-vxB2 = vz*B1 - vx*B3
-vxB3 = vx*B2 - vy*B1
+dx=x-xprevious
+dy=y-yprevious
+dz=z-zprevious
+
+! Calculate Lorentz force at current position
+
+call cross(vx,vy,vz,B1,B2,B3,vxB1,vxB2,vxB3)
 
 LF(1)=E1+vxB1 	!
 LF(2)=E2+vxB2	! Lorentz force term
@@ -992,127 +1000,47 @@ LF(3)=E3+vxB3	!
 
 
 
+! Calculate Lorentz force at previous position
+
+vxprevious=uxprevious/gamaprevious
+vyprevious=uyprevious/gamaprevious
+vzprevious=uzprevious/gamaprevious
 
 
 
+call cross(vxprevious,vyprevious,vzprevious,B1previous,B2previous,B3previous,vxB1previous,vxB2previous,vxB3previous)
+
+LFprevious(1)=E1previous+vxB1previous 	!
+LFprevious(2)=E2previous+vxB2previous	! Lorentz force term from previous position
+LFprevious(3)=E3previous+vxB3previous	!
 
 
+! Time derivative of Lorentz force
+!
+! dF/dt=delF/delt + delF/delx dx/dt + delF/dely dy/dt + delF/delz dz/dt
+!
+
+delLF=LF-LFprevious
+
+dLFdt=4d0*delLF/dt
 
 
+! Time derivate of velocity
+dvdt(1)=(vx-vxprevious)/dt
+dvdt(2)=(vy-vyprevious)/dt
+dvdt(3)=(vz-vzprevious)/dt
 
 
+call cross(vx,vy,vx,LF(1),LF(2),LF(3),vxLF(1),vxLF(2),vxLF(3))
+
+call cross(dvdt(1),dvdt(2),dvdt(3),vxLF(1),vxLF(2),vxLF(3),dvdtxvxLF(1),dvdtxvxLF(2),dvdtxvxLF(3))
 
 
+ax=charge_sign*LF(1)+coupling*(gama*dLFdt(1)-gama**3d0*dvdtxvxLF(1))
+ay=charge_sign*LF(2)+coupling*(gama*dLFdt(2)-gama**3d0*dvdtxvxLF(2))
+az=charge_sign*LF(3)+coupling*(gama*dLFdt(3)-gama**3d0*dvdtxvxLF(3))
 
 
-
-
-
-
-
-
-
-
-vxB1 = vy*B3 - vz*B2
-vxB2 = vz*B1 - vx*B3
-vxB3 = vx*B2 - vy*B1
-
-ExB1=E2*B3-E3*B2
-ExB2=E3*B1-E1*B3
-ExB3=E1*B2-E2*B1
-
-vdE=vx*E1+vy*E2+vz*E3
-
-EpvxB1=E1+vxB1
-EpvxB2=E2+vxB2
-EpvxB3=E3+vxB3
-
-term1(1)=E1+vxB1 	!
-term1(2)=E2+vxB2	! Lorentz force term
-term1(3)=E3+vxB3	!
-
-
-dE1dt=(E1-E1previous)/dt
-dE2dt=(E2-E2previous)/dt
-dE3dt=(E3-E3previous)/dt
-
-dB1dt=(B1-B1previous)/dt
-dB2dt=(B2-B2previous)/dt
-dB3dt=(B3-B3previous)/dt
-
-if (abs(dx).ge.1d-50) then
-	dE1dx=(E1-E1previous)/dx
-	dE2dx=(E2-E2previous)/dx
-	dE3dx=(E3-E3previous)/dx
-	dB1dx=(B1-B1previous)/dx
-	dB2dx=(B2-B2previous)/dx	
-	dB3dx=(B3-B3previous)/dx	
-else
-	dE1dx=0d0
-	dE2dx=0d0
-	dE3dx=0d0
-	dB1dx=0d0
-	dB2dx=0d0
-	dB3dx=0d0			
-end if
-
-if (abs(dy).ge.1d-50) then
-
-	dE1dy=(E1-E1previous)/dy
-	dE2dy=(E2-E2previous)/dy
-	dE3dy=(E3-E3previous)/dy
-	dB1dy=(B1-B1previous)/dy
-	dB2dy=(B2-B2previous)/dy		
-	dB3dy=(B3-B3previous)/dy	
-else
-	dE1dy=0d0
-	dE2dy=0d0
-	dE3dy=0d0
-	dB1dy=0d0
-	dB2dy=0d0	
-	dB3dy=0d0	
-end if	
-					
-if (abs(dz).ge.1d-50) then
-	dE1dz=(E1-E1previous)/dz
-	dE2dz=(E2-E2previous)/dz
-	dE3dz=(E3-E3previous)/dz
-	dB1dz=(B1-B1previous)/dz
-	dB2dz=(B2-B2previous)/dz
-	dB3dz=(B3-B3previous)/dz
-else
-	dE1dz=0d0
-	dE2dz=0d0
-	dE3dz=0d0
-	dB1dz=0d0
-	dB2dz=0d0
-	dB3dz=0d0
-end if
-		
-derE1=dE1dt+vx*dE1dx+vy*dE1dy+vz*dE1dz
-derE2=dE2dt+vx*dE2dx+vy*dE2dy+vz*dE2dz
-derE3=dE3dt+vx*dE3dx+vy*dE3dy+vz*dE3dz
-
-derB1=dB1dt+vx*dB1dx+vy*dB1dy+vz*dB1dz
-derB2=dB2dt+vx*dB2dx+vy*dB2dy+vz*dB2dz
-derB3=dB3dt+vx*dB3dx+vy*dB3dy+vz*dB3dz
-
-
-term2(1)=derE1 + (vy*derB3 - vz*derB2)	
-term2(2)=derE2 + (vz*derB1 - vx*derB3)
-term2(3)=derE3 + (vx*derB2 - vy*derB1)
-
-term3(1)=ExB1 + vxB2*B3-vxB3*B2 + vdE*E1
-term3(2)=ExB2 + vxB3*B1-vxB1*B3 + vdE*E2
-term3(3)=ExB3 + vxB1*B2-vxB2*B1 + vdE*E3
-
-term4(1)=(EpvxB1*EpvxB1+EpvxB2*EpvxB2+EpvxB3*EpvxB3-vdE*vdE)*vx
-term4(2)=(EpvxB1*EpvxB1+EpvxB2*EpvxB2+EpvxB3*EpvxB3-vdE*vdE)*vy
-term4(3)=(EpvxB1*EpvxB1+EpvxB2*EpvxB2+EpvxB3*EpvxB3-vdE*vdE)*vz
-
-ax=charge_sign*term1(1)-coupling*gama*term2(1)-coupling*term3(1)-coupling*gama*gama*term4(1)
-ay=charge_sign*term1(2)-coupling*gama*term2(2)-coupling*term3(2)-coupling*gama*gama*term4(2)
-az=charge_sign*term1(3)-coupling*gama*term2(3)-coupling*term3(3)-coupling*gama*gama*term4(3)
 
 
 end subroutine FordOConnell
@@ -1563,7 +1491,13 @@ real(kind=8),intent(in)::t,x,y,z,gama,ux,uy,uz,t_old,gama_old,ux_old,uy_old,uz_o
 real(kind=8)::timestep
 
 
-
+!t_old - previous time
+! t - current time
+! x,y,z -particle position
+! gama- gamma-factor
+! ux,uy,uz - relativistic velocity
+! gama_old - previous gamma-factor
+! ux_old,uy_old,uz_old - previous relativistic velocity
 
 !--------------------------
 ! write the rest of the code here:
@@ -1572,7 +1506,8 @@ real(kind=8)::timestep
 timestep=t-t_old
 
 ! sample write command to write 5 columns of zeros to the spectrumXXXXX.dat output file
-write(spectrumfileID,"(5(2x,ES20.13))") 0.0, 0.0, 0.0, 0.0, 0.0
+write(spectrumfileID,"(5(2x,ES20.13))") 0.0,0.0,0.0,0.0,0.0
+
 
 
 
@@ -1665,8 +1600,22 @@ print '(I4.4, " field data files created")',fieldpointst
 
 end subroutine record_fields
 
+!---------------------------------------------
+subroutine cross(a1,a2,a3,b1,b2,b3,c1,c2,c3)
+!---------------------------------------------
+! Vector product
+
+implicit none
+real(kind=8),intent(in)::a1,a2,a3,b1,b2,b3
+real(kind=8),intent(out)::c1,c2,c3
 
 
+c1 = a2*b3-a3*b2
+c2 = a3*b1-a1*b3 
+c3 = a1*b2-a2*b1 
+
+
+end subroutine cross
 
 
 !---------------------------------------------

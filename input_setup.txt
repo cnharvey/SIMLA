@@ -15,7 +15,7 @@ xminw=-10d-6
 yminw=-10d-6
 zminw=-30d-6
 
-solver=leapfrog
+solver=euler
 
 maxdt=0.1d-15
 mindt=1d-35
