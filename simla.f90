@@ -65,7 +65,7 @@ module simulationparameters
 
 	integer :: writeevery
 	double precision :: maxdt,mindt,initialdt,grid_err_tol	
-	double precision :: tmax,xmax,ymax,zmax,xmin,ymin,zmin
+	double precision :: tmin,tmax,xmax,ymax,zmax,xmin,ymin,zmin
 	double precision :: tmaxw,xmaxw,ymaxw,zmaxw,tminw,xminw,yminw,zminw
 	
 
@@ -368,12 +368,13 @@ program SIMLA
 		ax=0d0; ay=0d0; az=0d0		     ! Initial acceleration=0
 		
 
-		if (v0.eq.0d0) then
-			tshift=0d0
+		if (abs(v0) .le. 1d-12) then
+			t=tmin			! for stationary particles can set initial time
 		else						! **** tshift so the *central* particle reaches (0,0,0) at t=0
-			tshift=sqrt((x-x0)**2d0+(y-y0)**2d0+(z-z0)**2d0)/sqrt(vx*vx+vy*vy+vz*vz)		    
+			tshift=sqrt((x-x0)**2d0+(y-y0)**2d0+(z-z0)**2d0)/sqrt(vx*vx+vy*vy+vz*vz)	
+			t=0d0-tshift				! initial time	    
 		end if
-		t=0d0-tshift				! initial time
+
 
 		!--------------------------------------------------------------------------
 		  

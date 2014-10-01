@@ -1,3 +1,4 @@
+tmin=-100d-15
 tmax=3000d-15
 xmax=200d-6
 ymax=200d-6

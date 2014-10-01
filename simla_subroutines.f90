@@ -322,6 +322,8 @@ initialdt=-1d99
 grid_err_tol=-1d99	
 writeevery=-1
 
+tmin=0d0 ! this variable is optional
+
 ! Read through the input_stup.txt file and allocate the parameters 
 do 
 	variable_name=''
@@ -348,6 +350,10 @@ do
 		
 	   
 		select case(variable_name(1:name_length))
+			case('tmin')
+				read(variable_value(1:value_length), * ) tmin		! optional
+				tmin=tmin	* tnormalisation
+		
 			case('tmax')
 				read(variable_value(1:value_length), * ) tmax
 				tmax=tmax	* tnormalisation		
@@ -1213,12 +1219,12 @@ do j=1,no_fields
 		B3temp=0d0
 	
 	else if (field.eq.'circpw') then 		! Circ. pol. plane wave
-		E1temp=E0*g*sin(eta)
-		E2temp=E0*g*cos(eta)
+		E1temp=E0*g*sin(eta)/sqrt(2d0)
+		E2temp=E0*g*cos(eta)/sqrt(2d0)
 		E3temp=0d0
 	
-		B1temp=-E0*g*cos(eta)
-		B2temp=E0*g*sin(eta)
+		B1temp=-E0*g*cos(eta)/sqrt(2d0)
+		B2temp=E0*g*sin(eta)/sqrt(2d0)
 		B3temp=0d0
 		
 	else if(field.eq.'standing') then 		! Standing Wave
@@ -1349,7 +1355,7 @@ do j=1,no_fields
 		!Psi0 = 0.0d0;
 		Psi = Psi0 + PsiP - PsiR + PsiG;
 	
-		EE=E0*w0/w*g*exp(-r*r/(w*w))
+		EE=E0*w0/w*g*exp(-r*r/(w*w))/sqrt(2d0)   !normalisation for circ
 	
 		S0=sin(Psi)
 		C0=cos(Psi)

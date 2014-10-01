@@ -1,21 +1,40 @@
-no_fields=1
+no_fields=2
 ! none, crossed,linpw,circpw,parax1,parax5,cparax1,constB
-field1=cparax1
+field1=parax1
+field2=parax1
+
 ! inf,step,stepsin2,sech,gauss,gauss4,gauss8,gauss12
 profile1=gauss
+profile2=gauss
 
 ! NB no more than 4 digits before decimal
 anglexz1=0
 angleyz1=0
 anglexy1=0
 
+anglexz2=180
+angleyz2=0
+anglexy2=0
+
 lambda1=0.8e-6
+lambda2=0.8e-6
 
-waist1=1e-6
+waist1=5e-6
+waist2=5e-6
 
-a0_1=15
+
+a0_1=100
+a0_2=100
 
 duration1=30e-15
+duration2=30e-15
 
 psi0_1=0
+psi0_2=0
+
+
+
+
+
+
 
