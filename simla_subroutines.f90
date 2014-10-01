@@ -34,6 +34,11 @@ end if
 	
 open(inputfieldsfileID,file="input_fields.txt")
 
+! Initialise
+field_angle_xz_vec=0d0; field_angle_yz_vec=0d0; field_angle_xy_vec=0d0
+a0vec=0d0; fieldstrengthvec=0d0; waistvec=0d0; durationvec=0d0; psi0vec=0d0
+
+
 do 
 	variable_name=''
 	variable_value=''
@@ -193,7 +198,7 @@ do
 				read(variable_value(1:value_length), * ) waistvec(9) 
 				
 			case('a0_1') 
-				read(variable_value(1:value_length),*) a0vec(1) 	
+				read(variable_value(1:value_length), * ) a0vec(1) 	
 			case('a0_2') 
 				read(variable_value(1:value_length), * ) a0vec(2) 						
 			case('a0_3') 
@@ -248,6 +253,26 @@ do
 				read(variable_value(1:value_length), * ) durationvec(8) 	
 			case('duration9') 
 				read(variable_value(1:value_length), * ) durationvec(9) 	
+				
+				
+			case('psi0_1') 
+				read(variable_value(1:value_length), * ) psi0vec(1) 	
+			case('psi0_2') 
+				read(variable_value(1:value_length), * ) psi0vec(2) 						
+			case('psi0_3') 
+				read(variable_value(1:value_length), * ) psi0vec(3) 		
+			case('psi0_4') 
+				read(variable_value(1:value_length), * ) psi0vec(4) 	
+			case('psi0_5') 
+				read(variable_value(1:value_length), * ) psi0vec(5) 						
+			case('psi0_6') 
+				read(variable_value(1:value_length), * ) psi0vec(6) 						
+			case('psi0_7') 
+				read(variable_value(1:value_length), * ) psi0vec(7) 	
+			case('psi0_8') 
+				read(variable_value(1:value_length), * ) psi0vec(8) 						
+			case('psi0_9') 
+				read(variable_value(1:value_length), * ) psi0vec(9) 
 									
 		end select
 	end if
@@ -274,6 +299,7 @@ omegavec=1.24d-6/lambdavec
 
 waistvec=waistvec*xnormalisation
 durationvec=durationvec*tnormalisation
+psi0vec=psi0vec*tnormalisation
 
 
 ! read in data from input_setup.txt
@@ -1069,7 +1095,7 @@ real(kind=8)::t,x,y,z,x_xz,y_xz,z_xz,x_yz,y_yz,z_yz,x_xy,y_xy,z_xy
 real(kind=8)::field_angle_xz,field_angle_yz,field_angle_xy,w0,a0,duration,field_strength,radial_angle
 real(kind=8)::E0,zr,eps,r,xi,nu,zeta,eta,rho,w,g,eta0,k,xminus
 real(kind=8)::PsiP,PsiG,PsiR,Psi0,Psi,EE
-real(kind=8)::S0,S2,S3,S4,S5,S6,C1,C2,C3,C4,C5,C6,C7,C8
+real(kind=8)::S0,S1,S2,S3,S4,S5,S6,S7,S8,C0,C1,C2,C3,C4,C5,C6,C7,C8
 real(kind=8)::Br,dB3dz
 real(kind=8)::E1temp,E2temp,E3temp,B1temp,B2temp,B3temp
 real(kind=8)::E1_xz,E2_xz,E3_xz,B1_xz,B2_xz,B3_xz
@@ -1079,6 +1105,8 @@ real(kind=8)::E1_xy,E2_xy,E3_xy,B1_xy,B2_xy,B3_xy
 
 E1=0d0;E2=0d0;E3=0d0
 B1=0d0;B2=0d0;B3=0d0
+
+
 
 ! Calculate the E and B components of each field separately, then sum them together
 do j=1,no_fields
@@ -1093,6 +1121,7 @@ do j=1,no_fields
 	a0=a0vec(j)					
 	field_strength=fieldstrengthvec(j)
 	duration=durationvec(j)		
+	psi0=psi0vec(j)
 	
 	t=t_in
 	
@@ -1221,7 +1250,7 @@ do j=1,no_fields
 		PsiP = eta;            	
 		PsiG = atan(zeta);
 		PsiR = 0.5d0*k*z*r*r/(z*z+zr*zr)  
-		Psi0 = 0.0d0;
+		!Psi0 = 0.0d0;
 		Psi = Psi0 + PsiP - PsiR + PsiG;
 	
 		EE=E0*w0/w*g*exp(-r*r/(w*w))
@@ -1259,7 +1288,7 @@ do j=1,no_fields
 		PsiP = eta;
 		PsiG = atan(zeta);
 		PsiR = 0.5d0*k*z*r*r/(z*z+zr*zr)
-		Psi0 = 0.0d0;
+		!Psi0 = 0.0d0;
 		Psi = Psi0 + PsiP - PsiR + PsiG;
 	
 		EE=E0*w0/w*g*exp(-r*r/(w*w))
@@ -1296,6 +1325,44 @@ do j=1,no_fields
 	
 		B3temp=EE/c*nu*(eps*C1+eps**3d0*(C2/2d0+rho**2d0*C3/2d0-rho**4d0*C4/4d0)+&
 		eps**5d0*(3d0*C3/8d0+3d0*rho**2d0*C4/8d0+3*rho**4d0*C5/16d0-rho**6d0*C6/4d0+rho**8d0*C7/32d0))
+		
+		
+	else if (field.eq.'cparax1') then    	! Circularly polarised paraxial Gaussian field (1st order)
+	
+		zr=k*w0*w0/2d0
+		eps=w0/zr
+	
+		r=sqrt(x*x+y*y)
+		xi=x/w0
+		nu=y/w0
+		zeta=z/zr
+	
+		rho=r/w0
+	
+		eta0=0d0
+	
+		w=w0*sqrt(1d0+z*z/(zr*zr))
+	
+		PsiP = eta            	
+		PsiG = atan(zeta)
+		PsiR = 0.5d0*k*z*r*r/(z*z+zr*zr)  
+		!Psi0 = 0.0d0;
+		Psi = Psi0 + PsiP - PsiR + PsiG;
+	
+		EE=E0*w0/w*g*exp(-r*r/(w*w))
+	
+		S0=sin(Psi)
+		C0=cos(Psi)
+	
+		C1=(w0/w)*cos(Psi+PsiG)
+	
+		E1temp=EE*S0
+		E2temp=EE*C0
+		E3temp=EE*xi*eps*C1+EE*nu*eps*S1
+	
+		B1temp=-EE/c*C0
+		B2temp=EE/c*S0
+		B3temp=EE/c*nu*eps*C1+EE/c*xi*eps*S1
 		
 		
 	else if (field.eq.'constB') then 	! Constant B field

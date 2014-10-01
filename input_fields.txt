@@ -1,7 +1,6 @@
 no_fields=1
-! none, crossed,linpw,circpw,parax1,parax5,constB
-field1=linpw
-
+! none, crossed,linpw,circpw,parax1,parax5,cparax1,constB
+field1=cparax1
 ! inf,step,stepsin2,sech,gauss,gauss4,gauss8,gauss12
 profile1=gauss
 
@@ -12,9 +11,11 @@ anglexy1=0
 
 lambda1=0.8e-6
 
-waist1=5e-6
+waist1=1e-6
 
-a0_1=150
+a0_1=15
 
 duration1=30e-15
+
+psi0_1=0
 
