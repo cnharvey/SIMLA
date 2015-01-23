@@ -1,6 +1,6 @@
-no_fields=2
+no_fields=1
 ! none, crossed,linpw,circpw,parax1,parax5,cparax1,constB
-field1=parax1
+field1=linpw
 field2=parax1
 
 ! inf,step,stepsin2,sech,gauss,gauss4,gauss8,gauss12

@@ -1,4 +1,6 @@
 !no,species,theta,phi,dist0,x0,y0,z0,gama0,eom,tx
-repeatfirstline=off
+repeatfirstline=on
 1
-1,e,0,180,0,0,0,0,1.000,ll,t
+1,e,0,180,0,0,0,0,100.000,ll,st
+2,e,0,180,0,0,0,0,100.000,qed,x
+

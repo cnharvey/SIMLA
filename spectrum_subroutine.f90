@@ -239,7 +239,7 @@ end if
 ! 13. emissions (REMOVED)
 
 write(spectrumfileID,"(14(2x,ES20.13))") t, timestep, H_eff, omega_c, omega&
-,energyEmitted, averagePower*timestep
+,energyEmitted, averagePower*timestep,atan2(ux,uz),atan2(uy,ux)
 !,OmegaDistribution, synchrotronfunction, dN, R&
 !,gama*mass, emissions
 

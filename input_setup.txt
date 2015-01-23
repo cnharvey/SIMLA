@@ -23,7 +23,7 @@ mindt=1d-35
 initialdt=1d-20
 grid_err_tol=5d-10
 
-writeevery=2000
+writeevery=20
 
 fileformat=txt
 
