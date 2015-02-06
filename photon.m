@@ -43,24 +43,24 @@ fprintf('Av. no. emissions per run: %f\n',average_no_emisisons)
 
 % calculate the plot axes
 energy_axis=[0:max_photon_en/2000:max_photon_en/4];
-angle_axis=[-pi:pi/100:pi];
+angle_axis=[-pi:2*pi/1000:pi];
 
 
 % Plot the energy spectrum
 figure
 hold on
 htotal_en=histc(photon_energy_vec,energy_axis);
-plot(energy_axis,htotal_en)
+plot(energy_axis,htotal_en/total_no_photons)
 xlabel('Energy (MeV)')
-ylabel('No. photons')
+ylabel('No. photons (norm)')
 
 % plot the angular spectrum
 figure
 hold on
 htotal_an=histc(angle_xz_vec,angle_axis);
-plot(angle_axis*180/pi,htotal_an)
+plot(angle_axis*180/pi,htotal_an/total_no_photons)
 xlabel('\theta_{xz} (degrees)')
-ylabel('No. photons')
+ylabel('No. photons (norm)')
 
 % Plot the spectrum in 3D
 spectra3D=[photon_energy_vec,angle_xz_vec*180/pi];
