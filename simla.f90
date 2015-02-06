@@ -591,7 +591,7 @@ subroutine main_subroutine()
 				if (emit_photon==1) then
 					nphoton=nphoton+1
 					if (photonwrite==1) then
-						write(photonfileID, '(2(1x,I4), 7(1x,E12.5))') &
+						write(photonfileID, '((1x,I8),(1x,I4), 7(1x,E12.5))') &
 							nphoton,particle_no,t,atan2(ux,uz),atan2(uy,ux),X_e, X_gamma,k_gamma,recoilratio
 					end if
 				end if
