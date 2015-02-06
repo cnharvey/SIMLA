@@ -5,9 +5,10 @@
 
 clear
 
-fileformat='txt';  % Specify output file format (txt or bin) 
+omegamax=2e6;    % specify max freq
 
-omegamax=2e6    % specify max freq
+omega_axis=[0:omegamax/10000:omegamax];
+theta_xz_axis=[-pi:2*pi/1000:pi];
 
 
 xtoSI=0.197; % conversion factor to microns
@@ -18,15 +19,8 @@ disp(':---------------------------------')
 disp('Plot emission spectrum from file  ')
 disp(':---------------------------------')
 
-if (fileformat=='bin')
-    disp('File format set to binary')
-elseif (fileformat=='txt')
-    disp('File format set to ascii')
-else
-    error('Error: invalid file format')
-end
-
-disp('Distances in microns times in fs, velocities in c')
+disp('max frequency is (MeV): ')
+disp(omegamax/1e6)
 
 time=cputime;
 
@@ -47,15 +41,15 @@ writeflag=particle_input{11};
 
 written_counter=0;
 
-% set up figure windows
-figure; hold on
-xlabel('time')
-ylabel('\omega')
-spec_figure_handle=gcf;
 
-omega_axis=[0:omegamax/1000:omegamax];
+omega_axis=[0:omegamax/10000:omegamax];
 theta_xz_axis=[-pi:2*pi/1000:pi];
-    
+
+
+nophotons_total=0;
+htotal_omega=0;
+htotal_theta_xz=0;
+
 % read in spectrum file for each run and add the data to the plot windows
 for j=1:no_runs
     if (strcmp(input_switch,'off') == 1)
@@ -66,6 +60,8 @@ for j=1:no_runs
         disp('Error in 2nd line of particle_input.csv')
         return
     end
+    
+    nophotons_run=0;
     
     % check what data has been written for the current run
     if (strcmp(writeflag(i),'t') == 1) ||(strcmp(writeflag(i),'s') == 1) ||(strcmp(writeflag(i),'st') == 1)||(strcmp(writeflag(i),'cst') == 1)
@@ -81,79 +77,72 @@ for j=1:no_runs
         
         clear x0 timestep H_eff omega_c omega energyEmitted averagePower_x_timestep
 
-        
-        
-        % Read in data if format is binary
-        if (fileformat=='bin')
-            ii=0;
-            record_length=fread(spec_data,1,'int32');
-            while ~isempty(record_length)
-                ii=ii+1;
+        spec=textscan(spec_data, '%f %f %f %f %f %f %f %f %f');
 
-                spec=fread(spec_data,[1,7],'double');
-
-                x0(1,ii)=spec(1);
-                timestep(1,ii)=spec(2);
-                H_eff(1,ii)=spec(3);
-                omega_c(1,ii)=spec(4);
-
-                omega(1,ii)=spec(5);
-                energyEmitted(1,ii)=spec(6);
-                averagePower_x_timestep(1,ii)=spec(7);
-                theta_xz=spec(8);
-                theta_yx=spec(9);               
-
-                record_length=fread(spec_data,1,'int32');
-            end
-        % Read in data if format is ascii    
-        elseif (fileformat=='txt')
-            spec=textscan(spec_data, '%f %f %f %f %f %f %f %f %f');
-
-            x0=transpose(spec{1});
-            timestep=transpose(spec{2});
-            H_eff=transpose(spec{3});
-            omega_c=transpose(spec{4});
-
-            omega=transpose(spec{5});
-            energyEmitted=transpose(spec{6});
-            averagePower_x_timestep=transpose(spec{7});
-            theta_xz=(spec{8});
-            theta_yx=(spec{9}); 
-
-        end
+        x0=transpose(spec{1});
+        timestep=transpose(spec{2});
+        H_eff=transpose(spec{3});
+        omega_c=transpose(spec{4});
+        omega=transpose(spec{5});
+        energyEmitted=transpose(spec{6});
+        averagePower_x_timestep=transpose(spec{7});
+        theta_xz=(spec{8});
+        theta_yx=(spec{9}); 
             
-        
+        sizeomega=size(omega);
+        nophotons_run=sizeomega(2);
+        nophotons_total=nophotons_total+nophotons_run;
         
         % Convert units
         x0=x0*ttoSI;
 
+       
         
-        % plot spectrum
-        set(0,'CurrentFigure',spec_figure_handle)
-        plot(x0,omega,'k-')
+        % calculate histogram data for this run (normalised per run)
+        hrun_omega=histc(omega,omega_axis)/nophotons_run;
+        hrun_theta_xz=histc(theta_xz,theta_xz_axis)/nophotons_run;
         
+        % running total spectra
+        htotal_omega=htotal_omega+hrun_omega;
+        htotal_theta_xz=htotal_theta_xz+hrun_theta_xz;
         
-        % Plot the energy spectrum
-        figure
-        hold on
-        htotal_omega=histc(omega,omega_axis);
-        plot(omega_axis/1e6,htotal_omega)
-        xlabel('omega (MeV)')
-        ylabel('Rate')
-        
-        figure
-        hold on
-        htotal_theta_xz=histc(theta_xz,theta_xz_axis);
-        plot(theta_xz_axis*180/pi,htotal_theta_xz)
-        xlabel('\theta_{xz}')
-        ylabel('Rate')      
+        % Plot the energy/angular spectrum for this run
+%         figure
+%         hold on    
+%         plot(omega_axis/1e6,hrun_omega/nophotons_run)
+%         xlabel('omega (MeV)')
+%         ylabel('Rate')
+%         
+%         figure
+%         hold on
+%         plot(theta_xz_axis*180/pi,hrun_theta_xz/nophotons_run)
+%         xlabel('\theta_{xz}')
+%         ylabel('Rate')      
 
 
         clear spec;
     end   
     
+
+    
 end 
 
+% normalise total spectra
+htotal_omega=htotal_omega/no_runs;
+htotal_theta_xz=htotal_theta_xz/no_runs; 
+
+% plot total spectra
+figure
+hold on    
+plot(omega_axis/1e6,htotal_omega)
+xlabel('omega (MeV)')
+ylabel('(Total) Rate')
+
+figure
+hold on
+plot(theta_xz_axis*180/pi,htotal_theta_xz)
+xlabel('\theta_{xz}')
+ylabel('(Total) Rate')  
 
 
 fclose('all');

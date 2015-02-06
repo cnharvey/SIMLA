@@ -215,6 +215,13 @@ if(dN.gt.R) then
    ! photonEmission=.true.
    !energyEmitted = dN/emissionFactor * omega
    energyEmitted = emissions * omega/emissionFactor
+   
+		   write(spectrumfileID,"(14(2x,ES20.13))") t, timestep, H_eff, omega_c, omega&
+		,energyEmitted, averagePower*timestep,atan2(ux,uz),atan2(uy,ux)
+		!,OmegaDistribution, synchrotronfunction, dN, R&
+		!,gama*mass, emissions
+   
+   
 else
    !! NO emission !!
    ! photonEmission=.false.
@@ -238,10 +245,7 @@ end if
 ! 12. gama*mass (REMOVED)
 ! 13. emissions (REMOVED)
 
-write(spectrumfileID,"(14(2x,ES20.13))") t, timestep, H_eff, omega_c, omega&
-,energyEmitted, averagePower*timestep,atan2(ux,uz),atan2(uy,ux)
-!,OmegaDistribution, synchrotronfunction, dN, R&
-!,gama*mass, emissions
+
 
 
 end subroutine spectrum
