@@ -7,7 +7,7 @@ clear
 
 omegamax=2e6;    % specify max freq
 
-omega_axis=[0:omegamax/10000:omegamax];
+omega_axis=[0:omegamax/1000:omegamax];
 theta_xz_axis=[-pi:2*pi/1000:pi];
 
 
@@ -41,9 +41,6 @@ writeflag=particle_input{11};
 
 written_counter=0;
 
-
-omega_axis=[0:omegamax/10000:omegamax];
-theta_xz_axis=[-pi:2*pi/1000:pi];
 
 
 nophotons_total=0;
