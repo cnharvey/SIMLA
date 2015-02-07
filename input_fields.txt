@@ -23,7 +23,7 @@ waist1=5e-6
 waist2=5e-6
 
 
-a0_1=100
+a0_1=200
 a0_2=100
 
 duration1=30e-15
