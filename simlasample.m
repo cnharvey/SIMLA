@@ -4,14 +4,14 @@
 % to be plotted.
 %-------------------------------------------------------------------------
 
-tsamplemin=-30;
-tsamplemax=30;      % t in fs!
-tsamplestep=5;
+tsamplemin=-5;
+tsamplemax=50;      % t in fs!
+tsamplestep=0.02;
 
 u0axis=[0:10:500];
 x1axis=[-20:0.8:20];
 x2axis=[-20:2:20];
-x3axis=[-20:2:20];
+x3axis=[-3:0.02:3];
 
 tsamplevec=[tsamplemin:tsamplestep:tsamplemax];
 tsamplesize1=size(tsamplevec);
@@ -191,13 +191,37 @@ end
         end %tt
 
 figure
-contour(tsamplevec,u0axis,transpose(x0u0matrix))
+imagesc(tsamplevec,u0axis,transpose(x0u0matrix))
 xlabel('t (fs)')
 ylabel('\gamma')
+axis xy
 
 figure
-contour(tsamplevec,x1axis,transpose(x0x1matrix))
+imagesc(tsamplevec,x1axis,transpose(x0x1matrix))
 xlabel('t (fs)')
 ylabel('x_1 (\mum)')
+axis xy
+
+figure
+imagesc(tsamplevec,x3axis,transpose(x0x3matrix))
+xlabel('t (fs)')
+ylabel('x_3 (\mum)')
+axis xy
 
 fclose('all');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
