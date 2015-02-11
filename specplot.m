@@ -64,60 +64,79 @@ for j=1:no_runs
     if (strcmp(writeflag(i),'t') == 1) ||(strcmp(writeflag(i),'s') == 1) ||(strcmp(writeflag(i),'st') == 1)||(strcmp(writeflag(i),'cst') == 1)
         written_counter=written_counter+1;
         
-        % read in spectrum file
+        % generate name of spectrum file
         filename1='spectrum';
         filename2= sprintf('%05d',j);
         filename3='.dat';
         
         target_file=strcat(filename1,filename2,filename3);
-        spec_data=fopen(target_file,'r');
         
-        clear x0 timestep H_eff omega_c omega energyEmitted averagePower_x_timestep
+        % check if file is empty.  If so skip (otherwise stats routines
+        % will cause code to abort).
+        filedata = dir(target_file);
+        if filedata.bytes == 0
+            % empty file
+        else
+            % open the file and read it
+        
+            spec_data=fopen(target_file,'r');
 
-        spec=textscan(spec_data, '%f %f %f %f %f %f %f %f %f');
+            clear x0 timestep H_eff omega_c omega energyEmitted averagePower_x_timestep
 
-        x0=transpose(spec{1});
-        timestep=transpose(spec{2});
-        H_eff=transpose(spec{3});
-        omega_c=transpose(spec{4});
-        omega=transpose(spec{5});
-        energyEmitted=transpose(spec{6});
-        averagePower_x_timestep=transpose(spec{7});
-        theta_xz=(spec{8});
-        theta_yx=(spec{9}); 
+            spec=textscan(spec_data, '%f %f %f %f %f %f %f %f %f');
+
+            x0=transpose(spec{1});
+            timestep=transpose(spec{2});
+            H_eff=transpose(spec{3});
+            omega_c=transpose(spec{4});
+            omega=transpose(spec{5});
+            energyEmitted=transpose(spec{6});
+            averagePower_x_timestep=transpose(spec{7});
+            theta_xz=(spec{8});
+            theta_yx=(spec{9}); 
+
+            sizeomega=size(omega);
+            nophotons_run=sizeomega(2);
+            nophotons_total=nophotons_total+nophotons_run;
+
+            % Convert units
+            x0=x0*ttoSI;
+
+
+
+            % calculate histogram data for this run (normalised per run)
+            hrun_omega=histc(omega,omega_axis)/nophotons_run;
+            hrun_theta_xz=histc(theta_xz,theta_xz_axis)/nophotons_run;
             
-        sizeomega=size(omega);
-        nophotons_run=sizeomega(2);
-        nophotons_total=nophotons_total+nophotons_run;
-        
-        % Convert units
-        x0=x0*ttoSI;
+            % If file onel contains one line of data, vector needs to be
+            % transposed.
+            if nophotons_run==1
+                hrun_theta_xz=transpose(hrun_theta_xz);
+            end
 
-       
-        
-        % calculate histogram data for this run (normalised per run)
-        hrun_omega=histc(omega,omega_axis)/nophotons_run;
-        hrun_theta_xz=histc(theta_xz,theta_xz_axis)/nophotons_run;
-        
-        % running total spectra
-        htotal_omega=htotal_omega+hrun_omega;
-        htotal_theta_xz=htotal_theta_xz+hrun_theta_xz;
-        
-        % Plot the energy/angular spectrum for this run
-%         figure
-%         hold on    
-%         plot(omega_axis/1e6,hrun_omega/nophotons_run)
-%         xlabel('omega (MeV)')
-%         ylabel('Rate')
-%         
-%         figure
-%         hold on
-%         plot(theta_xz_axis*180/pi,hrun_theta_xz/nophotons_run)
-%         xlabel('\theta_{xz}')
-%         ylabel('Rate')      
+            % running total spectra
+            htotal_omega=htotal_omega+hrun_omega;
+            htotal_theta_xz=htotal_theta_xz+hrun_theta_xz;
+
+            % Plot the energy/angular spectrum for this run
+    %         figure
+    %         hold on    
+    %         plot(omega_axis/1e6,hrun_omega/nophotons_run)
+    %         xlabel('omega (MeV)')
+    %         ylabel('Rate')
+    %         
+    %         figure
+    %         hold on
+    %         plot(theta_xz_axis*180/pi,hrun_theta_xz/nophotons_run)
+    %         xlabel('\theta_{xz}')
+    %         ylabel('Rate')      
 
 
-        clear spec;
+            clear spec;
+            fclose(spec_data);
+        
+        end;
+
     end   
     
 
