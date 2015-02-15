@@ -61,7 +61,7 @@ for j=1:no_runs
     nophotons_run=0;
     
     % check what data has been written for the current run
-    if (strcmp(writeflag(i),'t') == 1) ||(strcmp(writeflag(i),'s') == 1) ||(strcmp(writeflag(i),'st') == 1)||(strcmp(writeflag(i),'cst') == 1)
+    if ((strcmp(writeflag(i),'s') == 1) ||(strcmp(writeflag(i),'st') == 1)||(strcmp(writeflag(i),'cst') == 1))
         written_counter=written_counter+1;
         
         % generate name of spectrum file
