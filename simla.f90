@@ -48,7 +48,7 @@ use constants
 	double precision, parameter :: tnormalisation= 1d0/0.658d-15 
 	double precision, parameter :: xnormalisation= 1d0/1.97d-7 
 			
-  	double precision,dimension(9) :: a0vec, fieldstrengthvec, waistvec, durationvec, psi0vec
+  	double precision,dimension(9) :: a0vec, fieldstrengthvec, waistvec, durationvec, psi0vec, chirpvec
   	
 
 end module beamparameters

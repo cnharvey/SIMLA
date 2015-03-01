@@ -1,6 +1,6 @@
 !no,species,theta,phi,dist0,x0,y0,z0,gama0,eom,tx
 repeatfirstline=on
-10
-1,e,0,180,0,0,0,0,300.000,qed,t
-2,e,0,180,0,0,0,0,100.000,qed,x
+1
+1,e,0,180,100d-6,0,0,0,900.000,ll,t
+
 

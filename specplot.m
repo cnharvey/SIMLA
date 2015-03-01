@@ -5,9 +5,9 @@
 
 clear
 
-omegamax=2e6;    % specify max freq
+omegamax=1e7;    % specify max freq
 
-omega_axis=[0:omegamax/1000:omegamax];
+omega_axis=[0:omegamax/500:omegamax];
 theta_xz_axis=[-pi:2*pi/1000:pi];
 
 
@@ -148,9 +148,9 @@ htotal_omega=htotal_omega/no_runs;
 htotal_theta_xz=htotal_theta_xz/no_runs; 
 
 % plot total spectra
-figure
-hold on    
-plot(omega_axis/1e6,htotal_omega)
+figure   
+semilogx(omega_axis/1e6,htotal_omega)
+hold on 
 xlabel('omega (MeV)')
 ylabel('(Total) Rate')
 

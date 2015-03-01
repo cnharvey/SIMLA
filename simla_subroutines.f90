@@ -37,6 +37,7 @@ open(inputfieldsfileID,file="input_fields.txt")
 ! Initialise
 field_angle_xz_vec=0d0; field_angle_yz_vec=0d0; field_angle_xy_vec=0d0
 a0vec=0d0; fieldstrengthvec=0d0; waistvec=0d0; durationvec=0d0; psi0vec=0d0
+chirpvec=0d0
 
 
 do 
@@ -253,6 +254,26 @@ do
 				read(variable_value(1:value_length), * ) durationvec(8) 	
 			case('duration9') 
 				read(variable_value(1:value_length), * ) durationvec(9) 	
+				
+			case('chirp1') 
+				read(variable_value(1:value_length), * ) chirpvec(1) 				
+			case('chirp2') 
+				read(variable_value(1:value_length), * ) chirpvec(2) 	
+			case('chirp3') 
+				read(variable_value(1:value_length), * ) chirpvec(3) 						
+			case('chirp4') 
+				read(variable_value(1:value_length), * ) chirpvec(4) 				
+			case('chirp5') 
+				read(variable_value(1:value_length), * ) chirpvec(5) 	
+			case('chirp6') 
+				read(variable_value(1:value_length), * ) chirpvec(6) 					
+			case('chirp7') 
+				read(variable_value(1:value_length), * ) chirpvec(7) 				
+			case('chirp8') 
+				read(variable_value(1:value_length), * ) chirpvec(8) 	
+			case('chirp9') 
+				read(variable_value(1:value_length), * ) chirpvec(9) 	
+				
 				
 				
 			case('psi0_1') 
@@ -1099,7 +1120,7 @@ character(len=100)::field,profile
 integer(kind=4)::j,jj
 real(kind=8)::t,x,y,z,x_xz,y_xz,z_xz,x_yz,y_yz,z_yz,x_xy,y_xy,z_xy
 real(kind=8)::field_angle_xz,field_angle_yz,field_angle_xy,w0,a0,duration,field_strength,radial_angle
-real(kind=8)::E0,zr,eps,r,xi,nu,zeta,eta,rho,w,g,eta0,k,xminus
+real(kind=8)::E0,zr,eps,r,xi,nu,zeta,eta,rho,w,g,eta0,k,xminus,chirp
 real(kind=8)::PsiP,PsiG,PsiR,Psi0,Psi,EE
 real(kind=8)::S0,S1,S2,S3,S4,S5,S6,S7,S8,C0,C1,C2,C3,C4,C5,C6,C7,C8
 real(kind=8)::Br,dB3dz
@@ -1128,6 +1149,7 @@ do j=1,no_fields
 	field_strength=fieldstrengthvec(j)
 	duration=durationvec(j)		
 	psi0=psi0vec(j)
+	chirp=chirpvec(j)
 	
 	t=t_in
 	
@@ -1210,21 +1232,21 @@ do j=1,no_fields
 		
 	else if (field.eq.'linpw') then 		! Lin. pol. plane wave
 	
-		E1temp=E0*g*sin(eta)
+		E1temp=E0*g*sin(eta+chirp*eta*eta+Psi0)
 		E2temp=0d0
 		E3temp=0d0
 		
 		B1temp=0d0
-		B2temp=E0*g*sin(eta)
+		B2temp=E0*g*sin(eta+chirp*eta*eta+Psi0)
 		B3temp=0d0
 	
 	else if (field.eq.'circpw') then 		! Circ. pol. plane wave
-		E1temp=E0*g*sin(eta)/sqrt(2d0)
-		E2temp=E0*g*cos(eta)/sqrt(2d0)
+		E1temp=E0*g*sin(eta+chirp*eta*eta+Psi0)/sqrt(2d0)
+		E2temp=E0*g*cos(eta+chirp*eta*eta+Psi0)/sqrt(2d0)
 		E3temp=0d0
 	
-		B1temp=-E0*g*cos(eta)/sqrt(2d0)
-		B2temp=E0*g*sin(eta)/sqrt(2d0)
+		B1temp=-E0*g*cos(eta+chirp*eta*eta+Psi0)/sqrt(2d0)
+		B2temp=E0*g*sin(eta+chirp*eta*eta+Psi0)/sqrt(2d0)
 		B3temp=0d0
 		
 	else if(field.eq.'standing') then 		! Standing Wave
