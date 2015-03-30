@@ -4,8 +4,8 @@
 % to be plotted.
 %-------------------------------------------------------------------------
 
-tsamplemin=-5;
-tsamplemax=50;      % t in fs!
+tsamplemin=-15;
+tsamplemax=40;      % t in fs!
 tsamplestep=0.02;
 
 u0axis=[0:10:500];
@@ -167,7 +167,7 @@ for j=1:no_runs
         
         end %tt
         
-
+        fclose(traj_vel_data);
         clear traj;
     end   
     

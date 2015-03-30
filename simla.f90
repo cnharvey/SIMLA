@@ -602,7 +602,8 @@ subroutine main_subroutine()
 			
 			!---------------------------------------	
 			! If the particle is in the Write Box then write the data to file
-			if (write_data .eq. 't' .or. write_data .eq. 'ct'.or. write_data .eq. 'st'.or. write_data .eq. 'cst') then
+			if (write_data .eq. 't' .or. write_data .eq. 'ct'.or. write_data .eq. 's' .or. write_data .eq. 'st' &
+					.or. write_data .eq. 'cst') then
 				if (t.ge.tminw .and. t.le.tmaxw .and. x.le.xmaxw .and. y.le.ymaxw .and. z.le.zmaxw .and. &
 				   x.ge.xminw .and. y.ge.yminw .and. z.ge.zminw) then
 					writeeverycounter=writeeverycounter+1

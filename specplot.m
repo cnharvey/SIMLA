@@ -7,7 +7,7 @@ clear
 
 omegamax=1e7;    % specify max freq
 
-omega_axis=[0:omegamax/500:omegamax];
+omega_axis=[0:omegamax/2500:omegamax];
 theta_xz_axis=[-pi:2*pi/1000:pi];
 
 
@@ -46,6 +46,9 @@ written_counter=0;
 nophotons_total=0;
 htotal_omega=0;
 htotal_theta_xz=0;
+
+omegatotal=0.0000001;
+theta_xz_total=0.00000001;
 
 % read in spectrum file for each run and add the data to the plot windows
 for j=1:no_runs
@@ -117,6 +120,14 @@ for j=1:no_runs
             % running total spectra
             htotal_omega=htotal_omega+hrun_omega;
             htotal_theta_xz=htotal_theta_xz+hrun_theta_xz;
+            
+            if j==1
+                omegatotal=[,omega];
+                theta_xz_total=[,transpose(theta_xz)];
+            else
+                omegatotal=[omegatotal,omega];
+                theta_xz_total=[theta_xz_total,transpose(theta_xz)];
+            end
 
             % Plot the energy/angular spectrum for this run
     %         figure
@@ -147,6 +158,12 @@ end
 htotal_omega=htotal_omega/no_runs;
 htotal_theta_xz=htotal_theta_xz/no_runs; 
 
+for i=1:(nophotons_total)
+    if theta_xz_total(i) < 0
+        theta_xz_total(i)=theta_xz_total(i)+2*pi;
+    end
+end
+
 % plot total spectra
 figure   
 semilogx(omega_axis/1e6,htotal_omega)
@@ -160,6 +177,14 @@ plot(theta_xz_axis*180/pi,htotal_theta_xz)
 xlabel('\theta_{xz}')
 ylabel('(Total) Rate')  
 
+spectra3D=[transpose(log(omegatotal/1.55)),transpose(theta_xz_total*180/pi)];
+
+figure
+hist3(spectra3D,[120 120])
+xlabel('log (\omega/\omega_0)')
+ylabel('\theta_{xz} (degrees)')
+zlabel('No. Photons')
+set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
 
 fclose('all');
 
