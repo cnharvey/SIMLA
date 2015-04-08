@@ -7,8 +7,9 @@ clear
 
 omegamax=1e7;    % specify max freq
 
-omega_axis=[0:omegamax/2500:omegamax];
+omega_axis=[0:omegamax/500:omegamax];
 theta_xz_axis=[-pi:2*pi/1000:pi];
+
 
 
 xtoSI=0.197; % conversion factor to microns
@@ -122,8 +123,8 @@ for j=1:no_runs
             htotal_theta_xz=htotal_theta_xz+hrun_theta_xz;
             
             if j==1
-                omegatotal=[,omega];
-                theta_xz_total=[,transpose(theta_xz)];
+                omegatotal=[omega];               %THESE MAY HAVE BEEN CORRUPTED.  PUT A '1' HERE, BUT NEED TO CHECK...
+                theta_xz_total=[transpose(theta_xz)];
             else
                 omegatotal=[omegatotal,omega];
                 theta_xz_total=[theta_xz_total,transpose(theta_xz)];
@@ -158,17 +159,38 @@ end
 htotal_omega=htotal_omega/no_runs;
 htotal_theta_xz=htotal_theta_xz/no_runs; 
 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for ii=1:220;
+    logomegabins(ii)=10^(ii/16-4); %eV
+end
+logomegavec=histc((omegatotal),logomegabins);
+figure
+semilogx(logomegabins,logomegavec/nophotons_total)
+xlabel('\omega (eV)')
+
 for i=1:(nophotons_total)
     if theta_xz_total(i) < 0
-        theta_xz_total(i)=theta_xz_total(i)+2*pi;
+        theta_xz_total_shifted(i)=theta_xz_total(i)+2*pi;
+    else
+        theta_xz_total_shifted(i)=theta_xz_total(i);
     end
 end
+theta_shifted=histc(theta_xz_total_shifted,theta_xz_axis+pi);
+figure
+plot(theta_xz_axis*180/pi+180,theta_shifted)
+xlabel('\theta_{xz}')
+ylabel('(Total) Rate')
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % plot total spectra
 figure   
-semilogx(omega_axis/1e6,htotal_omega)
+plot(omega_axis,htotal_omega)
 hold on 
-xlabel('omega (MeV)')
+xlabel('omega (eV)')
 ylabel('(Total) Rate')
 
 figure
@@ -177,11 +199,11 @@ plot(theta_xz_axis*180/pi,htotal_theta_xz)
 xlabel('\theta_{xz}')
 ylabel('(Total) Rate')  
 
-spectra3D=[transpose(log(omegatotal/1.55)),transpose(theta_xz_total*180/pi)];
+spectra3D=[transpose(omegatotal/1.55),transpose(theta_xz_total*180/pi)];
 
 figure
 hist3(spectra3D,[120 120])
-xlabel('log (\omega/\omega_0)')
+xlabel('\omega/\omega_0')
 ylabel('\theta_{xz} (degrees)')
 zlabel('No. Photons')
 set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
