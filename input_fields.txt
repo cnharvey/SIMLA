@@ -7,7 +7,7 @@ field2=parax1
 profile1=gauss
 profile2=gauss
 
-chirp1=0.0
+chirp1=-0.02
 
 ! NB no more than 4 digits before decimal
 anglexz1=0
