@@ -7,7 +7,7 @@ field2=parax1
 profile1=gauss
 profile2=gauss
 
-chirp1=-0.02
+chirp1=0.008
 
 ! NB no more than 4 digits before decimal
 anglexz1=0
@@ -28,7 +28,7 @@ waist2=5e-6
 a0_1=200
 a0_2=100
 
-duration1=27e-15  !81e-15
+duration1=23.5e-15  !27e-15
 duration2=30e-15
 
 psi0_1=0

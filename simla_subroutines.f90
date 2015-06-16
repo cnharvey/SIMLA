@@ -1254,28 +1254,28 @@ do j=1,no_fields
 		eta=eta
 		g=exp(-4d0*log(2d0)*xminus**2d0/(duration*duration))
 	
-		E1temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))
+		E1temp=E0*g*(1)*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))
 		E2temp=0d0
 		E3temp=0d0
 	
 		B1temp=0d0
-		B2temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))
+		B2temp=-E0*g*(-1)*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))
 		B3temp=0d0
 		
 	else if (field.eq.'circchirpedpulse') then 		! Chirped....****
 		
 		!eta=eta
-		eta=xminus
+		!eta=xminus
 		g=exp(-4d0*log(2d0)*xminus**2d0/(duration*duration))
 	
-	E1temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
-	E2temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
+	E1temp=E0*g*(1)*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
+	E2temp=E0*g*(1)*(8d0*log(2d0)*xminus/(duration**2d0)*sin(eta+chirp*eta*eta)-(1d0+2d0*chirp*eta)*cos(eta+chirp*eta*eta))/sqrt(2d0)
 !E1temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*eta/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
 !E2temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*eta/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
 	E3temp=0d0
 	
-	B1temp=-E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0) 
-	B2temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
+	B1temp=E0*g*(-1)*(8d0*log(2d0)*xminus/(duration**2d0)*sin(eta+chirp*eta*eta)-(1d0+2d0*chirp*eta)*cos(eta+chirp*eta*eta))/sqrt(2d0) 
+	B2temp=-E0*g*(-1)*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
 !B1temp=-E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*eta/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0) 
 !B2temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*eta/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
 	B3temp=0d0
