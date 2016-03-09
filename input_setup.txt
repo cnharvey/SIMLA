@@ -18,14 +18,13 @@ zminw=-500d-6
 
 solver=euler
 
-!maxdt=0.1d-15
-maxdt=0.1d-15
+maxdt=1d-15
 mindt=1d-35
-initialdt=1d-20
-grid_err_tol=0.1d-10
+initialdt=1d-18
+grid_err_tol=10d-10
 
 
-writeevery=500
+writeevery=50
 
 fileformat=txt
 

@@ -1129,6 +1129,9 @@ real(kind=8)::E1_xz,E2_xz,E3_xz,B1_xz,B2_xz,B3_xz
 real(kind=8)::E1_yz,E2_yz,E3_yz,B1_yz,B2_yz,B3_yz
 real(kind=8)::E1_xy,E2_xy,E3_xy,B1_xy,B2_xy,B3_xy
 
+		real(kind=8):: vecTT, vecB, vecA0, vecp0const
+		complex(kind=16):: comp_i, vectau, vecf, vecg, vech, vecRsq, vecR, vect, vecz, vecp0, vecA
+
 
 E1=0d0;E2=0d0;E3=0d0
 B1=0d0;B2=0d0;B3=0d0
@@ -1423,6 +1426,48 @@ do j=1,no_fields
 		B1temp=-EE/c*C0
 		B2temp=EE/c*S0
 		B3temp=EE/c*nu*eps*C1+EE/c*xi*eps*S1
+		
+		
+	else if (field .eq. 'vector') then ! subcycle vector beam
+			
+		comp_i = (0d0,1d0)
+		
+		zr = k*w0*w0/2d0
+		
+		vecTT = duration / sqrt(8d0*log(2d0))
+ 		
+		vect = t+comp_i*zr
+		vecz = z+comp_i*zr
+		
+		vecRsq = x*x + y*y + (z + comp_i*zr)*(z + comp_i*zr)
+		vecR = sqrt(vecRsq)
+				
+		if (aimag(vecR) < 0) then
+			vecR = -vecR
+		end if
+				
+		vectau = vect - vecR		
+		
+		vecf = (1d0 + (comp_i*vectau)/(k*vecTT*vecTT))**2d0-(1d0/(k*k*vecRsq))*(1d0-vect*vecR/(vecTT*vecTT)+comp_i*k*vecR)
+        vecg = -vecf + (2d0/(k*k*vecRsq))*(1d0 - vectau*vecR/(vecTT*vecTT) + comp_i*vecR)
+        vech = vecf + 1d0/(k*k*vecRsq)
+        
+        vecB = 1d0 -1d0/(k*zr)+ 1d0/(k*vecTT)**2d0
+        vecA0 = sqrt(1d0/(vecB+1d0/(k*zr*k*zr)))
+		
+		vecp0const = zr*vecA0*E0/(k*k)
+		
+		vecp0 = vecp0const*exp(-vectau**2d0/(2d0*vecTT*vecTT))*exp(comp_i*k*vectau)
+		
+		vecA = E0*zr*vecA0*vecp0/(vecp0const*vecR)
+		
+		E1temp = realpart(vecA*(vecf+x*x*vecg/vecRsq))
+		E2temp = realpart(vecA*x*y*vecg/vecRsq)
+		E3temp = realpart(vecA*x*vecz*vecg/vecRsq)
+		
+		B1temp = 0d0
+		B2temp = realpart(vecA*vecz*vech/vecR)
+		B3temp = realpart(-vecA*y*vech/vecR)
 		
 		
 	else if (field.eq.'constB') then 	! Constant B field

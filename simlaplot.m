@@ -8,7 +8,7 @@ clear
 fileformat='txt';  % Specify output file format (txt or bin) 
 
 xtoSI=0.197; % conversion factor to microns
-ttoSI=0.658; % conversion factor to femtosceonds
+ttoSI=0.658; % conversion factor to femtoseconds
 
 
 disp(':---------------------------------')

@@ -1,13 +1,13 @@
 no_fields=1
 ! none, crossed,linpw,circpw,parax1,parax5,cparax1,constB
-field1=circchirpedpulse
+field1=parax1
 field2=parax1
 
 ! inf,step,stepsin2,sech,gauss,gauss4,gauss8,gauss12
 profile1=gauss
 profile2=gauss
 
-chirp1=0.008
+chirp1=0.00
 
 ! NB no more than 4 digits before decimal
 anglexz1=0
@@ -25,10 +25,10 @@ waist1=5e-6
 waist2=5e-6
 
 
-a0_1=200
+a0_1=5
 a0_2=100
 
-duration1=23.5e-15  !27e-15
+duration1=0.27e-15
 duration2=30e-15
 
 psi0_1=0
