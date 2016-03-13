@@ -171,6 +171,8 @@ for j=1:no_runs
         clear traj;
     end   
     
+    fclose('all');
+    
 end 
 
 % If no runs include the quantum efficiency parameter then close this plot
