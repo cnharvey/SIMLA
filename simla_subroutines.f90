@@ -1449,15 +1449,15 @@ do j=1,no_fields
 		vectau = vect - vecR		
 		
 		vecf = (1d0 + (comp_i*vectau)/(k*vecTT*vecTT))**2d0-(1d0/(k*k*vecRsq))*(1d0-vect*vecR/(vecTT*vecTT)+comp_i*k*vecR)
-        vecg = -vecf + (2d0/(k*k*vecRsq))*(1d0 - vectau*vecR/(vecTT*vecTT) + comp_i*vecR)
+        vecg = -vecf + (2d0/(k*k*vecRsq))*(1d0 - vectau*vecR/(vecTT*vecTT) + comp_i*k*vecR)
         vech = vecf + 1d0/(k*k*vecRsq)
         
         vecB = 1d0 -1d0/(k*zr)+ 1d0/(k*vecTT)**2d0
-        vecA0 = sqrt(1d0/(vecB+1d0/(k*zr*k*zr)))
+        vecA0 = sqrt(1d0/(vecB*(vecB+1d0/(k*zr*k*zr))))
 		
 		vecp0const = zr*vecA0*E0/(k*k)
 		
-		vecp0 = vecp0const*exp(-vectau**2d0/(2d0*vecTT*vecTT))*exp(comp_i*k*vectau)
+		vecp0 = vecp0const*exp(-vectau**2d0/(2d0*vecTT*vecTT))*exp(comp_i*(k*vectau+psi0))
 		
 		vecA = E0*zr*vecA0*vecp0/(vecp0const*vecR)
 		
