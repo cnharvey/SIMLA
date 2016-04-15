@@ -320,7 +320,6 @@ omegavec=1.24d-6/lambdavec
 
 waistvec=waistvec*xnormalisation
 durationvec=durationvec*tnormalisation
-psi0vec=psi0vec*tnormalisation
 
 
 ! read in data from input_setup.txt
