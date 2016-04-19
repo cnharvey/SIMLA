@@ -536,7 +536,23 @@ subroutine main_subroutine()
 		vx2=vx; vy2=vy; vz2=vz
 		gama2=gama
 		ux2=ux; uy2=uy; uz2=uz
-		do j=1,2				! is 'dt' correct here???
+!		do j=1,2				
+!			if (eom .eq. 'sok') then
+!				call Sokolov(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
+!			else  
+!				if (solver.eq.'leapfrog') then
+!					call leapfrog_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
+!				else if (solver .eq. 'Euler' .or. solver .eq. 'euler') then
+!										
+!					call Euler_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2, &
+!						tprevious,xprevious,yprevious,zprevious,gamaprevious,uxprevious,uyprevious,uzprevious,errcode)
+!
+!				end if
+!			end if
+!			t=t+dt
+!		end do
+		
+		!!do j=1,2				
 			if (eom .eq. 'sok') then
 				call Sokolov(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
 			else  
@@ -550,7 +566,24 @@ subroutine main_subroutine()
 				end if
 			end if
 			t=t+dt
-		end do
+			if (eom .eq. 'sok') then
+				call Sokolov(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
+			else  
+				if (solver.eq.'leapfrog') then
+					call leapfrog_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
+				else if (solver .eq. 'Euler' .or. solver .eq. 'euler') then
+										
+					call Euler_solver(t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2, &
+						t,dt,xst2,yst2,zst2,ax2,ay2,az2,vx2,vy2,vz2,gama2,ux2,uy2,uz2,errcode)
+
+				end if
+			end if
+			t=t+dt
+		!!end do
+
+
+
+
 	
 		! Compare the results
 		xsqerr=sqrt((xst1-xst2)*(xst1-xst2)+(yst1-yst2)*(yst1-yst2)+(zst1-zst2)*(zst1-zst2))
