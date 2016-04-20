@@ -1040,93 +1040,32 @@ real(kind=8),dimension(3)::LF,LFtemp,LFprevious,delLF,dLFdt,dvdt,vxLF,dvdtxvxLF,
 ! RR coupling
 coupling=2d0/3d0*charge*charge/(4d0*pi*mass)
 
-dx=x-xprevious
-dy=y-yprevious
-dz=z-zprevious
-
-
-vxprevious=uxprevious/gamaprevious
-vyprevious=uyprevious/gamaprevious
-vzprevious=uzprevious/gamaprevious
-
-call fields(tprevious,x,yprevious,zprevious,B1temp,B2temp,B3temp,E1temp,E2temp,E3temp)
-call cross(vx,vyprevious,vzprevious,B1temp,B2temp,B3temp,vxB1,vxB2,vxB3)
-LFtemp(1)=E1temp+vxB1 	
-
-call fields(tprevious,xprevious,y,zprevious,B1temp,B2temp,B3temp,E1temp,E2temp,E3temp)
-call cross(vxprevious,vy,vzprevious,B1temp,B2temp,B3temp,vxB1,vxB2,vxB3)
-LFtemp(2)=E2temp+vxB2	
-
-call fields(tprevious,xprevious,yprevious,z,B1temp,B2temp,B3temp,E1temp,E2temp,E3temp)
-call cross(vxprevious,vyprevious,vz,B1temp,B2temp,B3temp,vxB1,vxB2,vxB3)
-LFtemp(3)=E3temp+vxB3	
-
-call cross(vxprevious,vyprevious,vzprevious,B1previous,B2previous,B3previous,vxB1previous,vxB2previous,vxB3previous)
-
-LFprevious(1)=E1previous+vxB1previous 	!
-LFprevious(2)=E2previous+vxB2previous	! Lorentz force term from previous position
-LFprevious(3)=E3previous+vxB3previous	!
-
 
 call cross(vx,vy,vz,B1,B2,B3,vxB1,vxB2,vxB3)
 
 LF(1)=E1+vxB1 	!
-LF(2)=E2+vxB2	! Lorentz force term from new position
+LF(2)=E2+vxB2	! Lorentz force term from current position
 LF(3)=E3+vxB3	!
 
+dvdt(1)=ax/gama
+dvdt(2)=ay/gama
+dvdt(3)=az/gama
 
 
-! Time derivative of Lorentz force
-!
-! dF/dt=delF/delt + delF/delx dx/dt + delF/dely dy/dt + delF/delz dz/dt
-!
+LFtemp(1)=LF(1)*mass
+LFtemp(2)=LF(2)*mass
+LFtemp(3)=LF(3)*mass
 
-term1=(LF-LFprevious)/dt
-
-
-if (abs(dx).ge. 1e-20) then
-	term2=(LFtemp(1)-LFprevious(1))/dt
-else
-	term2=0
-end if
-
-if (abs(dy).ge. 1e-20) then
-	term3=(LFtemp(2)-LFprevious(2))/dt
-else
-	term3=0
-end if
-
-if (abs(dz).ge. 1e-20) then
-	term4=(LFtemp(3)-LFprevious(3))/dt
-else
-	term4=0
-end if
-
-
-dLFdt(1)=term1(1)+term2+term3+term4
-dLFdt(2)=term1(2)+term2+term3+term4
-dLFdt(3)=term1(3)+term2+term3+term4
-
-
-! Time derivate of velocity
-dvdt(1)=(vx-vxprevious)/dt
-dvdt(2)=(vy-vyprevious)/dt
-dvdt(3)=(vz-vzprevious)/dt
-
-
-call cross(vx,vy,vx,LF(1),LF(2),LF(3),vxLF(1),vxLF(2),vxLF(3))
+call cross(vx,vy,vx,LFtemp(1),LFtemp(2),LFtemp(3),vxLF(1),vxLF(2),vxLF(3))
 
 call cross(dvdt(1),dvdt(2),dvdt(3),vxLF(1),vxLF(2),vxLF(3),dvdtxvxLF(1),dvdtxvxLF(2),dvdtxvxLF(3))
 
 
-ax=charge_sign*LF(1)+coupling*(gama*dLFdt(1)-gama**3d0*dvdtxvxLF(1))
-ay=charge_sign*LF(2)+coupling*(gama*dLFdt(2)-gama**3d0*dvdtxvxLF(2))
-az=charge_sign*LF(3)+coupling*(gama*dLFdt(3)-gama**3d0*dvdtxvxLF(3))
+ax=charge_sign*LF(1)+coupling/mass*(-gama**3d0*dvdtxvxLF(1))
+ay=charge_sign*LF(2)+coupling/mass*(-gama**3d0*dvdtxvxLF(2))
+az=charge_sign*LF(3)+coupling/mass*(-gama**3d0*dvdtxvxLF(3))
 
-
-print*,gama,term1,term2,term3,term4
-
-
+!print*,gama,ax,ay,az
 
 
 end subroutine FordOConnell

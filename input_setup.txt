@@ -1,5 +1,5 @@
 tmin=-100d-15
-tmax=3000d-15
+tmax=100d-15
 xmax=200d-6
 ymax=200d-6
 zmax=500d-6
@@ -7,7 +7,7 @@ xmin=-200d-6
 ymin=-200d-6
 zmin=-500d-6
 
-tmaxw=1200d-15
+tmaxw=100d-15
 tminw=-100d-15
 xmaxw=10d-6
 ymaxw=10d-6
