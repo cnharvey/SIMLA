@@ -1,32 +1,28 @@
 %-------------------------------------------------------------------------
-% This script reads in the spectrum data file, 
-% and plots the data.
+% This script reads in the spectrum data files from the classical Monte , 
+% Carlo routines, then bins and plots the data.
 %-------------------------------------------------------------------------
-
 clear
 
-omegamax=1e7;    % specify max freq
+version=2.0;
+date='01-04-2016';
+
+%% User input
+
+theta_axis=-pi:0.2:pi;
+
+omega_powers=1:0.05:7;
+omega_axis=10.^omega_powers;
 
 
-nopointstheta=300;
 
-omega_axis=[0:omegamax/500:omegamax];
-theta_xz_axis=[-pi:2*pi/(nopointstheta-1):pi];
+%% Initialisation
 
+fprintf('SIMLA Classical Monte Carlo Spectrum \n')
+fprintf('Version %f (%s)\n',version,date)
 
-
-xtoSI=0.197; % conversion factor to microns
-ttoSI=0.658; % conversion factor to femtosceonds
-
-
-disp(':---------------------------------')
-disp('Plot emission spectrum from file  ')
-disp(':---------------------------------')
-
-disp('max frequency is (MeV): ')
-disp(omegamax/1e6)
-
-time=cputime;
+nopointstheta=length(theta_axis);
+nopointsomega=length(omega_axis);
 
 % load particle input file
 particle_input_data=fopen('particle_input.csv','r');
@@ -45,16 +41,14 @@ writeflag=particle_input{11};
 
 written_counter=0;
 
-
-
 nophotons_total=0;
 htotal_omega=0;
 htotal_theta_xz=0;
 
-omegatotal=0.0000001;
-theta_xz_total=0.00000001;
+xtoSI=0.197; % conversion factor to microns
+ttoSI=0.658; % conversion factor to femtosceonds
 
-% read in spectrum file for each run and add the data to the plot windows
+%% Read in spectrum file for each run and extract the data
 for j=1:no_runs
     if (strcmp(input_switch,'off') == 1)
         i=j;
@@ -78,8 +72,7 @@ for j=1:no_runs
         
         target_file=strcat(filename1,filename2,filename3);
         
-        % check if file is empty.  If so skip (otherwise stats routines
-        % will cause code to abort).
+        % check if file is empty.  If so skip (otherwise stats routines will cause code to abort).
         filedata = dir(target_file);
         if filedata.bytes == 0
             % empty file
@@ -109,42 +102,14 @@ for j=1:no_runs
             % Convert units
             x0=x0*ttoSI;
 
-
-
-            % calculate histogram data for this run (normalised per run)
-            hrun_omega=histc(omega,omega_axis)/nophotons_run;
-            hrun_theta_xz=histc(theta_xz,theta_xz_axis)/nophotons_run;
-            
-            % If file onel contains one line of data, vector needs to be
-            % transposed.
-            if nophotons_run==1
-                hrun_theta_xz=transpose(hrun_theta_xz);
-            end
-
-            % running total spectra
-            htotal_omega=htotal_omega+hrun_omega;
-            htotal_theta_xz=htotal_theta_xz+hrun_theta_xz;
             
             if j==1
-                omegatotal=[omega];               %THESE MAY HAVE BEEN CORRUPTED.  PUT A '1' HERE, BUT NEED TO CHECK...
-                theta_xz_total=[transpose(theta_xz)];
+                omegatotal=[omega];               
+                theta_data=[transpose(theta_xz)];
             else
                 omegatotal=[omegatotal,omega];
-                theta_xz_total=[theta_xz_total,transpose(theta_xz)];
+                theta_data=[theta_data,transpose(theta_xz)];
             end
-
-            % Plot the energy/angular spectrum for this run
-    %         figure
-    %         hold on    
-    %         plot(omega_axis/1e6,hrun_omega/nophotons_run)
-    %         xlabel('omega (MeV)')
-    %         ylabel('Rate')
-    %         
-    %         figure
-    %         hold on
-    %         plot(theta_xz_axis*180/pi,hrun_theta_xz/nophotons_run)
-    %         xlabel('\theta_{xz}')
-    %         ylabel('Rate')      
 
 
             clear spec;
@@ -158,47 +123,28 @@ for j=1:no_runs
     
 end 
 
-% normalise total spectra
-htotal_omega=htotal_omega/no_runs;
-htotal_theta_xz=htotal_theta_xz/no_runs; 
+%% Bin the data
 
+logomegavec=histc((omegatotal),omega_axis);
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%for ii=1:220;
-    %logomegabins(ii)=10^(ii/16-4); %eV
-%end
-nologbins=440;
-for ii=1:nologbins;
-    logomegabins(ii)=10^(ii/32-4); %eV
-end
-logomegavec=histc((omegatotal),logomegabins);
-figure
-semilogx(logomegabins,logomegavec/nophotons_total)
-xlabel('\omega (eV)')
-
-for i=1:(nophotons_total)
-    if theta_xz_total(i) < 0
-        theta_xz_total_shifted(i)=2*pi+theta_xz_total(i);
+for i=1:nophotons_total
+    if theta_data(i) < 0
+        theta_data_shifted(i)=2*pi+theta_data(i);
     else
-        theta_xz_total_shifted(i)=theta_xz_total(i);
+        theta_data_shifted(i)=theta_data(i);
     end
 end
-theta_shifted=histc(theta_xz_total_shifted,theta_xz_axis+pi);
-figure
-plot(theta_xz_axis*180/pi+180,theta_shifted)
-xlabel('\theta_{xz}')
-ylabel('(Total) Rate')
+theta_shifted=histc(theta_data_shifted,theta_axis+pi);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  % new log binning test
  
- theta_xz_axis_shifted=theta_xz_axis+pi;
+ theta_axis_shifted=theta_axis+pi;
  
- logspec2d=zeros(nologbins,nopointstheta);
+ logspec2d=zeros(nopointsomega,nopointstheta);
 
- testvecomega=zeros(1,nologbins);
+ testvecomega=zeros(1,nopointsomega);
  testvectheta=zeros(1,nopointstheta);
  
  for pp=1:nophotons_total 
@@ -206,8 +152,8 @@ ylabel('(Total) Rate')
      currentomega=omegatotal(pp);
      
      olddifference=1e99;
-     for ii=1:nologbins;
-        difference=abs(currentomega-logomegabins(ii));
+     for ii=1:nopointsomega;
+        difference=abs(currentomega-omega_axis(ii));
         if (difference < olddifference)
             olddifference=difference;
         else
@@ -220,12 +166,12 @@ ylabel('(Total) Rate')
      testvecomega(omegaindex)=testvecomega(omegaindex)+1;
      
      
-     currenttheta=theta_xz_total_shifted(pp);
+     currenttheta=theta_data_shifted(pp);
      
      olddifference=1e99;
      thetaindex=1;
      for ii=1:nopointstheta;
-        difference=abs(currenttheta-theta_xz_axis_shifted(ii));
+        difference=abs(currenttheta-theta_axis_shifted(ii));
         if (difference < olddifference)
             olddifference=difference;
         else
@@ -244,98 +190,36 @@ ylabel('(Total) Rate')
  end % pp
 
 
-figure
-semilogx(logomegabins,testvecomega/nophotons_total)
-xlabel('\omega (eV)')
-ylabel('Rate')
+fclose('all');
 
 
-figure
-plot(theta_xz_axis_shifted*180/pi,testvectheta/nophotons_total)
-xlabel('\theta (deg) shifted')
-ylabel('Rate')
-
-figure
-imagesc(log10(logomegabins),theta_xz_axis_shifted*180/pi,transpose(logspec2d)/nophotons_total)
-axis xy
-xlabel('log (\omega) (eV)')
-ylabel('\theta (deg) shifted')
-
-
+%% Output
 
 figure
 
 subplot(3,3,[1 2 4 5])
-imagesc(log10(logomegabins),theta_xz_axis_shifted*180/pi,transpose(logspec2d)/nophotons_total)
+imagesc(log10(omega_axis/1.55),theta_axis_shifted*180/pi,transpose(logspec2d)/nophotons_total)
 axis xy
+axis([log10(omega_axis(1)) log10(omega_axis(end)) 0 360])
 xlabel('log (\omega) (eV)')
 ylabel('\theta (deg) shifted')
 
 subplot(3,3,[7 8])
-semilogx(logomegabins,testvecomega/nophotons_total)
+semilogx(omega_axis,testvecomega/nophotons_total)
 xlabel('\omega (eV)')
 ylabel('Rate')
 
 subplot(3,3,[3 6])
-plot(testvectheta/nophotons_total,theta_xz_axis_shifted*180/pi)
-xlabel('Rate')
-ylabel('\theta (deg) shifted')
-
-figure
-
-subplot(3,3,[4 5])
-imagesc(log10(logomegabins),theta_xz_axis_shifted*180/pi,transpose(logspec2d)/nophotons_total)
-axis xy
-xlabel('log (\omega) (eV)')
-ylabel('\theta (deg) shifted')
-
-subplot(3,3,[7 8])
-semilogx(logomegabins,testvecomega/nophotons_total)
-xlabel('\omega (eV)')
-ylabel('Rate')
-
-subplot(3,3,[3 6])
-plot(testvectheta/nophotons_total,theta_xz_axis_shifted*180/pi)
+plot(testvectheta/nophotons_total,theta_axis_shifted*180/pi)
 xlabel('Rate')
 ylabel('\theta (deg) shifted')
 
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% plot total spectra
-figure   
-plot(omega_axis,htotal_omega)
-hold on 
-xlabel('omega (eV)')
-ylabel('(Total) Rate')
-
-figure
-hold on
-plot(theta_xz_axis*180/pi,htotal_theta_xz)
-xlabel('\theta_{xz}')
-ylabel('(Total) Rate')  
 
 
 
-
-
-
-% spectra3D=[transpose(omegatotal/1.55),transpose(theta_xz_total*180/pi)];
-% 
-% figure
-% hist3(spectra3D,[120 120])
-% xlabel('\omega/\omega_0')
-% ylabel('\theta_{xz} (degrees)')
-% zlabel('No. Photons')
-% set(get(gca,'child'),'FaceColor','interp','CDataMode','auto');
-
-fclose('all');
-
-disp('Elapsed time')
-time=cputime-time;
-disp(time)
 
 
 
