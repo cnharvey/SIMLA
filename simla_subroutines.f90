@@ -20,7 +20,7 @@ use qedvariables
 implicit none
 
 logical ::input_fields_exists,input_setup_exists
-integer :: iostatvalue,info_length,name_length,value_length
+integer ::i,iostatvalue,info_length,name_length,value_length
 character(len=100)::variable_name,variable_value,line
 	
 ! Read in data from input_fields.txt
@@ -37,7 +37,7 @@ open(inputfieldsfileID,file="input_fields.txt")
 ! Initialise
 field_angle_xz_vec=0d0; field_angle_yz_vec=0d0; field_angle_xy_vec=0d0
 a0vec=0d0; fieldstrengthvec=0d0; waistvec=0d0; durationvec=0d0; psi0vec=0d0
-chirpvec=0d0
+chirpvec=0d0; polvec=0; polfacvecx=1; polfacvecy=1;
 
 
 do 
@@ -275,6 +275,25 @@ do
 				read(variable_value(1:value_length), * ) chirpvec(9) 	
 				
 				
+			case('pol1') 
+				read(variable_value(1:value_length), * ) polvec(1) 	
+			case('pol2') 
+				read(variable_value(1:value_length), * ) polvec(2) 						
+			case('pol3') 
+				read(variable_value(1:value_length), * ) polvec(3) 		
+			case('pol4') 
+				read(variable_value(1:value_length), * ) polvec(4) 	
+			case('pol5') 
+				read(variable_value(1:value_length), * ) polvec(5) 						
+			case('pol6') 
+				read(variable_value(1:value_length), * ) polvec(6) 						
+			case('pol7') 
+				read(variable_value(1:value_length), * ) polvec(7) 	
+			case('pol8') 
+				read(variable_value(1:value_length), * ) polvec(8) 						
+			case('pol9') 
+				read(variable_value(1:value_length), * ) polvec(9) 
+				
 				
 			case('psi0_1') 
 				read(variable_value(1:value_length), * ) psi0vec(1) 	
@@ -321,6 +340,17 @@ omegavec=1.24d-6/lambdavec
 waistvec=waistvec*xnormalisation
 durationvec=durationvec*tnormalisation
 psi0vec=psi0vec
+
+do i=1,9
+	if (polvec(i) <0 .or. polvec(i)>1) then
+		print*,'*** Invalid field polarization'	
+		print*,'simulation aborted! ***'
+		stop
+	end if
+end do
+
+polfacvecx=1.d0/sqrt(1d0+polvec**2d0)
+polfacvecy=polvec/sqrt(1d0+polvec**2d0)
 
 
 ! read in data from input_setup.txt
@@ -1092,7 +1122,7 @@ character(len=100)::field,profile
 integer(kind=4)::j,jj
 real(kind=8)::t,x,y,z,x_xz,y_xz,z_xz,x_yz,y_yz,z_yz,x_xy,y_xy,z_xy
 real(kind=8)::field_angle_xz,field_angle_yz,field_angle_xy,w0,a0,duration,field_strength,radial_angle
-real(kind=8)::E0,zr,eps,r,xi,nu,zeta,eta,rho,w,g,eta0,k,xminus,chirp
+real(kind=8)::E0,zr,eps,r,xi,nu,zeta,eta,rho,w,g,eta0,k,xminus,chirp,pol,polfacx,polfacy
 real(kind=8)::PsiP,PsiG,PsiR,Psi0,Psi,EE
 real(kind=8)::S0,S1,S2,S3,S4,S5,S6,S7,S8,C0,C1,C2,C3,C4,C5,C6,C7,C8
 real(kind=8)::Br,dB3dz
@@ -1101,8 +1131,8 @@ real(kind=8)::E1_xz,E2_xz,E3_xz,B1_xz,B2_xz,B3_xz
 real(kind=8)::E1_yz,E2_yz,E3_yz,B1_yz,B2_yz,B3_yz
 real(kind=8)::E1_xy,E2_xy,E3_xy,B1_xy,B2_xy,B3_xy
 
-		real(kind=8):: vecTT, vecB, vecA0, vecp0const
-		complex(kind=16):: comp_i, vectau, vecf, vecg, vech, vecRsq, vecR, vect, vecz, vecp0, vecA
+real(kind=8):: vecTT, vecB, vecA0, vecp0const
+complex(kind=16):: comp_i, vectau, vecf, vecg, vech, vecRsq, vecR, vect, vecz, vecp0, vecA, xbar
 
 
 E1=0d0;E2=0d0;E3=0d0
@@ -1125,6 +1155,9 @@ do j=1,no_fields
 	duration=durationvec(j)		
 	psi0=psi0vec(j)
 	chirp=chirpvec(j)
+	pol=polvec(j)
+	polfacx=polfacvecx(j)
+	polfacy=polfacvecy(j)
 	
 	t=t_in
 	
@@ -1205,67 +1238,26 @@ do j=1,no_fields
 		B2temp=field_strength*g
 		B3temp=0d0
 		
-	else if (field.eq.'linpw') then 		! Lin. pol. plane wave
-	
-		E1temp=E0*g*sin(eta+chirp*eta*eta)
-		E2temp=0d0
-		E3temp=0d0
+	else if (field.eq.'pw') then 		! Plane wave
 		
-		B1temp=0d0
-		B2temp=E0*g*sin(eta+chirp*eta*eta)
-		B3temp=0d0
-	
-	else if (field.eq.'circpw') then 		! Circ. pol. plane wave
-		E1temp=E0*g*sin(eta+chirp*eta*eta)/sqrt(2d0)
-		E2temp=E0*g*cos(eta+chirp*eta*eta)/sqrt(2d0)
-		E3temp=0d0
-	
-		B1temp=-E0*g*cos(eta+chirp*eta*eta)/sqrt(2d0)
-		B2temp=E0*g*sin(eta+chirp*eta*eta)/sqrt(2d0)
-		B3temp=0d0
-		
-	else if (field.eq.'chirpedpulse') then 		! Chirped....****
-		
-		eta=eta
-		g=exp(-4d0*log(2d0)*xminus**2d0/(duration*duration))
-	
-		E1temp=E0*g*(1)*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))
-		E2temp=0d0
-		E3temp=0d0
-	
-		B1temp=0d0
-		B2temp=-E0*g*(-1)*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))
-		B3temp=0d0
-		
-	else if (field.eq.'circchirpedpulse') then 		! Chirped....****
-		
-		!eta=eta
-		!eta=xminus
-		g=exp(-4d0*log(2d0)*xminus**2d0/(duration*duration))
-	
-	E1temp=E0*g*(1)*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
-	E2temp=E0*g*(1)*(8d0*log(2d0)*xminus/(duration**2d0)*sin(eta+chirp*eta*eta)-(1d0+2d0*chirp*eta)*cos(eta+chirp*eta*eta))/sqrt(2d0)
-!E1temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*eta/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
-!E2temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*eta/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
-	E3temp=0d0
-	
-	B1temp=E0*g*(-1)*(8d0*log(2d0)*xminus/(duration**2d0)*sin(eta+chirp*eta*eta)-(1d0+2d0*chirp*eta)*cos(eta+chirp*eta*eta))/sqrt(2d0) 
-	B2temp=-E0*g*(-1)*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*xminus/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
-!B1temp=-E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*eta/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0) 
-!B2temp=E0*g*((1d0+2d0*chirp*eta)*sin(eta+chirp*eta*eta)+8d0*log(2d0)*eta/(duration**2d0)*cos(eta+chirp*eta*eta))/sqrt(2d0)
-	B3temp=0d0
-		
-		
-	else if(field.eq.'standing') then 		! Standing Wave
-		E1temp=E0*g*(sin(t-z)+sin(t+z))
-		E2temp=0d0
-		E3temp=0d0
-	
-		B1temp=0d0
-		B2temp=E0*g*(sin(t-z)+sin(t+z))
-		B3temp=0d0
-		
-		
+		if (polfacx .ge. 0.999999) then  ! lin. pol.
+			E1temp=E0*g*sin(eta+chirp*eta*eta)	
+			E2temp=0d0	
+			E3temp=0d0
+			
+			B1temp=0d0		
+			B2temp=E0*g*sin(eta+chirp*eta*eta)	
+			B3temp=0d0					
+		else 
+			E1temp=polfacx*E0*g*sin(eta+chirp*eta*eta)	
+			E2temp=polfacy*E0*g*cos(eta+chirp*eta*eta)	
+			E3temp=0d0
+			
+			B1temp=-polfacy*E0*g*cos(eta+chirp*eta*eta)		
+			B2temp=polfacx*E0*g*sin(eta+chirp*eta*eta)	
+			B3temp=0d0					
+		end if		
+			
 	else if (field.eq.'parax1') then    	! Paraxial Gaussian field (1st order)
 	
 		zr=k*w0*w0/2d0
@@ -1282,8 +1274,8 @@ do j=1,no_fields
 	
 		w=w0*sqrt(1d0+z*z/(zr*zr))
 	
-		PsiP = eta;            	
-		PsiG = atan(zeta);
+		PsiP = eta            	
+		PsiG = atan(zeta)
 		PsiR = 0.5d0*k*z*r*r/(z*z+zr*zr)  
 		!Psi0 = 0.0d0;
 		Psi = Psi0 + PsiP - PsiR + PsiG;
@@ -1291,18 +1283,29 @@ do j=1,no_fields
 		EE=E0*w0/w*g*exp(-r*r/(w*w))
 	
 		S0=sin(Psi)
+		C0=cos(Psi)
 	
 		C1=(w0/w)*cos(Psi+PsiG)
 	
-		E1temp=EE*S0
-		E2temp=0d0
-		E3temp=EE*xi*eps*C1
-	
-		B1temp=0d0
-		B2temp=EE/c*S0
-		B3temp=EE/c*nu*eps*C1
-		
 
+		
+		if (polfacx .ge. 0.999999) then  ! lin. pol.
+			E1temp=EE*S0
+			E2temp=0d0
+			E3temp=EE*xi*eps*C1
+	
+			B1temp=0d0
+			B2temp=EE/c*S0
+			B3temp=EE/c*nu*eps*C1			
+		else 
+			E1temp=polfacx*EE*S0
+			E2temp=polfacy*EE*C0
+			E3temp=polfacx*EE*xi*eps*C1+polfacy*EE*nu*eps*S1
+	
+			B1temp=-polfacy*EE/c*C0
+			B2temp=polfacx*EE/c*S0
+			B3temp=polfacx*EE/c*nu*eps*C1+polfacy*EE/c*xi*eps*S1				
+		end if		
 	
 	else if (field.eq.'parax5') then    	! Paraxial Gaussian beam (5th order)
 	
@@ -1343,61 +1346,59 @@ do j=1,no_fields
 		C6=(w0/w)**6d0*cos(Psi+6d0*PsiG)
 		C7=(w0/w)**7d0*cos(Psi+7d0*PsiG)
 	
-		E1temp=EE*(S0+eps**2d0*(xi*xi*S2-rho**4d0*S3/4d0)+&
-		eps**4d0*(S2/8d0-rho*rho*S3/4d0-rho*rho*(rho*rho-16d0*xi*xi)*S4/16d0-&
-		rho**4d0*(rho*rho+2d0*xi*xi)*S5/8d0+rho**8d0*S6/32d0))
-	
-		E2temp=EE*xi*nu*(eps**2d0*S2+eps**4d0*(rho**2d0*S4-rho**4d0*S5/4d0))
-	
-		E3temp=EE*xi*(eps*C1+eps**3d0*(-C2/2d0+rho*rho*C3-rho**4d0*C4/4d0)+&
-		eps**5d0*(-3d0*C3/8d0-3d0*rho*rho*C4/8d0+17d0*rho**4d0*C5/16d0-3d0*rho**6d0*C6/8d0+&
-		rho**8d0*C7/32d0))
-	
-		B1temp=0d0
-	
-		B2temp=EE/c*(S0+eps*eps*(rho*rho*S2/2d0-rho**4d0*S3/4d0)+&
-		eps**4d0*(-S2/8d0+rho*rho*S3/4d0+5d0*rho**4d0*S4/16d0-rho**6d0*S5/4d0+rho**8d0*S6/32d0))
-	
-		B3temp=EE/c*nu*(eps*C1+eps**3d0*(C2/2d0+rho**2d0*C3/2d0-rho**4d0*C4/4d0)+&
-		eps**5d0*(3d0*C3/8d0+3d0*rho**2d0*C4/8d0+3*rho**4d0*C5/16d0-rho**6d0*C6/4d0+rho**8d0*C7/32d0))
+
 		
-		
-	else if (field.eq.'cparax1') then    	! Circularly polarised paraxial Gaussian field (1st order)
+		if (polfacx .ge. 0.999999) then  ! lin. pol.
+			E1temp=EE*(S0+eps**2d0*(xi*xi*S2-rho**4d0*S3/4d0)+&
+			eps**4d0*(S2/8d0-rho*rho*S3/4d0-rho*rho*(rho*rho-16d0*xi*xi)*S4/16d0-&
+			rho**4d0*(rho*rho+2d0*xi*xi)*S5/8d0+rho**8d0*S6/32d0))
 	
-		zr=k*w0*w0/2d0
-		eps=w0/zr
+			E2temp=EE*xi*nu*(eps**2d0*S2+eps**4d0*(rho**2d0*S4-rho**4d0*S5/4d0))
 	
-		r=sqrt(x*x+y*y)
-		xi=x/w0
-		nu=y/w0
-		zeta=z/zr
+			E3temp=EE*xi*(eps*C1+eps**3d0*(-C2/2d0+rho*rho*C3-rho**4d0*C4/4d0)+&
+			eps**5d0*(-3d0*C3/8d0-3d0*rho*rho*C4/8d0+17d0*rho**4d0*C5/16d0-3d0*rho**6d0*C6/8d0+&
+			rho**8d0*C7/32d0))
 	
-		rho=r/w0
+			B1temp=0d0
 	
-		eta0=0d0
+			B2temp=EE/c*(S0+eps*eps*(rho*rho*S2/2d0-rho**4d0*S3/4d0)+&
+			eps**4d0*(-S2/8d0+rho*rho*S3/4d0+5d0*rho**4d0*S4/16d0-rho**6d0*S5/4d0+rho**8d0*S6/32d0))
 	
-		w=w0*sqrt(1d0+z*z/(zr*zr))
+			B3temp=EE/c*nu*(eps*C1+eps**3d0*(C2/2d0+rho**2d0*C3/2d0-rho**4d0*C4/4d0)+&
+			eps**5d0*(3d0*C3/8d0+3d0*rho**2d0*C4/8d0+3*rho**4d0*C5/16d0-rho**6d0*C6/4d0+rho**8d0*C7/32d0))		
+		else 
+			E1temp=polfacx*EE*(S0+eps**2d0*(xi*xi*S2-rho**4d0*S3/4d0)+&
+			eps**4d0*(S2/8d0-rho*rho*S3/4d0-rho*rho*(rho*rho-16d0*xi*xi)*S4/16d0-&
+			rho**4d0*(rho*rho+2d0*xi*xi)*S5/8d0+rho**8d0*S6/32d0))&
+			+polfacy*EE*xi*nu*(eps**2d0*C2+eps**4d0*(rho**2d0*C4-rho**4d0*C5/4d0))
+			
+			E2temp=polfacy*EE*xi*nu*(eps**2d0*S2+eps**4d0*(rho**2d0*S4-rho**4d0*S5/4d0))&
+			+polfacx*EE*(C0+eps**2d0*(xi*xi*C2-rho**4d0*C3/4d0)+&
+			eps**4d0*(C2/8d0-rho*rho*C3/4d0-rho*rho*(rho*rho-16d0*xi*xi)*C4/16d0-&
+			rho**4d0*(rho*rho+2d0*xi*xi)*C5/8d0+rho**8d0*C6/32d0))
+			
+			E3temp=polfacx*EE*(eps*C1+eps**3d0*(-C2/2d0+rho*rho*C3-rho**4d0*C4/4d0)+&
+			eps**5d0*(-3d0*C3/8d0-3d0*rho*rho*C4/8d0+17d0*rho**4d0*C5/16d0-3d0*rho**6d0*C6/8d0+&
+			rho**8d0*C7/32d0))&
+			 +polfacy*EE*nu*(eps*S1+eps**3d0*(-S2/2d0+rho*rho*S3-rho**4d0*S4/4d0)+&
+			eps**5d0*(-3d0*S3/8d0-3d0*rho*rho*S4/8d0+17d0*rho**4d0*S5/16d0-3d0*rho**6d0*S6/8d0+&
+			rho**8d0*S7/32d0))
 	
-		PsiP = eta            	
-		PsiG = atan(zeta)
-		PsiR = 0.5d0*k*z*r*r/(z*z+zr*zr)  
-		!Psi0 = 0.0d0;
-		Psi = Psi0 + PsiP - PsiR + PsiG;
-	
-		EE=E0*w0/w*g*exp(-r*r/(w*w))/sqrt(2d0)   !normalisation for circ
-	
-		S0=sin(Psi)
-		C0=cos(Psi)
-	
-		C1=(w0/w)*cos(Psi+PsiG)
-	
-		E1temp=EE*S0
-		E2temp=EE*C0
-		E3temp=EE*xi*eps*C1+EE*nu*eps*S1
-	
-		B1temp=-EE/c*C0
-		B2temp=EE/c*S0
-		B3temp=EE/c*nu*eps*C1+EE/c*xi*eps*S1
+			B1temp=-polfacy*EE/C*xi*nu*(eps**2d0*S2+eps**4d0*(rho**2d0*S4-rho**4d0*S5/4d0))&
+			+polfacx*EE/C*(C0+eps**2d0*(xi*xi*C2-rho**4d0*C3/4d0)+&
+			eps**4d0*(C2/8d0-rho*rho*C3/4d0-rho*rho*(rho*rho-16d0*xi*xi)*C4/16d0-&
+			rho**4d0*(rho*rho+2d0*xi*xi)*C5/8d0+rho**8d0*C6/32d0))
+			
+			B2temp=polfacx*EE/C*(S0+eps**2d0*(xi*xi*S2-rho**4d0*S3/4d0)+&
+			eps**4d0*(S2/8d0-rho*rho*S3/4d0-rho*rho*(rho*rho-16d0*xi*xi)*S4/16d0-&
+			rho**4d0*(rho*rho+2d0*xi*xi)*S5/8d0+rho**8d0*S6/32d0))&
+			+polfacy*EE/C*xi*nu*(eps**2d0*C2+eps**4d0*(rho**2d0*C4-rho**4d0*C5/4d0))
+			
+			B3temp=polfacx*EE/c*nu*(eps*C1+eps**3d0*(C2/2d0+rho**2d0*C3/2d0-rho**4d0*C4/4d0)+&
+			eps**5d0*(3d0*C3/8d0+3d0*rho**2d0*C4/8d0+3*rho**4d0*C5/16d0-rho**6d0*C6/4d0+rho**8d0*C7/32d0))&
+			+polfacy*EE/c*xi*(eps*S1+eps**3d0*(S2/2d0+rho**2d0*S3/2d0-rho**4d0*S4/4d0)+&
+			eps**5d0*(3d0*S3/8d0+3d0*rho**2d0*S4/8d0+3*rho**4d0*S5/16d0-rho**6d0*S6/4d0+rho**8d0*S7/32d0))			
+		end if	
 		
 		
 	else if (field .eq. 'vector') then ! subcycle vector beam
@@ -1431,15 +1432,17 @@ do j=1,no_fields
 		
 		vecp0 = vecp0const*exp(-vectau**2d0/(2d0*vecTT*vecTT))*exp(comp_i*(k*vectau+psi0))
 		
-		vecA = E0*zr*vecA0*vecp0/(vecp0const*vecR)
+		vecA = E0*zr*vecA0*vecp0/(vecp0const*vecR*sqrt(1+pol*pol))
 		
-		E1temp = realpart(vecA*(vecf+x*x*vecg/vecRsq))
-		E2temp = realpart(vecA*x*y*vecg/vecRsq)
-		E3temp = realpart(vecA*x*vecz*vecg/vecRsq)
+		xbar = x+comp_i*pol*y
 		
-		B1temp = 0d0
+		E1temp = realpart(vecA*(vecf+x*xbar*vecg/vecRsq))
+		E2temp = realpart(vecA*(comp_i*pol*vecf+xbar*y*vecg/vecRsq))
+		E3temp = realpart(vecA*xbar*vecz*vecg/vecRsq)
+		
+		B1temp = realpart(-vecA*vech*comp_i*pol*vecz/vecR)
 		B2temp = realpart(vecA*vecz*vech/vecR)
-		B3temp = realpart(-vecA*y*vech/vecR)
+		B3temp = realpart(vecA*(comp_i*pol*x-y)*vech/vecR)
 		
 		
 	else if (field.eq.'constB') then 	! Constant B field

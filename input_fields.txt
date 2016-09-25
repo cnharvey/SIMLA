@@ -1,7 +1,10 @@
 no_fields=1
 ! none, crossed,linpw,circpw,parax1,parax5,cparax1,constB
-field1=linpw
+field1=parax5
 field2=parax1
+
+pol1=1
+pol2=0
 
 ! inf,step,stepsin2,sech,gauss,gauss4,gauss8,gauss12
 profile1=gauss
@@ -25,7 +28,7 @@ waist1=5e-6
 waist2=5e-6
 
 
-a0_1=200
+a0_1=10
 a0_2=100
 
 duration1=27e-15
