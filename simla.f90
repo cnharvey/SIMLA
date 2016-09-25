@@ -1,10 +1,10 @@
 !---------------------------------------------------------------
 ! SIMLA: LASER-PARTICLE SIMULATOR
-! Version 1.1			
+! Version 2.0			
 !---------------------------------------------------------------
 
 !---------------------------------------------------------------
-! Copyright Christopher Harvey 2010-14  
+! Copyright Christopher Harvey 2010-16  
 !
 ! QED routines for probabilistic photon emission
 ! added by DG Green and C Harvey 2013
@@ -179,12 +179,12 @@ program SIMLA
 	! Display information about the simulation 
 	
 	print*,'====================================================================='
-	print*,'SIMLA: Laser-Particle Simulator Version 1.1'
+	print*,'SIMLA: Laser-Particle Simulator Version 2.0'
 	print*,'====================================================================='
 	
 	! Read in all the paramters from the input files
 	call read_input_files()
-		
+		!!!!!!write(filename,'(a,i5.5,a)')'spectrum',particle_no,'.dat'  ! define filename
 	print*,'Solver: ',solver	
 	print*,'No. fields: ', no_fields 
 	
