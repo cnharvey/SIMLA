@@ -1300,11 +1300,11 @@ do j=1,no_fields
 		else 
 			E1temp=polfacx*EE*S0
 			E2temp=polfacy*EE*C0
-			E3temp=polfacx*EE*xi*eps*C1+polfacy*EE*nu*eps*S1
+			E3temp=polfacx*EE*xi*eps*C1+polfacy*EE*nu*eps*C1
 	
 			B1temp=-polfacy*EE/c*C0
 			B2temp=polfacx*EE/c*S0
-			B3temp=polfacx*EE/c*nu*eps*C1+polfacy*EE/c*xi*eps*S1				
+			B3temp=polfacx*EE/c*nu*eps*C1+polfacy*EE/c*xi*eps*C1				
 		end if		
 	
 	else if (field.eq.'parax5') then    	! Paraxial Gaussian beam (5th order)
@@ -1337,7 +1337,8 @@ do j=1,no_fields
 		S4=(w0/w)**4d0*sin(Psi+4d0*PsiG)
 		S5=(w0/w)**5d0*sin(Psi+5d0*PsiG)
 		S6=(w0/w)**6d0*sin(Psi+6d0*PsiG)
-	
+		
+		C0=cos(Psi)
 		C1=(w0/w)*cos(Psi+PsiG)
 		C2=(w0/w)**2d0*cos(Psi+2d0*PsiG)
 		C3=(w0/w)**3d0*cos(Psi+3d0*PsiG)
@@ -1367,39 +1368,40 @@ do j=1,no_fields
 			B3temp=EE/c*nu*(eps*C1+eps**3d0*(C2/2d0+rho**2d0*C3/2d0-rho**4d0*C4/4d0)+&
 			eps**5d0*(3d0*C3/8d0+3d0*rho**2d0*C4/8d0+3*rho**4d0*C5/16d0-rho**6d0*C6/4d0+rho**8d0*C7/32d0))		
 		else 
+
 			E1temp=polfacx*EE*(S0+eps**2d0*(xi*xi*S2-rho**4d0*S3/4d0)+&
 			eps**4d0*(S2/8d0-rho*rho*S3/4d0-rho*rho*(rho*rho-16d0*xi*xi)*S4/16d0-&
 			rho**4d0*(rho*rho+2d0*xi*xi)*S5/8d0+rho**8d0*S6/32d0))&
 			+polfacy*EE*xi*nu*(eps**2d0*C2+eps**4d0*(rho**2d0*C4-rho**4d0*C5/4d0))
-			
-			E2temp=polfacy*EE*xi*nu*(eps**2d0*S2+eps**4d0*(rho**2d0*S4-rho**4d0*S5/4d0))&
-			+polfacx*EE*(C0+eps**2d0*(xi*xi*C2-rho**4d0*C3/4d0)+&
-			eps**4d0*(C2/8d0-rho*rho*C3/4d0-rho*rho*(rho*rho-16d0*xi*xi)*C4/16d0-&
-			rho**4d0*(rho*rho+2d0*xi*xi)*C5/8d0+rho**8d0*C6/32d0))
-			
-			E3temp=polfacx*EE*(eps*C1+eps**3d0*(-C2/2d0+rho*rho*C3-rho**4d0*C4/4d0)+&
+	
+			E2temp=polfacx*EE*xi*nu*(eps**2d0*S2+eps**4d0*(rho**2d0*S4-rho**4d0*S5/4d0))&
+			+polfacy*EE*(C0+eps**2d0*(nu*nu*C2-rho**4d0*C3/4d0)+&
+			eps**4d0*(C2/8d0-rho*rho*C3/4d0-rho*rho*(rho*rho-16d0*nu*nu)*C4/16d0-&
+			rho**4d0*(rho*rho+2d0*nu*nu)*C5/8d0+rho**8d0*C6/32d0))
+	
+			E3temp=polfacx*EE*xi*(eps*C1+eps**3d0*(-C2/2d0+rho*rho*C3-rho**4d0*C4/4d0)+&
 			eps**5d0*(-3d0*C3/8d0-3d0*rho*rho*C4/8d0+17d0*rho**4d0*C5/16d0-3d0*rho**6d0*C6/8d0+&
 			rho**8d0*C7/32d0))&
-			 +polfacy*EE*nu*(eps*S1+eps**3d0*(-S2/2d0+rho*rho*S3-rho**4d0*S4/4d0)+&
-			eps**5d0*(-3d0*S3/8d0-3d0*rho*rho*S4/8d0+17d0*rho**4d0*S5/16d0-3d0*rho**6d0*S6/8d0+&
-			rho**8d0*S7/32d0))
+			+polfacy*EE*nu*(eps*C1+eps**3d0*(-C2/2d0+rho*rho*C3-rho**4d0*C4/4d0)+&
+			eps**5d0*(-3d0*C3/8d0-3d0*rho*rho*C4/8d0+17d0*rho**4d0*C5/16d0-3d0*rho**6d0*C6/8d0+&
+			rho**8d0*C7/32d0))
 	
-			B1temp=-polfacy*EE/C*xi*nu*(eps**2d0*S2+eps**4d0*(rho**2d0*S4-rho**4d0*S5/4d0))&
-			+polfacx*EE/C*(C0+eps**2d0*(xi*xi*C2-rho**4d0*C3/4d0)+&
-			eps**4d0*(C2/8d0-rho*rho*C3/4d0-rho*rho*(rho*rho-16d0*xi*xi)*C4/16d0-&
-			rho**4d0*(rho*rho+2d0*xi*xi)*C5/8d0+rho**8d0*C6/32d0))
-			
-			B2temp=polfacx*EE/C*(S0+eps**2d0*(xi*xi*S2-rho**4d0*S3/4d0)+&
-			eps**4d0*(S2/8d0-rho*rho*S3/4d0-rho*rho*(rho*rho-16d0*xi*xi)*S4/16d0-&
-			rho**4d0*(rho*rho+2d0*xi*xi)*S5/8d0+rho**8d0*S6/32d0))&
-			+polfacy*EE/C*xi*nu*(eps**2d0*C2+eps**4d0*(rho**2d0*C4-rho**4d0*C5/4d0))
-			
+			B1temp=polfacx*0d0&
+			-polfacy*EE/c*(C0+eps*eps*(rho*rho*C2/2d0-rho**4d0*C3/4d0)+&
+			eps**4d0*(-C2/8d0+rho*rho*C3/4d0+5d0*rho**4d0*C4/16d0-rho**6d0*C5/4d0+rho**8d0*C6/32d0))
+	
+			B2temp=polfacx*EE/c*(S0+eps*eps*(rho*rho*S2/2d0-rho**4d0*S3/4d0)+&
+			eps**4d0*(-S2/8d0+rho*rho*S3/4d0+5d0*rho**4d0*S4/16d0-rho**6d0*S5/4d0+rho**8d0*S6/32d0))&
+			+polfacy*0d0
+	
 			B3temp=polfacx*EE/c*nu*(eps*C1+eps**3d0*(C2/2d0+rho**2d0*C3/2d0-rho**4d0*C4/4d0)+&
 			eps**5d0*(3d0*C3/8d0+3d0*rho**2d0*C4/8d0+3*rho**4d0*C5/16d0-rho**6d0*C6/4d0+rho**8d0*C7/32d0))&
-			+polfacy*EE/c*xi*(eps*S1+eps**3d0*(S2/2d0+rho**2d0*S3/2d0-rho**4d0*S4/4d0)+&
-			eps**5d0*(3d0*S3/8d0+3d0*rho**2d0*S4/8d0+3*rho**4d0*S5/16d0-rho**6d0*S6/4d0+rho**8d0*S7/32d0))			
+			+polfacy*EE/c*xi*(eps*C1+eps**3d0*(C2/2d0+rho**2d0*C3/2d0-rho**4d0*C4/4d0)+&
+			eps**5d0*(3d0*C3/8d0+3d0*rho**2d0*C4/8d0+3*rho**4d0*C5/16d0-rho**6d0*C6/4d0+rho**8d0*C7/32d0))		
+
+	
 		end if	
-		
+			
 		
 	else if (field .eq. 'vector') then ! subcycle vector beam
 			
