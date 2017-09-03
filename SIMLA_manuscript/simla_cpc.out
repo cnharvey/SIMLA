@@ -1,0 +1,13 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Theory of charged particles in laser fields and its implementation in SIMLA: radiation reaction and stochastic dynamics}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Classical theory}{section.2}% 3
+\BOOKMARK [3][-]{subsubsection.2.1.1}{Non-radiating classical motion}{subsection.2.1}% 4
+\BOOKMARK [3][-]{subsubsection.2.1.2}{Radiation reaction}{subsection.2.1}% 5
+\BOOKMARK [3][-]{subsubsection.2.1.3}{Classical emission spectrum}{subsection.2.1}% 6
+\BOOKMARK [2][-]{subsection.2.2}{Strong-field quantum electrodynamics}{section.2}% 7
+\BOOKMARK [2][-]{subsection.2.3}{Further information about the workings of the code}{section.2}% 8
+\BOOKMARK [1][-]{section.3}{Test problems}{}% 9
+\BOOKMARK [2][-]{subsection.3.1}{Trajectory and classical emission spectrum of electron in a plane-wave field}{section.3}% 10
+\BOOKMARK [2][-]{subsection.3.2}{Generating a QED photon spectrum and comparing the orbits of some of the quantum particles with a classical radiating particle}{section.3}% 11
+\BOOKMARK [1][-]{section.4}{Summary}{}% 12
+\BOOKMARK [1][-]{appendix.A}{Fields and Setup file options}{}% 13

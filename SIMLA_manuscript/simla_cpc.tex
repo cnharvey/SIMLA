@@ -1,0 +1,863 @@
+%% 
+%% Copyright 2007, 2008, 2009 Elsevier Ltd
+%% 
+%% This file is part of the 'Elsarticle Bundle'.
+%% ---------------------------------------------
+%% 
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.2 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%% 
+%% The list of all files belonging to the 'Elsarticle Bundle' is
+%% given in the file `manifest.txt'.
+%% Template article for Elsevier's document class `elsarticle'
+%% with numbered style bibliographic references
+%% SP 2008/03/01
+
+%\documentclass[preprint,review,12pt]{elsarticle}
+%\documentclass[preprint,12pt]{elsarticle}
+%\documentclass[draft,12pt]{elsarticle}
+
+%% Use the option review to obtain double line spacing
+%\documentclass[authoryear,preprint,review,12pt]{elsarticle}
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+% \documentclass[final,5p,twocolumn,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+ \documentclass[final,3p,11pt,times,floatfix]{elsarticle}
+% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+\usepackage{amssymb}
+\usepackage{alltt}
+
+\pdfminorversion=4
+
+%% For including figures, graphicx.sty has been loaded in
+%% elsarticle.cls. If you prefer to use the old commands
+%% please give \usepackage{epsfig}
+%% The amssymb package provides various useful mathematical symbols
+%% The amsthm package provides extended theorem environments
+%% \usepackage{amsthm}
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers.
+%% \usepackage{lineno}
+
+
+\journal{Comput.~Phys.~Comm.}
+
+ \usepackage{hyperref}
+ \hypersetup{
+    bookmarks=true,         % show bookmarks bar?
+    unicode=false,          % non-Latin characters in Acrobat’s bookmarks
+    pdftoolbar=true,        % show Acrobat’s toolbar?
+    pdfmenubar=true,        % show Acrobat’s menu?
+    pdffitwindow=false,     % window fit to page when opened
+    pdfstartview={FitH},    % fits the width of the page to the window
+    pdftitle={SIMLA_CompPhysCommun},   % title
+    pdfauthor={D. G. Green},     % author
+    pdfsubject={SIMLACompPhysComm},   % subject of the document
+    pdfcreator={D.~G.~Green and C.~N.~Harvey},   % creator of the document
+    pdfproducer={Producer}, % producer of the document
+    pdfkeywords={keywords}, % list of keywords
+    pdfnewwindow=true,      % links in new window
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=blue,          % color of internal links
+    citecolor=blue,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=blue           % color of external links
+}
+
+
+\begin{document}
+
+\begin{frontmatter}
+
+
+\title{SIMLA: Simulating laser-particle interactions via classical and quantum electrodynamics\tnoteref{tnote1}}
+\tnotetext[tnote1]{The associated computer program and corresponding manual will be made available on the CPC library}
+
+\author{D.~G.~Green \fnref{dg_footnote}}
+\ead{dermot.green@balliol.oxon.org}
+\author{C.~N.~Harvey\corref{cor1}\fnref{chris_footnote}}
+\address{Centre for Plasma Physics, School of Mathematics and Physics, Queen's University Belfast, Belfast, Northern Ireland, BT71NN, United Kingdom.}
+ 
+\fntext[dg_footnote]{Present address: Joint Quantum Centre (JQC), Durham/Newcastle, Department of Chemistry, Durham University, South Road, Durham, DH1\,3LE.}
+
+\fntext[chris_footnote]{Present address: Department of Applied Physics, Chalmers University of Technology, SE-41296 Gothenburg, Sweden.}
+%\ead[URL]{homepage.com}
+\ead{cnharvey@physics.org}
+\cortext[cor1]{Corresponding author. Tel: +46 31-772 10 00}
+%\ead[URL]{homepageforSIMLA?.com}
+
+%=====================================================
+\begin{abstract}
+We present the Fortran program SIMLA, which is designed for the study of charged particle dynamics in laser and other background fields.
+This can be done classically via the Landau-Lifshitz equation, or alternatively, via the simulation of photon emission events determined by strong-field quantum-electrodynamics amplitudes and implemented using Monte-Carlo type routines.
+Multiple laser fields can be included in the simulation and the propagation direction, beam shape (plane wave, focussed paraxial, constant crossed, or constant magnetic), and time envelope of each can be independently specified.
+
+\end{abstract}
+%=====================================================
+
+\begin{keyword}
+%% keywords here, in the form: keyword \sep keyword
+intense laser-electron interactions, strong-field quantum electrodynamics, radiation reaction.
+%% PACS codes here, in the form: \PACS code \sep code
+\PACS 41.60.-m \sep 12.20.-m \sep 03.50.De \sep 52.38.Ph \sep 41.75.Jv 
+\end{keyword}
+
+\end{frontmatter}
+
+{\bf PROGRAM SUMMARY}
+  %Delete as appropriate.
+
+\begin{small}
+\noindent
+{\em Manuscript Title:}           	``SIMLA: Simulating laser-particle interactions via classical and quantum electrodynamics"	                       \\
+{\em Authors:}             	 	Dermot G. Green and Christopher N. Harvey                                  \\
+{\em Program Title:}              	SIMLA                            \\
+{\em Journal Reference:}           Submitted to Computer Physics Communications                           \\
+  %Leave blank, supplied by Elsevier.
+{\em Catalogue identifier:}                                   \\
+  %Leave blank, supplied by Elsevier.
+{\em Licensing provisions:}        None                          \\
+  %enter "none" if CPC non-profit use license is sufficient.
+{\em Programming language:}   Fortran                               \\
+{\em Computer:}  			Home and office-spec desktop and laptop machines, networked or stand alone                                              \\
+  %Computer(s) for which program has been designed.
+{\em Operating system:  Linux, Mac OS, Windows, with Fortran compiler. Matlab required to exploit full post-processing features. }                                       \\
+  %Operating system(s) for which program has been designed.
+{\em RAM:} 				Varies greatly depending on calculation to be performed                                              \\
+  %RAM in bytes required to execute program with typical data.
+%{\em Number of processors used:}                              \\
+  %If more than one processor.
+{\em Supplementary material:}   Manual included with tutorial style examples                              \\
+  % Fill in if necessary, otherwise leave out.
+{\em Keywords:} 			Intense laser-electron interactions, strong-field quantum electrodynamics, radiation reaction  \\
+  % Please give some freely chosen keywords that we can use in a
+  % cumulative keyword index.
+{\em Classification:}                   15 Laser Physics                    \\
+  %Classify using CPC Program Library Subject Index, see (
+  % http://cpc.cs.qub.ac.uk/subjectIndex/SUBJECT_index.html)
+  %e.g. 4.4 Feynman diagrams, 5 Computer Algebra.
+%{\em External routines/libraries:} None \\
+  % Fill in if necessary, otherwise leave out.
+{\em Subprograms used:}           Classical spectra calculated separately in independent Matlab program `spectrum.m'.                           \\
+  %Fill in if necessary, otherwise leave out.
+%{\em Catalogue identifier of previous version:}*              \\
+  %Only required for a New Version summary, otherwise leave out.
+%{\em Journal reference of previous version:}*                  \\
+  %Only required for a New Version summary, otherwise leave out.
+%{\em Does the new version supersede the previous version?:}*   \\
+  %Only required for a New Version summary, otherwise leave out.
+{\em Nature of problem:}       	Calculation of dynamics and emission spectra of charged particles in multiple (intense) laser and other background fields, including effects of classical and quantum radiation reaction.
+ \\\\ %Understanding the classical and quantum dynamics of charged particles in intense fields, including laser fields. 
+  %Describe the nature of the problem here.
+{\em Solution method:}
+Solution of the Landau-Lifshitz equation (or simply Lorentz equation for weak fields), or alternatively, via the simulation of photon emission events determined by strong-field quantum-electrodynamics amplitudes and implemented using Monte-Carlo type routines.\\
+%   \\
+%{\em Reasons for the new version:}*\\
+  %Only required for a New Version summary, otherwise leave out.
+%   \\
+%{\em Summary of revisions:}*\\
+%  %Only required for a New Version summary, otherwise leave out.
+%   \\
+{\em Restrictions:}            		As a single particle code, the parameters are restricted to a regime in which pair production does not occur. The program will abort with an explicit error message if such a parameter regime does occur in a given simulation. \\
+  %Describe any restrictions on the complexity of the problem here.
+%   \\
+%{\em Unusual features:}\\
+  %Describe any unusual features of the program/problem here.
+%   \\
+%{\em Additional comments:}\\
+  %Provide any additional comments here.
+%   \\
+{\em Running time:} 			Varies greatly depending on calculation requested, from seconds to hours.
+  %Give an indication of the typical running time here.
+%   \\
+\end{small}
+
+
+%=====================================================
+\section{Introduction}\label{sec:intro}
+Recent technological advances have led to the development of lasers of unprecedented powers and intensities.  The current record of $2\times 10^{22}$\,Wcm$^{-2}$ was set by the HERCULES laser in 2008~\cite{Yanovsky:2008}.  It is expected that this will be routinely surpassed when a number of new facilities come online, such as the European `Extreme Light Infrastructure' (ELI)~\cite{ELI} and the Russian ExaWatt Centre for Extreme Light Studies (XCELS)~\cite{XCELS}.  These facilities aim to reach intensities of the range $10^{23}-10^{25}$\,Wcm$^{-2}$, allowing the probing of fundamental physics in the ultra-high intensity regime.  In particular, these lasers will enable an investigation of intensity effects in strong field quantum electrodynamics (QED) (see, e.g., \cite{DiPiazza:2011tq,Heinzl:2008an}).
+
+These new facilities will, in part, achieve such intensities by strongly focussing their beams.  As a result the particle dynamics, and resulting emission spectra, will be very difficult to determine analytically.  Thus one is forced to resort to numerical schemes in order to simulate the interactions.  Recently there have been a number of publications presenting modifications to particle-in-cell (PIC) programs to include QED processes (see, e.g., \cite{Bell:2008zzb,Sokolov:2010am, Elkina:2010up, Ridgers2014273}).  While having the particle-particle capability of a PIC based programs is certainly important for many applications, there are also many situations where the mutual interactions between particles in the field is not of interest and can be neglected.  In the case of experiment, a typical example might be a beam of high-energy particles colliding with a laser pulse.  Moreover, the dynamics of single isolated particles are of theoretical interest, both to better understand the fundamental physics  of particles in these background fields (see for example \cite{PhysRevA.85.013412,PhysRevLett.113.014801,PhysRevLett.112.164801}) and in order to test and refine the numerical models used (see \cite{numericalspectrapaper}).  Although PIC schemes can still be used in such cases, we believe it is beneficial to have a dedicated single-particle program that can run on an ordinary desktop computer, and used by a wider audience without reliance on the specialist knowledge and super-computing infrastructure required to run a PIC program. In addition, such a dedicated single-particle program can also be made more efficient than its PIC counterpart, since it is possible to dynamically change the grid spacing during a run.  
+
+In this paper we present our single-particle program SIMLA. It is is written in modular Fortran and can be run on a modest desktop computer to calculate the dynamics of a charge in laser fields. SIMLA accounts for the effects of radiation reaction via either numerical solution of e.g., the Landau-Lifshitz equation (for classical particles), or via Monte-Carlo simulation using QED emission amplitudes (for quantum particles). Multiple laser fields can be included in the simulation and the propagation direction, beam shape (plane wave, focussed paraxial, constant crossed, or constant magnetic), and time envelope of each can be independently specified \footnote{In the current version up to nine independent laser fields can be specified. The code could easily be adapted to handle a larger number, if required.}.
+
+The structure of the paper is as follows. In Section \ref{sec:theory} we present a brief overview of the theory of charged particles in laser fields, and its specific implementation in the SIMLA code. We consider the case of the motion of non-radiating classical particles, radiating classical particles, and the stochastic effects of photon emission from quantum particles. In Section \ref{sec:testproblems} a number of test problems are outlined that provide a tutorial introduction to the basic functionality of the code. We conclude with a summary in Section \ref{sec:conclusion}.\\\\
+
+%=====================================================
+\section{Theory of charged particles in laser fields and its implementation in SIMLA: radiation reaction and stochastic dynamics}\label{sec:theory}
+
+\subsection{Classical theory}
+\subsubsection{Non-radiating classical motion}
+In the classical case where radiation damping effects are neglected, the motion of a charged particle in an electromagnetic background field is described by the Lorentz-force equation,
+\begin{eqnarray}
+\frac{d\mathbf{p}}{dt} &=&q\left(\mathbf{E}+\mathbf{v}\times \mathbf{B}\right), \label{LF}
+\end{eqnarray}
+where $\mathbf{p}=\gamma m\mathbf{v}$ is the relativistic momentum expressed in terms of the $\gamma$-factor, velocity $\mathbf{v}$, charge of the particle $q$ and the particle rest mass $m$ (and we are working in units such that $\hbar=c=1$).  The electric and magnetic field components $\mathbf{E}$ and $\mathbf{B}$ can be arbitrary functions of space and time.
+In this non-radiating classical case, the SIMLA program propagates the particle throughout the field by solving Eq.~(\ref{LF}) to determine the acceleration.  Although (\ref{LF}) is only expressed in terms of three-vectors, the code maintains covariance by enforcing the mass-shell condition $p^2=m^2$ when calculating $\gamma$ (for an alternative solution to this problem we refer the reader to \cite{PhysRevD.83.076013}).
+
+In the case of a time-dependent field, such as a laser pulse, it is conventional to specify the field strength using a dimensionless parameter defined with reference to a probe particle.  This is $a_0\equiv qE/\omega m $, where $\omega$ is the frequency of the background field and $E$ is the {\it maximum} strength of the electric field.  
+
+\subsubsection{Radiation reaction}
+Both classical and quantum electrodynamics dictate that a particle that is accelerated by a background field will radiate.  If the acceleration is strong, this radiation can lead to a significant reduction in the energy and momentum of the particle.  
+In the classical case, the spectrum of radiation is continuous (the quantum case is discussed below), 
+and the effect of this `radiation reaction' on the particle dynamics can be included by means of a correctional term to the Lorentz Force equation (Eq.~(\ref{LF})). 
+Determining the `exact' form of this correction is, however, non-trivial. It has been the subject of study for over 100 years, and remains one of the most fundamental problems in electrodynamics.
+The most common starting point to describe the radiation reaction is the Lorentz-Abraham-Dirac equation, which is obtained by solving the coupled Lorentz and Maxwell's equations \cite{Lorentz:1905,Abraham:1905,Dirac:1938nz}.  
+However, this equation is notorious due to defects such as pre-acceleration and (unphysical) runaway solutions.  One of the most common ways of circumventing these problems is to adopt the perturbative approximation of Landau and Lifshitz \cite{LLII}, so that the equation of motion becomes
+\begin{eqnarray}
+\frac{d\mathbf{p}}{dt}=\mathbf{f}_\textrm{L}+\mathbf{f}_\textrm{R},
+\end{eqnarray}
+where $\mathbf{f}_\textrm{L}$ is the Lorentz force (\ref{LF}) and the radiative correction term 
+\begin{eqnarray}
+\mathbf{f}_\textrm{R}&=&-\left( \frac{2}{3} \frac{q^3}{4\pi m}  \right)\gamma\left[ \left( \frac{\partial}{\partial t}+\mathbf{v}\cdot\nabla\right)\mathbf{E}+\mathbf{v}\times \left( \frac{\partial}{\partial t}+\mathbf{v}\cdot\nabla\right)\mathbf{B}\right]\nonumber\\
+&&+\left( \frac{2}{3} \frac{q^4}{4\pi m^2}  \right) [(\mathbf{E}+\mathbf{v}\times\mathbf{B})\times\mathbf{B}+(\mathbf{v}\cdot\mathbf{E})\mathbf{E}]\nonumber\\
+&&-\left( \frac{2}{3} \frac{q^4}{4\pi m^2} \right) \gamma^2 [(\mathbf{E}+\mathbf{v}\times\mathbf{B})^2-(\mathbf{v}\cdot\mathbf{E})^2]\mathbf{v}.\label{LL}
+\end{eqnarray}
+Equation (\ref{LL}) is valid when the radiative reaction force is much less than the Lorentz force in the instantaneous rest frame of the particle.  We note that there are numerous alternative equations in the literature (see, for example, \cite{Sokolov:2009,O'Connell:2012ee}) and it is still an open problem as to which is the correct formulation.  However, the Landau-Lifshitz equation has, along with some others, recently been shown to be consistent with quantum electrodynamics to the order of the fine-structure constant $\alpha$ \cite{0038-5670-34-3-A04,Ilderton:2013tb}
+\footnote{Alternative equations of motion may be implemented simply by replacing or modifying the particle pusher module.}.
+
+It should be noted that the first term (derivative term) of Eq.~(\ref{LL}) is significantly smaller than the other two since it is only linear in the field strength whereas the other terms are quadratic.  It is found that in almost all cases the contribution from this term is negligible and so, to increase computational speed, it is not evaluated by the program.
+
+
+\subsubsection{Classical emission spectrum}
+The expression describing the classical radiation emission of a particle can be found in most textbooks on electrodynamics (see, e.~g.~\cite{jackson}).  However, in the SIMLA program we adopt the less common covariant formulation which can be found, for example,  in~\cite{Mitter:1998}.  The radiated energy is given by the zero component of the four-momentum of the emitted radiation
+\begin{eqnarray}\label{P0}
+P^0\equiv \int \rho \omega^\prime d\omega^\prime d\Omega ,  
+\end{eqnarray}
+where
+\begin{eqnarray}
+\rho\equiv \frac{d^2N_\gamma}{d\omega^\prime d\Omega}=-\frac{\omega^\prime}{16\pi^3}j(k^\prime)\cdot j^\ast (k^\prime),\label{spectraldensity}
+\end{eqnarray}
+is the classical spectral density, which gives the `number of photons', $N_\gamma$, radiated per unit frequency per unit solid angle $d\Omega$.
+Here 
+\begin{eqnarray}
+j^{\mu}(k^{\prime})=e \int d\tau ~u^\mu (\tau) e^{-ik^\prime\cdot x(\tau )}
+\end{eqnarray}
+is the Fourier transform of the electron current and $k^{\prime\mu}=\omega^\prime (1,\sin\theta \cos\phi,\sin\theta\sin\phi,\cos\theta)$ is the vector of the emitted radiation.
+However, the boundary conditions can result in an infra-red divergence which means it is necessary to regulate the integral; see~\cite{Dinu:2012} for a fuller discussion.  The resulting expression is 
+\begin{eqnarray}
+j^\mu(k^\prime)=e\int  e^{-ik^\prime\cdot x(\tau)} \frac{d}{d\tau}\left(\frac{u^\mu}{ik^\prime\cdot u}\right).\label{j_noboundary}
+\end{eqnarray}
+Performing an integration by parts we find
+\begin{eqnarray}
+j^\mu(k^\prime) = e\frac{u^\mu}{ik^\prime\cdot u}e^{-ik^\prime\cdot x(\tau)}\bigg|_{\tau=-\infty}^{\tau=+\infty}  +e\int d\tau ~u^\mu(\tau)e^{-ik^\prime\cdot x(\tau)},
+\end{eqnarray}
+which is (\ref{j_noboundary}) with the addition of some boundary terms.  
+
+The evaluation of the oscillatory integrals in (\ref{P0}) can be a very numerically expensive procedure, especially for large field intensities.
+However, the nonlinear time grid improves efficiency of the integration. (Although, at the same time, this makes it more technically difficult to efficiently implement higher-order methods.  SIMLA currently uses a trapezoidal method to evaluate the integrals.)
+
+
+\subsection{Strong-field quantum electrodynamics}
+As well as classical calculations, the program can calculate the trajectories and resulting emission spectra of the particles using a Monte Carlo QED method, which we will now discuss.
+
+We begin by introducing the dimensionless and invariant  `quantum efficiency' parameter for the particle $\chi_e\equiv \sqrt{(F^{\mu}_{\phantom{\mu}\nu}p^\nu)^2}/m^2\sim\gamma E/E_{\rm cr}$, where $E_{\rm cr}=1.3\times10^{16}$\,Vcm$^{-1}$ is the QED `critical' field (`Sauter-Schwinger' field)~\cite{QEDcriticalfield1,QEDcriticalfield2,QEDcriticalfield3}.  This can be interpreted as the work done on the particle by the laser field over the distance of a Compton wavelength, and is thus a measure of the importance of quantum effects for a given set of parameters.  
+In the limit $a_0\gg 1$ the size of the radiation formation region is of the order $\lambda/a_0\ll\lambda$, where $\lambda=2\pi/\omega$ is the laser wavelength~\cite{Ritus:1985}.   
+Thus the laser varies on a scale much larger than the formation region and so can be approximated as locally constant and crossed, allowing us to determine the probability of photon emission using the differential rate~\cite{Ritus:1985}
+\begin{eqnarray}\label{eqn:dGam}
+{d\Gamma}&=&\frac{\alpha m}{\sqrt{3}\pi\gamma\chi_e}
+\left[\left( 1-\eta+\frac{1}{1-\eta}\right) K_{2/3}(\tilde{\chi})\right. %\nonumber\\
+\left.-\int_{\tilde{\chi}}^\infty dx K_{1/3}(x)\right] {d\chi_\gamma},
+\end{eqnarray}
+where $K_\nu$ is the modified Bessel function of order $\nu$, 
+$\eta\equiv \chi_{\gamma}/\chi_e$, $\tilde{\chi}\equiv 2\eta/\left[3\chi_e\left(1-\eta\right)\right]$, 
+and we have introduced the analogous invariant parameter $\chi_\gamma\equiv \sqrt{(F^{\mu}_{\phantom{\mu}\nu}\kappa^\nu)^2}/m^2$ for the emitted photon with momentum $\kappa^\nu$.  
+
+\begin{figure*}[hp!]
+\vspace*{-10ex}\centering
+\includegraphics*[width=0.7\columnwidth]{Figure1.pdf}
+\caption{Schematic of QED subroutine. 
+In the QED mode of operation particles are propagated between successive steps according to the Lorentz-force equation. At the end of the time step, the subroutine {\tt qedsubroutine} is called to determine whether or not photon emission should occur during that time step, (and if so, the $\chi_{\gamma}$ and four-momentum of the photon) via a Monte-Carlo sampling of the strong-field QED amplitude $\Gamma(t;\chi_e)=\int_{0}^{\chi_e} (d\Gamma/d\chi_{\gamma})d\chi_{\gamma}$, where $d\Gamma$ is given in Eq.~(\ref{eqn:dGam}). If a photon emission event is deemed to occur, the electron four-momentum is updated to take account of the recoil before propagating via the Lorentz-force propagation over the next time step, where the process continues.
+Note that rather than calculate the integral at every time step, on initialisation the main {\tt PROGRAM SIMLA} calculates a table of the probability rate for photon emission for electron invariant parameters in the range $\chi_e\in[\chi_e^{\rm min},\chi_e^{\rm max}]$, and during execution this table is interpolated to obtain $\Gamma$ for the specific $\chi_e(t)$ of the electron. 
+The parameters $\chi_e^{\rm min}$ and $\chi_e^{\rm max}$ are specified in the {\tt PROGRAM SIMLA} (default values are $\chi_e^{\rm min}=5\times10^{-4}$ and $\chi_e^{\rm max}=1$). If, at a given time step, $\chi_e<\chi_e^{\rm min}$ then we assume no photon emission at that time step. If $\chi_e^{\rm max}>1$ the code will abort with an error message. Note also that the condition $\Gamma dt\ll 1$ must be satisfied, and again the code will abort if this condition is not met.
+Full details are given in the text.
+  \label{fig:qedroutines} }
+\end{figure*}
+
+
+The QED routines operate in the following manner.
+The program implements its classical particle pusher to propagate the particle through the field via the Lorentz equation. 
+At each time step a uniform random number $r\in[0,1]$ is generated, and emission deemed to occur if the condition $ r\leq \Gamma dt$ is satisfied, under the requirement $\Gamma dt\ll1$. 
+Such an event generator has been used in Ref.~\cite{Elkina:2010up}.
+Note that during the simulation $d\Gamma$ (and thus $\Gamma$) is a time-dependent quantity owing to the effect of the temporally varying laser pulse and electron motion. 
+Given an emission event, the photon $\chi_{\gamma}$ is determined as the root of the sampling equation $\zeta={\Gamma(t)}^{-1} \int_{0}^{\chi_{\gamma}}d\Gamma(t)$, where $\zeta$ is a uniform random number $\zeta\in[0,1]$ (In practice, the integral is performed from a lower limit $\varepsilon \sim 10^{-5}$, rather than zero: the emission of soft photons of energy below this cut off will not appreciably affect the particle motion (see e.g., Ref.~\cite{Duclous}).)
+Next, we calculate the photon momentum from $\chi_{\gamma}$ assuming that the emission is in the direction of motion of the particle.
+This is valid for $\gamma\gg 1$, since in reality the emissions will be in a cone of width $\gamma^{-1}$~\cite{jackson, Harvey:2009ry}. 
+Finally, the particle momentum is updated and the simulation continues by propagating the particle via the Lorentz equation to the next time step. A schematic of the subroutine {\tt qedsuroutine} that controls the emission process and that is called at each time step by the main driving program is shown in Fig.~{\ref{fig:qedroutines}.
+
+
+This method of implementing the emission process via statistical routines is similar to those used in a number of recently developed PIC codes for the modeling of QED cascades, see e.g.,~\cite{Bell:2008zzb,Sokolov:2010am, Elkina:2010up}.  The validity of using such a method has recently been tested in \cite{numericalspectrapaper} where it was found that it accurately reproduces the correct photon spectra in all but a few special cases.
+
+Note that when $\chi_e\gtrsim1$ quantum effects dominate and pair production can occur. To maintain accessibility and efficiency, this version of SIMLA is strictly a single-particle code. It is therefore not designed to run in such a regime, and will abort if the situation occurs \footnote{Note that for multi-particle codes, pair-production events can be implemented via similar Monte-Carlo methods to those described above for the photon emission, see, e.g., \cite{Duclous}.}
+
+\subsection{Further information about the workings of the code}\label{sec:furtherinfo}
+One important feature of the code is that it uses an adjustable time step.  This is one reason why, in cases where collective effects can be neglected, the code is superior to PIC codes, where such a feature is not possible.  The user specifies in the input files the maximum permissible error in the norm of the spatial coordinates that can be introduced at each time step.  The code then propagates the particle through the simulation, making continuous adjustments to the time step such that the error condition is maintained.  Thus the grid points are not uniform; there will be very few time steps in regions where the background field is weak, while there will be many in more intense/complex regions of the field.  We have found that the implementation of the adjustable grid typically decreases the computation time by around two orders of magnitude compared to a fixed size grid.  A flow chart showing how the method is implemented is given in Fig.~\ref{fig:timestep}.
+\begin{figure*}[t!!]
+\centering
+\includegraphics*[width=0.75\columnwidth]{Figure2.pdf}
+\caption{Schematic showing the operation of the adjustable time step.  \label{fig:timestep} }
+\end{figure*}
+
+
+\begin{table}
+\caption{The units used by the code.  Note that the input parameters should be in the units specified in Tables \ref{tab:particleinput}, \ref{tab:inputfields}, \ref{tab:inputsetup}.  \label{tab:units}}
+\begin{tabular}{ l | l }
+  \hline    
+  Quantity & Units \\
+  \hline                   
+  Length & eV$^{-1}$  \\
+  Time & eV$^{-1}$  \\
+  Mass & eV  \\
+   Charge & $e/\sqrt{4\pi\alpha}$  \\
+  \hline  
+\end{tabular}
+\end{table}
+
+Next we make some remarks about the normalisations adopted in the code.  In codes such as these it is common to use dimensionless units, usually by normalising the field amplitudes in terms of $a_0$.  However, such normalisation was found to be impractical in our case, where we allow multiple fields with different frequencies and also constant fields which do not have a time dependence.  Thus we adopt (Lorentz-Heaviside) natural units, where $\hbar=c=1$.  The resulting units of the various quantities in the code are specified in Table \ref{tab:units}.  For the typical parameters involved in a laser-particle simulation these units are found to result in quantities that are roughly of order unity and so wholly suitable as a numerical implementation.  (Note, however, that these units are {\it not} the same as the units of the input variables which should be defined according to the conventions specified in Tables \ref{tab:particleinput}, \ref{tab:inputfields}, \ref{tab:inputsetup}.) 
+
+Finally, we note that a more thorough overview of the program and source code is given in the accompanying manual.  This includes instructions explaining how to compile the source code and execute the program on different systems.
+
+\section{Test problems}\label{sec:testproblems}
+\subsection{Trajectory and classical emission spectrum of electron in a plane-wave field}
+As a first example, let us use the program to calculate the trajectory and classical emission spectrum of an electron colliding head on with a pulsed plane-wave field.  The program requires three input files: one defining the initial conditions of the particle(s), one defining the background field(s) and one specifying the remaining parameters that describe, e.g., the simulation volume.
+
+\begin{table}
+\caption{The required variables for each particle in the file {`particle\_input.csv'}. \label{tab:particleinput}}
+\begin{tabular}{ l  l  l }                    
+Pos. & Quantity & Comments \\
+\hline
+1 & particle label & for user reference only \\
+2 & species & e, p, H+ \\
+3 & $\theta_0$ (deg) & $\theta_0=\arctan(y_0/x_0)$ \\
+4 & $\phi_0$ (deg) & $\phi_0=\arccos(z_0/dist_0)$ \\
+5 & $dist_0$ (m) & initial distance from ($x_0,y_0,z_0$)  \\
+6 & $x_0$ (m) & target $x$-coord. \\
+7 & $y_0$ (m) & target $y$-coord. \\
+8 & $z_0$ (m) & target $z$-coord. \\
+9 & $\gamma_0$ & initial $\gamma$-factor \\
+10 & eq.~of motion & lf, ll, qed \\
+11 & output flag & t, x, ct\\
+\hline  
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[htp!]
+\centering
+\includegraphics*[width=0.7\columnwidth,clip=true,viewport=30 190 545 595]{Figure3a.pdf}\\
+\includegraphics*[width=0.7\columnwidth,clip=true,viewport=30 190 545 595]{Figure3b.pdf}
+\caption{The trajectory (top panel) and $\gamma$-factor (bottom panel) for an electron in a head-on collision with a 30\,fs linearly polarised wave of intensity $a_0=1$ and wavelength $\lambda=0.8\,\mu$m. \label{fig:traj} }
+\end{figure}
+\begin{figure}[htp!]
+\centering
+\includegraphics*[width=0.7\columnwidth,clip=true,viewport=40 190 550 590]{Figure4.pdf}
+\caption{The classical emission spectrum calculated using the particle orbit from Fig.~\ref{fig:traj}. \label{fig:spectrum} }
+\end{figure}
+
+\begin{figure}[htp!]
+\centering
+\includegraphics[width=0.7\columnwidth,clip=true,viewport=40 190 540 590]{Figure5a.pdf}\\[2ex]
+\includegraphics[width=0.7\columnwidth,clip=true,viewport=40 190 540 590]{Figure5b.pdf}
+\caption{The QED photon emission spectrum as a function of photon frequency (top panel), and as a function of emission angle (bottom panel), for an electron of $\gamma_0$=200 in collision with a 30\,fs linearly polarised wave of intensity $a_0=150$ and wavelength $\lambda=0.8\,\mu$m.\label{fig:photon_spectra} }
+\end{figure}
+
+We begin by stating the initial conditions of the particle in the file {`particle\_input.csv'}.  This file is different to the other two in that its ordering is important.  The first line of the file is for comments.  The second line can either read {\tt repeatfirstline=on} or {\tt repeatfirstline=off} depending on whether the user wishes to run simulations using each line of particle data in turn or instead wishes to run multiple simulations repeatedly using the data defined in the first line.  The third line must contain an integer specifying the number of runs.  Each subsequent line of the file specifies the initial conditions for each particle in turn.  These lines must consist of 11 entries separated by commas and as defined in Table \ref{tab:particleinput}.  In this case we want an electron initially propagating in the negative $z$-direction so we set $\theta_0=0^\circ$, $\phi_0=180^\circ$.  Specifically, we want it to begin 100\,$\mu$m from the origin and to be initially travelling in a direction aiming for the coordinate origin.  Therefore, we set $dist_0=100 \times 10^{-6}$ and $x_0=y_0=z_0=0$.  The resulting {`particle\_input.csv'} file should take the form
+\begin{alltt}
+! ...comments 
+repeatfirstline=off
+1
+1,e,0,180,100e-6,0,0,0,10,lf,t
+\end{alltt}
+where we have set the initial $\gamma_0=10$.  The flag {\tt lf} means that we want to find the trajectory using the Lorentz force equation (\ref{LF}) and the flag {\tt t} tells the program to output the trajectory data to file.
+
+
+Next we define the background field via the file {`input\_fields.txt'}.  This file is more flexible than the `particle\_input.csv' file and the declarations can appear in any order.  We only want one field -- a linearly polarised plane wave with a 30\,fs Gaussian time envelope -- so we set {\tt no\_fields=1}, {\tt field1=linpw}, {\tt profile1=gauss}, {\tt duration1=30e-15}.  We set the dimensionless intensity to one, {\tt a0\_1=1}, and the wavelength to 0.8\,$\mu$m, {\tt lambda=0.8e-6}.  Finally, to have the field propagating in the positive $z$-direction we set the angles {\tt anglexz1=0}, {\tt angleyz1=0}, {\tt anglexy1=0}.  The full range of options for the {`input\_fields.txt'} file are given in Table \ref{tab:inputfields}.
+
+The file `input\_setup.txt' defines the workings of the program.  
+The first thing to understand is that there are two volumes, or \emph{boxes}, associated with a simulation -- the \emph{simulation box} and the \emph{write box}.  The simulation box defines the region of spacetime in which the simulation takes place.  Once the particle leaves the confines of this box the program will terminate.  The write box is a subspace of the simulation box.  When the particle is within the confines of the write box the trajectory and momentum data will be written to file (assuming the output flag for the particle is set to {\tt t} in the `particle\_input.csv' file).  It is possible for the particle to enter and leave the write box multiple times during the simulation; the particle data will only be written to file during those times in which it is inside the box.  In the file `input\_setup.txt' we have to specify the dimensions of both of these boxes.
+To define the simulation box as a cube of length 400\,$\mu$m centred around the origin and of maximum time 3000\,fs we add the following lines to the `input\_setup.txt' file
+\begin{alltt}
+tmax=3000e-15
+xmin=-200e-6
+xmax=200e-6
+ymin=-200e-6
+ymax=200e-6
+zmin=-200e-6
+zmax=200e-6
+\end{alltt}
+Similarly, we can define the write box to be a 60\,$\mu$m sized subspace of the simulation box, containing the time interval -30\,fs to 30\,fs
+\begin{alltt}
+tminw=-30e-15
+tmaxw=30e-15
+xminw=-30e-6
+xmaxw=30e-6
+yminw=-30e-6
+ymaxw=30e-6
+zminw=-30e-6
+zmaxw=30e-6
+\end{alltt}
+The code operates with an adjustable time grid, as outlined in Sec.~\ref{sec:furtherinfo}, and use of this feature required specification of additional parameters.  These include the initial, minimum and maximum allowed sizes for the time step (in s) as well as the maximum allowed error over each time interval (defined in terms of the norm of the position vector).  Additionally, to reduce the size of the output files we specify after how many time steps the data should be written to file.  For our problem the entries should take the form
+\begin{alltt}
+mindt=1e-35
+maxdt=0.1e-15
+initialdt=1e-20
+grid_err_tol=1e-10
+writeevery=50
+\end{alltt}
+Here, the {\tt maxdt} and the {\tt writeevery} are much smaller than we would typically require to make plots of the trajectory only.  This is because we are intending to calculate the classical emission spectrum and, even for the low intensity field we are using here, the evaluation of the integrals in (\ref{spectraldensity}) requires a high degree of precision.  Finally, we choose to use a leapfrog numerical solver by setting {\tt solver=leapfrog}, we specify the output to be in ascii text format by setting {\tt fileformat=txt}, and we choose not to have the background field data outputted by setting {\tt outputintensity=off}.  Note that the full range of options for the `input\_setup.txt' file are given in Table \ref{tab:inputsetup}.
+
+Once the program has been executed the particle trajectory data will be written to the file {`trajectory00001.dat'}.  The Matlab script {`simlaplot.m'} can be executed to plot a selection of the data,  which should correspond to that shown in Fig.~\ref{fig:traj}.  Now, with the trajectory data still loaded into the Matlab memory, we can calculate the classical emission spectrum by running the script {`spectrum.m'}.  The output from this script is plotted in Fig.~\ref{fig:spectrum}.
+
+
+\subsection{Generating a QED photon spectrum and comparing the orbits of some of the quantum particles with a classical radiating particle}
+\begin{figure}[htp!]
+\centering
+\includegraphics[width=0.7\columnwidth,clip=true,viewport=40 190 545 590]{Figure6a.pdf}\\[2ex]
+\includegraphics[width=0.7\columnwidth,clip=true,viewport=40 190 545 590]{Figure6b.pdf}
+\caption{The trajectories (top panel) and $\gamma$-factors (bottom panel) for a sample of two (QED) electrons of $\gamma_0$=200 in collision with a 30\,fs linearly polarised wave of intensity $a_0=150$ and wavelength $\lambda=0.8\,\mu$m.\label{fig:qed_traj} }
+\end{figure}
+\begin{figure}[htp!]
+\centering
+\includegraphics[width=0.7\columnwidth,clip=true,viewport=40 190 545 590]{Figure7.pdf}
+\caption{The quantum efficiency parameter $\chi_e$ as a function of time for a single (QED) electron of $\gamma_0$=200 in collision with a 30\,fs linearly polarised wave of intensity $a_0=150$ and wavelength $\lambda=0.8\,\mu$m.  The red circles indicate when a photon emission event has taken place.\label{fig:chi_e} }
+\end{figure}
+
+In this second example let us invoke the QED routines.  Our aim is to calculate the statistical photon spectrum generated by an electron passing through an intense laser pulse.  In order to generate enough statistics to produce the spectrum we will need to execute the program a number times, always with the same initial conditions.  The easiest way to do this is to continually read in the first line of particle data in the file `particle\_input.csv'.  This is achieved by setting {\tt repeatfirstline=on}.  The file should therefore take the form
+\begin{alltt}
+! ...comments 
+repeatfirstline=on
+100
+1,e,0,180,100e-6,0,0,0,200,qed,t
+\end{alltt}
+where we have told the program to execute 100 times using the first line of parameters as input each time.  The $\gamma$-factor has been set to 200 and we have invoked the QED routines with the flag {\tt qed}.  
+The {`input\_fields.txt'} file can be similar to before, although we choose to increase the field intensity significantly, setting {\tt a0\_1=150}.  Finally, in the `input\_setup.txt' file we set {\tt QEDrecoil=on} so that every time a photon is emitted its momentum is subtracted from the electron's momentum.
+
+Once the simulation has completed\footnote{Completion will take significantly longer than in the previous example because the electron-laser collision simulation is being executed multiple times.} the photon data will be written to the file {`photon.dat'}.  Executing the Matlab script {`photon.m'} loads various items of data into the Matlab memory and plots the photon distributions.  The photon distributions as a function of energy and emission angle are shown in Fig.~\ref{fig:photon_spectra}.  
+(Note also that the final data of each particle as it leaves the {\it simulation box} has been written to the file {`final\_data.dat'}.  The Matlab script {`finaldata.m'} can be used to plot this data.)
+The trajectories and $\gamma$-factors for two electrons, plotted using the script {`simlasingle.m'}, are shown in Fig.~\ref{fig:qed_traj}. The trajectory plot shows the effect of the gain in momentum transverse to the beam axis that remains post collision, as discussed in \cite{PhysRevLett.112.164801}. The plot of the $\gamma$-factor shows clearly the discontinuous changes in energy of the electron as it emits discrete photons according to Eq.~(\ref{eqn:dGam}). Finally, in Fig.~\ref{fig:chi_e} we show the parameter $\chi_e$ for a single electron. The figure shows the reduction in $\chi_e$ with each photon emission (note that the conservation law $\chi_e^{(f)}+\chi_{\gamma}=\chi_e^{(i)}$ holds, where $\chi_e^{(i)}$ and $\chi_e^{(f)}$ are the value of $\chi_e$ before and after the photon emission, respectively \cite{Ritus:1985}.) 
+
+Note that more advanced features are discussed in the manual.
+
+
+\section{Summary}\label{sec:conclusion}
+We have introduced and described the software package SIMLA, designed for the study of charged-particle dynamics in laser and other background fields.  Using two simple examples to illustrate its operation, we have demonstrated how to obtain trajectories and emission spectra in classical and strong-field quantum electrodynamics, with the latter implemented via statistical routines.  More advanced features and settings are detailed in the accompanying manual.
+
+Specifically, the program is aimed at users interested in studying situations where mutual interactions between particles can be ignored.  This includes a range of experimental set ups where high-energy particle beams are brought into collision with laser pulses, and theoretical studies, whose aim may be to understand the dynamics of single particles in different field configurations, or to test and refine the numerical methods used in larger scale simulations.
+
+We hope that this program will prove accessible and useful to a wide range of researchers, including those who lack the specialist knowledge and super-computing infrastructure required to run large-scale `particle-in-cell' programs.
+
+
+\section*{Acknowledgements}
+The authors were supported by the EPSRC, grant EP/I029206/1--YOTTA.
+
+\appendix
+\section{Fields and Setup file options}
+This appendix contains a summary of the input file options. There are two input files. In the first the field variables are specified, while in the second the simulation parameters are specified. 
+\begin{table*}[hp!]
+\caption{The variables in the input file {`input\_fields.txt'}. \label{tab:inputfields}}
+\begin{tabular}{ l  l  l }
+% \multicolumn{3}{l}{}                     
+\hline
+{\tt no\_fields} & INTEGER & number of background fields\\
+{\tt field1,\ldots,field9} & CHAR & the type of each of the fields \\
+{\tt profile1,\ldots,profile9} & CHAR & the profile of each of the fields \\
+{\tt anglexz1,\ldots,anglaxz9} & REAL(8) & angles (in deg) of the field rotations in the xz-plane \\
+{\tt angleyz1,\ldots,anglayz9} & REAL(8) & angles (in deg) of the field rotations in the yz-plane \\
+{\tt anglexy1,\ldots,anglaxy9} & REAL(8) & angles (in deg) of the field rotations in the xy-plane \\
+{\tt lambda1,\ldots,lambda9} & REAL(8) & wavelengths (in $m$) of each of the fields \\
+{\tt waist1,\ldots,waist9 } & REAL(8) &  waist radii (in $m$) of each of the fields\\
+{\tt a0\_1,\ldots,a0\_9} & REAL(8) & dimensionless intensity of each of the fields \\
+{\tt fieldstrength1,\ldots,fieldstrength9 } & REAL(8) & strength of fields (in $eV^2$) for any constant fields\\
+{\tt duration1,\ldots,duration9} & REAL(8) & durations of each of the time-dependent fields (in $s$) \\
+\hline  
+\end{tabular}
+\vspace*{3ex}
+\caption{The variables in the input file `input\_setup.txt'. \label{tab:inputsetup}}
+\begin{tabular}{ l  l  l }                   
+\hline
+{\tt tmax} & REAL(8) & maximum time (in s) of simulation\\
+{\tt xmin} &  REAL(8) &  minimum value of the $x$-coordinate (in m)\\
+{\tt xmax} & REAL(8) &  maximum value of the $x$-coordinate (in m)\\
+{\tt ymin} &  REAL(8) &  minimum value of the $y$-coordinate (in m)\\
+{\tt ymax} & REAL(8) &  maximum value of the $y$-coordinate (in m)\\
+{\tt zmin} & REAL(8) &  minimum value of the $z$-coordinate (in m)\\
+{\tt zmax} &  REAL(8) &  maximum value of the $z$-coordinate (in m)\\
+\hline
+{\tt tminw} & REAL(8) & maximum time (in s) of simulation write-box\\
+{\tt tmaxw} & REAL(8) & maximum time (in s) of simulation write-box\\
+{\tt xminw} &  REAL(8) &  minimum value of the write-box $x$-coordinate (in m)\\
+{\tt xmaxw} & REAL(8) &  maximum value of the write-box $x$-coordinate (in m)\\
+{\tt yminw} &  REAL(8) &  minimum value of the write-box $y$-coordinate (in m)\\
+{\tt ymaxw} & REAL(8) &  maximum value of the write-box $y$-coordinate (in m)\\
+{\tt zminw} & REAL(8) &  minimum value of the write-box $z$-coordinate (in m)\\
+{\tt zmaxw} &  REAL(8) &  maximum value of the write-box $z$-coordinate (in m)\\
+\hline
+{\tt solver} & CHAR &  type of numerical method\\
+{\tt maxdt} & REAL(8) & maximum time step for the numerical solver (s) \\
+{\tt mindt} &  REAL(8) &  minimum time step for the numerical solver (s)\\
+{\tt initialdt} & REAL(8) & initial time step for the numerical solver (s) \\
+{\tt grid\_err\_tol} &  REAL(8) & maximum permissible error at each time step\\
+{\tt writeevery} & INTEGER & number of time steps between writing data to file \\
+{\tt fileformat} & CHAR & formatting of the trajectory output files \\
+{\tt QEDrecoil} & CHAR  & whether the particle recoils when emitting a photon \\
+{\tt outputintensity} & CHAR &  whether to output the field intensity\\
+{\tt outputfieldsdt} & REAL(8) &  timestep ($s$) between subsequent outputs of field intensity\\
+{\tt fieldpointsx} & INTEGER & number of grid points for intensity output ($x$-direction) \\
+{\tt fieldpointsz} & INTEGER & number of grid points for intensity output ($z$-direction) \\
+\hline  
+\end{tabular}
+\end{table*}
+
+\newpage
+%\bibliographystyle{apsrev4-1} 
+%\bibliographystyle{elsarticle-num} 
+%\bibliography{simla_cpc}
+
+%merlin.mbs apsrev4-1.bst 2010-07-25 4.21a (PWD, AO, DPC) hacked
+%Control: key (0)
+%Control: author (72) initials jnrlst
+%Control: editor formatted (1) identically to author
+%Control: production of article title (-1) disabled
+%Control: page (0) single
+%Control: year (1) truncated
+%Control: production of eprint (0) enabled
+\begin{thebibliography}{31}%
+\makeatletter
+\providecommand \@ifxundefined [1]{%
+ \@ifx{#1\undefined}
+}%
+\providecommand \@ifnum [1]{%
+ \ifnum #1\expandafter \@firstoftwo
+ \else \expandafter \@secondoftwo
+ \fi
+}%
+\providecommand \@ifx [1]{%
+ \ifx #1\expandafter \@firstoftwo
+ \else \expandafter \@secondoftwo
+ \fi
+}%
+\providecommand \natexlab [1]{#1}%
+\providecommand \enquote  [1]{``#1''}%
+\providecommand \bibnamefont  [1]{#1}%
+\providecommand \bibfnamefont [1]{#1}%
+\providecommand \citenamefont [1]{#1}%
+\providecommand \href@noop [0]{\@secondoftwo}%
+\providecommand \href [0]{\begingroup \@sanitize@url \@href}%
+\providecommand \@href[1]{\@@startlink{#1}\@@href}%
+\providecommand \@@href[1]{\endgroup#1\@@endlink}%
+\providecommand \@sanitize@url [0]{\catcode `\\12\catcode `\$12\catcode
+  `\&12\catcode `\#12\catcode `\^12\catcode `\_12\catcode `\%12\relax}%
+\providecommand \@@startlink[1]{}%
+\providecommand \@@endlink[0]{}%
+\providecommand \url  [0]{\begingroup\@sanitize@url \@url }%
+\providecommand \@url [1]{\endgroup\@href {#1}{\urlprefix }}%
+\providecommand \urlprefix  [0]{URL }%
+\providecommand \Eprint [0]{\href }%
+\providecommand \doibase [0]{http://dx.doi.org/}%
+\providecommand \selectlanguage [0]{\@gobble}%
+\providecommand \bibinfo  [0]{\@secondoftwo}%
+\providecommand \bibfield  [0]{\@secondoftwo}%
+\providecommand \translation [1]{[#1]}%
+\providecommand \BibitemOpen [0]{}%
+\providecommand \bibitemStop [0]{}%
+\providecommand \bibitemNoStop [0]{.\EOS\space}%
+\providecommand \EOS [0]{\spacefactor3000\relax}%
+\providecommand \BibitemShut  [1]{\csname bibitem#1\endcsname}%
+\let\auto@bib@innerbib\@empty
+%</preamble>
+\bibitem [{\citenamefont {Yanovsky~\emph{et al.}}(2008)}]{Yanovsky:2008}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {V.}~\bibnamefont
+  {Yanovsky~\emph{et al.}}},\ }\href {\doibase 10.1364/OE.16.002109} {\bibfield
+   {journal} {\bibinfo  {journal} {Opt. Express}\ }\textbf {\bibinfo {volume}
+  {16}},\ \bibinfo {pages} {2109} (\bibinfo {year} {2008})}\BibitemShut
+  {NoStop}%
+\bibitem [{ELI()}]{ELI}%
+  \BibitemOpen
+  \href {http://www.eli-beams.eu/} {\bibfield
+  {journal} {\bibinfo  {journal} {The Extreme Light Infrastructure (ELI)
+  Project}\ }http://www.eli-beams.eu/}\BibitemShut {NoStop}%
+\bibitem [{XCE()}]{XCELS}%
+  \BibitemOpen
+  \href {http://www.xcels.iapras.ru} {\bibfield  {journal} {\bibinfo
+  {journal} {The ExaWatt Center for Extreme Light Studies (XCELS)}\
+  }http://www.xcels.iapras.ru}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Di~Piazza}\ \emph {et~al.}(2012)\citenamefont
+  {Di~Piazza}, \citenamefont {M\"uller}, \citenamefont {Hatsagortsyan},\ and\
+  \citenamefont {Keitel}}]{DiPiazza:2011tq}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Di~Piazza}}, \bibinfo {author} {\bibfnamefont {C.}~\bibnamefont {M\"uller}},
+  \bibinfo {author} {\bibfnamefont {K.~Z.}\ \bibnamefont {Hatsagortsyan}}, \
+  and\ \bibinfo {author} {\bibfnamefont {C.~H.}\ \bibnamefont {Keitel}},\
+  }\href {\doibase 10.1103/RevModPhys.84.1177} {\bibfield  {journal} {\bibinfo
+  {journal} {Rev. Mod. Phys.}\ }\textbf {\bibinfo {volume} {84}},\ \bibinfo
+  {pages} {1177} (\bibinfo {year} {2012})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Heinzl}\ and\ \citenamefont
+  {Ilderton}(2009)}]{Heinzl:2008an}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {T.}~\bibnamefont
+  {Heinzl}}\ and\ \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Ilderton}},\ }\href {\doibase 10.1140/epjd/e2009-00113-x}
+  {\bibfield  {journal} {\bibinfo  {journal} {Eur. J. Phys. D}\ }\textbf
+  {\bibinfo {volume} {55}},\ \bibinfo {pages} {359} (\bibinfo {year}
+  {2009})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Bell}\ and\ \citenamefont
+  {Kirk}(2008)}]{Bell:2008zzb}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.~R.}\ \bibnamefont
+  {Bell}}\ and\ \bibinfo {author} {\bibfnamefont {J.~G.}\ \bibnamefont
+  {Kirk}},\ }\href {\doibase 10.1103/PhysRevLett.101.200403} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. Lett.}\ }\textbf {\bibinfo
+  {volume} {101}},\ \bibinfo {pages} {200403} (\bibinfo {year}
+  {2008})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Sokolov}\ \emph {et~al.}(2010)\citenamefont
+  {Sokolov}, \citenamefont {Naumova}, \citenamefont {Nees},\ and\ \citenamefont
+  {Mourou}}]{Sokolov:2010am}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {I.~V.}\ \bibnamefont
+  {Sokolov}}, \bibinfo {author} {\bibfnamefont {N.~M.}\ \bibnamefont
+  {Naumova}}, \bibinfo {author} {\bibfnamefont {J.~A.}\ \bibnamefont {Nees}}, \
+  and\ \bibinfo {author} {\bibfnamefont {G.~A.}\ \bibnamefont {Mourou}},\
+  }\href {\doibase 10.1103/PhysRevLett.105.195005} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Rev. Lett.}\ }\textbf {\bibinfo {volume} {105}},\
+  \bibinfo {pages} {195005} (\bibinfo {year} {2010})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Elkina}\ \emph {et~al.}(2011)\citenamefont {Elkina},
+  \citenamefont {Fedotov}, \citenamefont {Kostyukov}, \citenamefont {Legkov},
+  \citenamefont {Narozhny}, \citenamefont {Nerush},\ and\ \citenamefont
+  {Ruhl}}]{Elkina:2010up}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {N.~V.}\ \bibnamefont
+  {Elkina}}, \bibinfo {author} {\bibfnamefont {A.~M.}\ \bibnamefont {Fedotov}},
+  \bibinfo {author} {\bibfnamefont {I.~Y.}\ \bibnamefont {Kostyukov}}, \bibinfo
+  {author} {\bibfnamefont {M.~V.}\ \bibnamefont {Legkov}}, \bibinfo {author}
+  {\bibfnamefont {N.~B.}\ \bibnamefont {Narozhny}}, \bibinfo {author}
+  {\bibfnamefont {E.~N.}\ \bibnamefont {Nerush}}, \ and\ \bibinfo {author}
+  {\bibfnamefont {H.}~\bibnamefont {Ruhl}},\ }\href {\doibase 10.1103/PhysRevSTAB.14.054401} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Rev. ST Accel. Beams}\ }\textbf {\bibinfo {volume} {14}},\ \bibinfo
+  {pages} {054401} (\bibinfo {year} {2011})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Ridgers}\ \emph {et~al.}(2014)\citenamefont
+  {Ridgers}, \citenamefont {Kirk}, \citenamefont {Duclous}, \citenamefont
+  {Blackburn}, \citenamefont {Brady}, \citenamefont {Bennett}, \citenamefont
+  {Arber},\ and\ \citenamefont {Bell}}]{Ridgers2014273}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {C.}~\bibnamefont
+  {Ridgers}}, \bibinfo {author} {\bibfnamefont {J.}~\bibnamefont {Kirk}},
+  \bibinfo {author} {\bibfnamefont {R.}~\bibnamefont {Duclous}}, \bibinfo
+  {author} {\bibfnamefont {T.}~\bibnamefont {Blackburn}}, \bibinfo {author}
+  {\bibfnamefont {C.}~\bibnamefont {Brady}}, \bibinfo {author} {\bibfnamefont
+  {K.}~\bibnamefont {Bennett}}, \bibinfo {author} {\bibfnamefont
+  {T.}~\bibnamefont {Arber}}, \ and\ \bibinfo {author} {\bibfnamefont
+  {A.}~\bibnamefont {Bell}},\ }\href {\doibase 10.1016/j.jcp.2013.12.007} {\bibfield  {journal} {\bibinfo
+  {journal} {J.~Comp.~Phys.}\ }\textbf {\bibinfo {volume} {260}},\ \bibinfo
+  {pages} {273 } (\bibinfo {year} {2014})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Harvey}\ and\ \citenamefont
+  {Marklund}(2012)}]{PhysRevA.85.013412}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {C.}~\bibnamefont
+  {Harvey}}\ and\ \bibinfo {author} {\bibfnamefont {M.}~\bibnamefont
+  {Marklund}},\ }\href {\doibase 10.1103/PhysRevA.85.013412} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. A}\ }\textbf {\bibinfo {volume}
+  {85}},\ \bibinfo {pages} {013412} (\bibinfo {year} {2012})}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Gonoskov}\ \emph {et~al.}(2014)\citenamefont
+  {Gonoskov}, \citenamefont {Bashinov}, \citenamefont {Gonoskov}, \citenamefont
+  {Harvey}, \citenamefont {Ilderton}, \citenamefont {Kim}, \citenamefont
+  {Marklund}, \citenamefont {Mourou},\ and\ \citenamefont
+  {Sergeev}}]{PhysRevLett.113.014801}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Gonoskov}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Bashinov}},
+  \bibinfo {author} {\bibfnamefont {I.}~\bibnamefont {Gonoskov}}, \bibinfo
+  {author} {\bibfnamefont {C.}~\bibnamefont {Harvey}}, \bibinfo {author}
+  {\bibfnamefont {A.}~\bibnamefont {Ilderton}}, \bibinfo {author}
+  {\bibfnamefont {A.}~\bibnamefont {Kim}}, \bibinfo {author} {\bibfnamefont
+  {M.}~\bibnamefont {Marklund}}, \bibinfo {author} {\bibfnamefont
+  {G.}~\bibnamefont {Mourou}}, \ and\ \bibinfo {author} {\bibfnamefont
+  {A.}~\bibnamefont {Sergeev}},\ }\href {\doibase 10.1103/PhysRevLett.113.014801} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys. Rev. Lett.}\ }\textbf {\bibinfo {volume} {113}},\ \bibinfo {pages}
+  {014801} (\bibinfo {year} {2014})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Green}\ and\ \citenamefont
+  {Harvey}(2014)}]{PhysRevLett.112.164801}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {D.~G.}\ \bibnamefont
+  {Green}}\ and\ \bibinfo {author} {\bibfnamefont {C.~N.}\ \bibnamefont
+  {Harvey}},\ }\href {\doibase 10.1103/PhysRevLett.112.164801} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Rev. Lett.}\ }\textbf {\bibinfo
+  {volume} {112}},\ \bibinfo {pages} {164801} (\bibinfo {year}
+  {2014})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Harvey}\ \emph {et~al.}(2014)\citenamefont {Harvey},
+  \citenamefont {Ilderton},\ and\ \citenamefont
+  {King}}]{numericalspectrapaper}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {C.}~\bibnamefont
+  {Harvey}}, \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Ilderton}}, \
+  and\ \bibinfo {author} {\bibfnamefont {B.}~\bibnamefont {King}},\ }\href@noop
+  {} {\  (\bibinfo {year} {2014})},\ \Eprint {http://arxiv.org/abs/1409.6187}
+  {arXiv:1409.6187 [physics.plasm-ph]} \BibitemShut {NoStop}%
+%%CITATION = ARXIV:1409.6187;%%
+\bibitem [{\citenamefont {Harvey}\ \emph {et~al.}(2011)\citenamefont {Harvey},
+  \citenamefont {Heinzl}, \citenamefont {Iji},\ and\ \citenamefont
+  {Langfeld}}]{PhysRevD.83.076013}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {C.}~\bibnamefont
+  {Harvey}}, \bibinfo {author} {\bibfnamefont {T.}~\bibnamefont {Heinzl}},
+  \bibinfo {author} {\bibfnamefont {N.}~\bibnamefont {Iji}}, \ and\ \bibinfo
+  {author} {\bibfnamefont {K.}~\bibnamefont {Langfeld}},\ }\href {\doibase 10.1103/PhysRevD.83.076013} {\bibfield  {journal} {\bibinfo  {journal} {Phys.
+  Rev. D}\ }\textbf {\bibinfo {volume} {83}},\ \bibinfo {pages} {076013}
+  (\bibinfo {year} {2011})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Lorentz}()}]{Lorentz:1905}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.~A.}\ \bibnamefont
+  {Lorentz}},\ }\href@noop {} {\emph {\bibinfo {title} {The Theory of
+  Electrons}}}\ (\bibinfo  {publisher} {Teubner, Leipzig (1905), reprinted by
+  Dover Publications, New York, (1952) and Cosimo, New York,
+  (2007)})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Abraham}(1905)}]{Abraham:1905}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {M.}~\bibnamefont
+  {Abraham}},\ }\href@noop {} {\emph {\bibinfo {title} {Theorie der
+  Elektrizit\"at}}}\ (\bibinfo  {publisher} {Teubner, Leipzig},\ \bibinfo
+  {year} {1905})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Dirac}(1938)}]{Dirac:1938nz}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {P.~A.~M.}\
+  \bibnamefont {Dirac}},\ }\href {\doibase 10.1098/rspa.1938.0124} {\bibfield
+  {journal} {\bibinfo  {journal} {Proc.~R.~Soc.~Lond.~A.}\ }\textbf {\bibinfo
+  {volume} {167}},\ \bibinfo {pages} {148} (\bibinfo {year}
+  {1938})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Landau}\ and\ \citenamefont {Lifshitz}(1987)}]{LLII}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {L.~D.}\ \bibnamefont
+  {Landau}}\ and\ \bibinfo {author} {\bibfnamefont {E.~M.}\ \bibnamefont
+  {Lifshitz}},\ }\href@noop {} {\emph {\bibinfo {title} {The Classical Theory
+  of Fields, Course of Theoretical Physics Vol.~2}}}\ (\bibinfo  {publisher}
+  {Butterworth-Heinemann, Oxford},\ \bibinfo {year} {1987})\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Sokolov}\ \emph {et~al.}(2009)\citenamefont
+  {Sokolov}, \citenamefont {Naumova}, \citenamefont {Nees}, \citenamefont
+  {Mourou},\ and\ \citenamefont {Yanovsky}}]{Sokolov:2009}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {I.~V.}\ \bibnamefont
+  {Sokolov}}, \bibinfo {author} {\bibfnamefont {N.~M.}\ \bibnamefont
+  {Naumova}}, \bibinfo {author} {\bibfnamefont {J.~A.}\ \bibnamefont {Nees}},
+  \bibinfo {author} {\bibfnamefont {G.~A.}\ \bibnamefont {Mourou}}, \ and\
+  \bibinfo {author} {\bibfnamefont {V.~P.}\ \bibnamefont {Yanovsky}},\ }\href
+  {\doibase 10.1063/1.3236748} {\bibfield  {journal} {\bibinfo  {journal}
+  {Phys.~Plasmas}\ }\textbf {\bibinfo {volume} {16}},\ \bibinfo {eid} {093115}
+  (\bibinfo {year} {2009})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {O'Connell}(2012)}]{O'Connell:2012ee}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {R.~F.}\ \bibnamefont
+  {O'Connell}},\ }\href {\doibase 10.1080/00107514.2012.688563} {\bibfield
+  {journal} {\bibinfo  {journal} {Contemp.~Phys.}\ }\textbf {\bibinfo {volume}
+  {53}},\ \bibinfo {pages} {301} (\bibinfo {year} {2012})}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Krivitskiƒ≠}\ and\ \citenamefont
+  {Tsytovich}(1991)}]{0038-5670-34-3-A04}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {V.~S.}\ \bibnamefont
+  {Krivitskiƒ≠}}\ and\ \bibinfo {author} {\bibfnamefont {V.~N.}\ \bibnamefont
+  {Tsytovich}},\ }\href {http://stacks.iop.org/0038-5670/34/i=3/a=A04}
+  {\bibfield  {journal} {\bibinfo  {journal} {Sov.~Phys.~Usp.}\ }\textbf
+  {\bibinfo {volume} {34}},\ \bibinfo {pages} {250} (\bibinfo {year}
+  {1991})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Ilderton}\ and\ \citenamefont
+  {Torgrimsson}(2013)}]{Ilderton:2013tb}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {A.}~\bibnamefont
+  {Ilderton}}\ and\ \bibinfo {author} {\bibfnamefont {G.}~\bibnamefont
+  {Torgrimsson}},\ }\href {\doibase 10.1016/j.physletb.2013.07.045} {\bibfield
+  {journal} {\bibinfo  {journal} {Phys. Lett. B}\ }\textbf {\bibinfo {volume}
+  {725}},\ \bibinfo {pages} {481} (\bibinfo {year} {2013})}.
+%%CITATION = ARXIV:1301.6499;%%
+\bibitem [{\citenamefont {Jackson}(1999)}]{jackson}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.~D.}\ \bibnamefont
+  {Jackson}},\ }\href@noop {} {\emph {\bibinfo {title} {Classical
+  Electrodynamics}}}\ (\bibinfo  {publisher} {John Wiley and Sons},\ \bibinfo
+  {year} {1999})\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Mitter}(1998)}]{Mitter:1998}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
+  {Mitter}},\ }\href {http://physik.uni-graz.at/~hem/} {\enquote {\bibinfo
+  {title} {Elektrodynamik},}\ } (\bibinfo {year} {1998}),\ \bibinfo {note}
+  {unpublished lectures on electrodynamics (in German), available at
+  \url{http://physik.uni-graz.at/\~hem/}}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Dinu}\ \emph {et~al.}(2012)\citenamefont {Dinu},
+  \citenamefont {Heinzl},\ and\ \citenamefont {Ilderton}}]{Dinu:2012}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {V.}~\bibnamefont
+  {Dinu}}, \bibinfo {author} {\bibfnamefont {T.}~\bibnamefont {Heinzl}}, \ and\
+  \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Ilderton}},\ }\href
+  {\doibase 10.1103/PhysRevD.86.085037} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys.~Rev.~D}\ }\textbf {\bibinfo {volume} {86}},\ \bibinfo
+  {pages} {085037} (\bibinfo {year} {2012})}\BibitemShut
+  {NoStop}%
+%%CITATION = ARXIV:1206.3957;%%
+\bibitem [{\citenamefont {Sauter}(1931)}]{QEDcriticalfield1}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {F.}~\bibnamefont
+  {Sauter}},\ }\href {\doibase 10.1007/BF01339461} {\bibfield  {journal}
+  {\bibinfo  {journal} {Z.~Phys.}\ }\textbf {\bibinfo {volume} {69}},\ \bibinfo
+  {pages} {742} (\bibinfo {year} {1931})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Heisenberg}\ and\ \citenamefont
+  {Euler}(1936)}]{QEDcriticalfield2}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {W.}~\bibnamefont
+  {Heisenberg}}\ and\ \bibinfo {author} {\bibfnamefont {H.}~\bibnamefont
+  {Euler}},\ }\href {\doibase 10.1007/BF01343663} {\bibfield  {journal}
+  {\bibinfo  {journal} {Z.~Phys.}\ }\textbf {\bibinfo {volume} {98}},\ \bibinfo
+  {pages} {714} (\bibinfo {year} {1936})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Schwinger}(1951)}]{QEDcriticalfield3}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {J.}~\bibnamefont
+  {Schwinger}},\ }\href {\doibase 10.1103/PhysRev.82.664} {\bibfield  {journal}
+  {\bibinfo  {journal} {Phys. Rev.}\ }\textbf {\bibinfo {volume} {82}},\
+  \bibinfo {pages} {664} (\bibinfo {year} {1951})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Ritus}(1985)}]{Ritus:1985}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {V.}~\bibnamefont
+  {Ritus}},\ }\href {\doibase 10.1007/BF01120220} {\bibfield  {journal}
+  {\bibinfo  {journal} {J.~Sov.~Laser Res.}\ }\textbf {\bibinfo {volume} {6}},\
+  \bibinfo {pages} {497} (\bibinfo {year} {1985})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Duclous}\ \emph {et~al.}(2011)\citenamefont
+  {Duclous}, \citenamefont {Kirk},\ and\ \citenamefont {Bell}}]{Duclous}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {R.}~\bibnamefont
+  {Duclous}}, \bibinfo {author} {\bibfnamefont {J.~G.}\ \bibnamefont {Kirk}}, \
+  and\ \bibinfo {author} {\bibfnamefont {A.~R.}\ \bibnamefont {Bell}},\ }\href
+  {http://stacks.iop.org/0741-3335/53/i=1/a=015009} {\bibfield  {journal}
+  {\bibinfo  {journal} {Plasma Phys.~Contr.~F.}\ }\textbf {\bibinfo {volume}
+  {53}},\ \bibinfo {pages} {015009} (\bibinfo {year} {2011})}\BibitemShut
+  {NoStop}%
+\bibitem [{\citenamefont {Harvey}\ \emph {et~al.}(2009)\citenamefont {Harvey},
+  \citenamefont {Heinzl},\ and\ \citenamefont {Ilderton}}]{Harvey:2009ry}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {C.}~\bibnamefont
+  {Harvey}}, \bibinfo {author} {\bibfnamefont {T.}~\bibnamefont {Heinzl}}, \
+  and\ \bibinfo {author} {\bibfnamefont {A.}~\bibnamefont {Ilderton}},\ }\href
+  {\doibase 10.1103/PhysRevA.79.063407} {\bibfield  {journal} {\bibinfo
+  {journal} {Phys. Rev. A}\ }\textbf {\bibinfo {volume} {79}},\ \bibinfo
+  {pages} {063407} (\bibinfo {year} {2009})}\BibitemShut {NoStop}%
+\end{thebibliography}%
+
+
+
+
+
+
+
+\end{document}
+\endinput
+%%
+%% End of file `elsarticle-template-num.tex'.

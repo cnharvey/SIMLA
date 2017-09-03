@@ -1,0 +1,8 @@
+!no,species,theta,phi,dist0,x0,y0,z0,gama0,eom,tx
+repeatfirstline=off
+5
+1,e,0,90,100e-6,0,0,-20e-6,25,lf,ct
+2,e,0,90,100e-6,0,0,-10e-6,25,lf,ct
+3,e,0,90,100e-6,0,0,0e-6,25,lf,ct
+4,e,0,90,100e-6,0,0,10e-6,25,lf,ct
+5,e,0,90,100e-6,0,0,20e-6,25,lf,ct

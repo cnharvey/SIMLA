@@ -1,0 +1,4 @@
+!no,species,theta,phi,dist0,x0,y0,z0,gama0,eom,tx
+repeatfirstline=on
+100
+1,e,0,180,100e-6,0,0,0,100,qed,x

@@ -1,0 +1,127 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\emailauthor{dermot.green@balliol.oxon.org}{D.~G.~Green \fnref {dg_footnote}}
+\emailauthor{cnharvey@physics.org}{C.~N.~Harvey\corref {cor1}\fnref {chris_footnote}}
+\Newlabel{tnote1}{1}
+\Newlabel{cor1}{1}
+\Newlabel{dg_footnote}{1}
+\Newlabel{chris_footnote}{2}
+\citation{Yanovsky:2008}
+\citation{ELI}
+\citation{XCELS}
+\citation{DiPiazza:2011tq,Heinzl:2008an}
+\citation{Bell:2008zzb,Sokolov:2010am,Elkina:2010up,Ridgers2014273}
+\citation{PhysRevA.85.013412,PhysRevLett.113.014801,PhysRevLett.112.164801}
+\citation{numericalspectrapaper}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}}
+\newlabel{sec:intro}{{1}{2}{Introduction}{section.1}{}}
+\citation{PhysRevD.83.076013}
+\citation{Lorentz:1905,Abraham:1905,Dirac:1938nz}
+\citation{LLII}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Theory of charged particles in laser fields and its implementation in SIMLA: radiation reaction and stochastic dynamics}{3}{section.2}}
+\newlabel{sec:theory}{{2}{3}{Theory of charged particles in laser fields and its implementation in SIMLA: radiation reaction and stochastic dynamics}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Classical theory}{3}{subsection.2.1}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.1}Non-radiating classical motion}{3}{subsubsection.2.1.1}}
+\newlabel{LF}{{1}{3}{Non-radiating classical motion}{equation.2.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.2}Radiation reaction}{3}{subsubsection.2.1.2}}
+\citation{Sokolov:2009,O'Connell:2012ee}
+\citation{0038-5670-34-3-A04,Ilderton:2013tb}
+\citation{jackson}
+\citation{Mitter:1998}
+\citation{Dinu:2012}
+\newlabel{LL}{{3}{4}{Radiation reaction}{equation.2.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.3}Classical emission spectrum}{4}{subsubsection.2.1.3}}
+\newlabel{P0}{{4}{4}{Classical emission spectrum}{equation.2.4}{}}
+\newlabel{spectraldensity}{{5}{4}{Classical emission spectrum}{equation.2.5}{}}
+\newlabel{j_noboundary}{{7}{4}{Classical emission spectrum}{equation.2.7}{}}
+\citation{QEDcriticalfield1,QEDcriticalfield2,QEDcriticalfield3}
+\citation{Ritus:1985}
+\citation{Ritus:1985}
+\citation{Elkina:2010up}
+\citation{Duclous}
+\citation{jackson,Harvey:2009ry}
+\citation{Bell:2008zzb,Sokolov:2010am,Elkina:2010up}
+\citation{numericalspectrapaper}
+\citation{Duclous}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Strong-field quantum electrodynamics}{5}{subsection.2.2}}
+\newlabel{eqn:dGam}{{9}{5}{Strong-field quantum electrodynamics}{equation.2.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Further information about the workings of the code}{5}{subsection.2.3}}
+\newlabel{sec:furtherinfo}{{2.3}{5}{Further information about the workings of the code}{subsection.2.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Schematic of QED subroutine. In the QED mode of operation particles are propagated between successive steps according to the Lorentz-force equation. At the end of the time step, the subroutine {\tt  qedsubroutine} is called to determine whether or not photon emission should occur during that time step, (and if so, the $\chi _{\gamma }$ and four-momentum of the photon) via a Monte-Carlo sampling of the strong-field QED amplitude $\Gamma (t;\chi _e)=\intop \nolimits _{0}^{\chi _e} (d\Gamma /d\chi _{\gamma })d\chi _{\gamma }$, where $d\Gamma $ is given in Eq.\nobreakspace  {}(\ref  {eqn:dGam}). If a photon emission event is deemed to occur, the electron four-momentum is updated to take account of the recoil before propagating via the Lorentz-force propagation over the next time step, where the process continues. Note that rather than calculate the integral at every time step, on initialisation the main {\tt  PROGRAM SIMLA} calculates a table of the probability rate for photon emission for electron invariant parameters in the range $\chi _e\in [\chi _e^{\rm  min},\chi _e^{\rm  max}]$, and during execution this table is interpolated to obtain $\Gamma $ for the specific $\chi _e(t)$ of the electron. The parameters $\chi _e^{\rm  min}$ and $\chi _e^{\rm  max}$ are specified in the {\tt  PROGRAM SIMLA} (default values are $\chi _e^{\rm  min}=5\times 10^{-4}$ and $\chi _e^{\rm  max}=1$). If, at a given time step, $\chi _e<\chi _e^{\rm  min}$ then we assume no photon emission at that time step. If $\chi _e^{\rm  max}>1$ the code will abort with an error message. Note also that the condition $\Gamma dt\ll 1$ must be satisfied, and again the code will abort if this condition is not met. Full details are given in the text.  }}{6}{figure.1}}
+\newlabel{fig:qedroutines}{{1}{6}{Schematic of QED subroutine. In the QED mode of operation particles are propagated between successive steps according to the Lorentz-force equation. At the end of the time step, the subroutine {\tt qedsubroutine} is called to determine whether or not photon emission should occur during that time step, (and if so, the $\chi _{\gamma }$ and four-momentum of the photon) via a Monte-Carlo sampling of the strong-field QED amplitude $\Gamma (t;\chi _e)=\int _{0}^{\chi _e} (d\Gamma /d\chi _{\gamma })d\chi _{\gamma }$, where $d\Gamma $ is given in Eq.~(\ref {eqn:dGam}). If a photon emission event is deemed to occur, the electron four-momentum is updated to take account of the recoil before propagating via the Lorentz-force propagation over the next time step, where the process continues. Note that rather than calculate the integral at every time step, on initialisation the main {\tt PROGRAM SIMLA} calculates a table of the probability rate for photon emission for electron invariant parameters in the range $\chi _e\in [\chi _e^{\rm min},\chi _e^{\rm max}]$, and during execution this table is interpolated to obtain $\Gamma $ for the specific $\chi _e(t)$ of the electron. The parameters $\chi _e^{\rm min}$ and $\chi _e^{\rm max}$ are specified in the {\tt PROGRAM SIMLA} (default values are $\chi _e^{\rm min}=5\times 10^{-4}$ and $\chi _e^{\rm max}=1$). If, at a given time step, $\chi _e<\chi _e^{\rm min}$ then we assume no photon emission at that time step. If $\chi _e^{\rm max}>1$ the code will abort with an error message. Note also that the condition $\Gamma dt\ll 1$ must be satisfied, and again the code will abort if this condition is not met. Full details are given in the text}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Schematic showing the operation of the adjustable time step.  }}{7}{figure.2}}
+\newlabel{fig:timestep}{{2}{7}{Schematic showing the operation of the adjustable time step}{figure.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces The units used by the code. Note that the input parameters should be in the units specified in Tables \ref  {tab:particleinput}, \ref  {tab:inputfields}, \ref  {tab:inputsetup}. }}{8}{table.1}}
+\newlabel{tab:units}{{1}{8}{The units used by the code. Note that the input parameters should be in the units specified in Tables \ref {tab:particleinput}, \ref {tab:inputfields}, \ref {tab:inputsetup}}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces The required variables for each particle in the file {`particle\_input.csv'}. }}{8}{table.2}}
+\newlabel{tab:particleinput}{{2}{8}{The required variables for each particle in the file {`particle\_input.csv'}}{table.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Test problems}{8}{section.3}}
+\newlabel{sec:testproblems}{{3}{8}{Test problems}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Trajectory and classical emission spectrum of electron in a plane-wave field}{8}{subsection.3.1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The trajectory (top panel) and $\gamma $-factor (bottom panel) for an electron in a head-on collision with a 30\,fs linearly polarised wave of intensity $a_0=1$ and wavelength $\lambda =0.8\,\mu $m.  }}{9}{figure.3}}
+\newlabel{fig:traj}{{3}{9}{The trajectory (top panel) and $\gamma $-factor (bottom panel) for an electron in a head-on collision with a 30\,fs linearly polarised wave of intensity $a_0=1$ and wavelength $\lambda =0.8\,\mu $m}{figure.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces The classical emission spectrum calculated using the particle orbit from Fig.\nobreakspace  {}\ref  {fig:traj}.  }}{10}{figure.4}}
+\newlabel{fig:spectrum}{{4}{10}{The classical emission spectrum calculated using the particle orbit from Fig.~\ref {fig:traj}}{figure.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces The QED photon emission spectrum as a function of photon frequency (top panel), and as a function of emission angle (bottom panel), for an electron of $\gamma _0$=200 in collision with a 30\,fs linearly polarised wave of intensity $a_0=150$ and wavelength $\lambda =0.8\,\mu $m. }}{11}{figure.5}}
+\newlabel{fig:photon_spectra}{{5}{11}{The QED photon emission spectrum as a function of photon frequency (top panel), and as a function of emission angle (bottom panel), for an electron of $\gamma _0$=200 in collision with a 30\,fs linearly polarised wave of intensity $a_0=150$ and wavelength $\lambda =0.8\,\mu $m}{figure.5}{}}
+\citation{PhysRevLett.112.164801}
+\citation{Ritus:1985}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Generating a QED photon spectrum and comparing the orbits of some of the quantum particles with a classical radiating particle}{13}{subsection.3.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Summary}{13}{section.4}}
+\newlabel{sec:conclusion}{{4}{13}{Summary}{section.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces The trajectories (top panel) and $\gamma $-factors (bottom panel) for a sample of two (QED) electrons of $\gamma _0$=200 in collision with a 30\,fs linearly polarised wave of intensity $a_0=150$ and wavelength $\lambda =0.8\,\mu $m. }}{14}{figure.6}}
+\newlabel{fig:qed_traj}{{6}{14}{The trajectories (top panel) and $\gamma $-factors (bottom panel) for a sample of two (QED) electrons of $\gamma _0$=200 in collision with a 30\,fs linearly polarised wave of intensity $a_0=150$ and wavelength $\lambda =0.8\,\mu $m}{figure.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces The quantum efficiency parameter $\chi _e$ as a function of time for a single (QED) electron of $\gamma _0$=200 in collision with a 30\,fs linearly polarised wave of intensity $a_0=150$ and wavelength $\lambda =0.8\,\mu $m. The red circles indicate when a photon emission event has taken place. }}{15}{figure.7}}
+\newlabel{fig:chi_e}{{7}{15}{The quantum efficiency parameter $\chi _e$ as a function of time for a single (QED) electron of $\gamma _0$=200 in collision with a 30\,fs linearly polarised wave of intensity $a_0=150$ and wavelength $\lambda =0.8\,\mu $m. The red circles indicate when a photon emission event has taken place}{figure.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {Appendix A}Fields and Setup file options}{15}{appendix.A}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.3}{\ignorespaces The variables in the input file {`input\_fields.txt'}. }}{16}{table.3}}
+\newlabel{tab:inputfields}{{A.3}{16}{The variables in the input file {`input\_fields.txt'}}{table.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {A.4}{\ignorespaces The variables in the input file `input\_setup.txt'. }}{16}{table.4}}
+\newlabel{tab:inputsetup}{{A.4}{16}{The variables in the input file `input\_setup.txt'}{table.4}{}}
+\bibcite{Yanovsky:2008}{{1}{2008}{{Yanovsky~\emph  {et al.}}}{{}}}
+\bibcite{ELI}{{2}{}{{ELI}}{{}}}
+\bibcite{XCELS}{{3}{}{{XCE}}{{}}}
+\bibcite{DiPiazza:2011tq}{{4}{2012}{{Di~Piazza\ \emph  {et~al.}}}{{Di~Piazza, M\"uller, Hatsagortsyan,\ and\ Keitel}}}
+\bibcite{Heinzl:2008an}{{5}{2009}{{Heinzl\ and\ Ilderton}}{{}}}
+\bibcite{Bell:2008zzb}{{6}{2008}{{Bell\ and\ Kirk}}{{}}}
+\bibcite{Sokolov:2010am}{{7}{2010}{{Sokolov\ \emph  {et~al.}}}{{Sokolov, Naumova, Nees,\ and\ Mourou}}}
+\bibcite{Elkina:2010up}{{8}{2011}{{Elkina\ \emph  {et~al.}}}{{Elkina, Fedotov, Kostyukov, Legkov, Narozhny, Nerush,\ and\ Ruhl}}}
+\bibcite{Ridgers2014273}{{9}{2014}{{Ridgers\ \emph  {et~al.}}}{{Ridgers, Kirk, Duclous, Blackburn, Brady, Bennett, Arber,\ and\ Bell}}}
+\bibcite{PhysRevA.85.013412}{{10}{2012}{{Harvey\ and\ Marklund}}{{}}}
+\bibcite{PhysRevLett.113.014801}{{11}{2014}{{Gonoskov\ \emph  {et~al.}}}{{Gonoskov, Bashinov, Gonoskov, Harvey, Ilderton, Kim, Marklund, Mourou,\ and\ Sergeev}}}
+\bibcite{PhysRevLett.112.164801}{{12}{2014}{{Green\ and\ Harvey}}{{}}}
+\bibcite{numericalspectrapaper}{{13}{2014}{{Harvey\ \emph  {et~al.}}}{{Harvey, Ilderton,\ and\ King}}}
+\bibcite{PhysRevD.83.076013}{{14}{2011}{{Harvey\ \emph  {et~al.}}}{{Harvey, Heinzl, Iji,\ and\ Langfeld}}}
+\bibcite{Lorentz:1905}{{15}{}{{Lorentz}}{{}}}
+\bibcite{Abraham:1905}{{16}{1905}{{Abraham}}{{}}}
+\bibcite{Dirac:1938nz}{{17}{1938}{{Dirac}}{{}}}
+\bibcite{LLII}{{18}{1987}{{Landau\ and\ Lifshitz}}{{}}}
+\bibcite{Sokolov:2009}{{19}{2009}{{Sokolov\ \emph  {et~al.}}}{{Sokolov, Naumova, Nees, Mourou,\ and\ Yanovsky}}}
+\bibcite{O'Connell:2012ee}{{20}{2012}{{O'Connell}}{{}}}
+\bibcite{0038-5670-34-3-A04}{{21}{1991}{{Krivitskiĭ\ and\ Tsytovich}}{{}}}
+\bibcite{Ilderton:2013tb}{{22}{2013}{{Ilderton\ and\ Torgrimsson}}{{}}}
+\bibcite{jackson}{{23}{1999}{{Jackson}}{{}}}
+\bibcite{Mitter:1998}{{24}{1998}{{Mitter}}{{}}}
+\bibcite{Dinu:2012}{{25}{2012}{{Dinu\ \emph  {et~al.}}}{{Dinu, Heinzl,\ and\ Ilderton}}}
+\bibcite{QEDcriticalfield1}{{26}{1931}{{Sauter}}{{}}}
+\bibcite{QEDcriticalfield2}{{27}{1936}{{Heisenberg\ and\ Euler}}{{}}}
+\bibcite{QEDcriticalfield3}{{28}{1951}{{Schwinger}}{{}}}
+\bibcite{Ritus:1985}{{29}{1985}{{Ritus}}{{}}}
+\bibcite{Duclous}{{30}{2011}{{Duclous\ \emph  {et~al.}}}{{Duclous, Kirk,\ and\ Bell}}}
+\bibcite{Harvey:2009ry}{{31}{2009}{{Harvey\ \emph  {et~al.}}}{{Harvey, Heinzl,\ and\ Ilderton}}}
