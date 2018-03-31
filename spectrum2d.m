@@ -38,7 +38,7 @@ ntheta=notheta(2);
 phi=0;
 nophi=size(phi);
 nphi=nophi(2);
-omegaprime=[0.01:2:3000];
+omegaprime=[0.01:5:3000];
 noomegaprime=size(omegaprime);
 nomegaprime=noomegaprime(2);
 
@@ -182,7 +182,7 @@ tau=tau*ttoSI;
 figure
 
 subplot(3,3,[1 2 4 5])
-contourf(omegaprime,theta,transpose(power_omegaprime_theta),50); shading flat 
+contourf(omegaprime,theta,transpose(power_omegaprime_theta),50,'LineColor', 'none'); shading flat 
 xlabel('\omega (eV)')
 ylabel('\theta')
 
